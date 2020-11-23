@@ -79,7 +79,7 @@ void _libaroma_config_default() {
   /*}*/
   _libaroma_debug_fp=stdout;
   _libaroma_config.multicore_init_num = 8; /* activate core */
-  _libaroma_config.snapshoot_fb = 0; /* snapshoot after graph init */
+  _libaroma_config.snapshoot_fb = 1; /* snapshoot after graph init */
   _libaroma_config.runtime_monitor = LIBAROMA_START_UNSAFE;
   _libaroma_config_ready = 1;
 } /* End of libaroma_config_default */
