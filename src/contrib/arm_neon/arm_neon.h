@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : arm_neon.h
+ * Filename		: arm_neon.h
  * Description : ARM Neon optimizer header
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -44,7 +44,7 @@
 #define __engine_have_libaroma_alpha_mono 1
 #define __engine_have_libaroma_alpha_multi_line 1
 #ifndef libaroma_memset16
-  #define __engine_have_libaroma_color_set 1
+	#define __engine_have_libaroma_color_set 1
 #endif
 #define __engine_have_libaroma_color_copy32 1
 #define __engine_have_libaroma_color_copy16 1

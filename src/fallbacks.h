@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : fallbacks.h
+ * Filename		: fallbacks.h
  * Description : fallback functions
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,17 +22,17 @@
  *
  */
 #ifndef __libaroma_aroma_internal_h__
-  #error "Include <aroma_internal.h> instead."
+	#error "Include <aroma_internal.h> instead."
 #endif
 #ifndef __libaroma_fallbacks_h__
 #define __libaroma_fallbacks_h__
 
 /* min & max fallback */
 #ifndef MIN
-  #define MIN(a,b) (((a)<(b))?(a):(b))
+	#define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 #ifndef MAX
-  #define MAX(a,b) (((a)>(b))?(a):(b))
+	#define MAX(a,b) (((a)>(b))?(a):(b))
 #endif
 
 

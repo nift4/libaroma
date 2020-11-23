@@ -2,7 +2,7 @@
  * Copyright (c) 2013-14 Mikko Mononen memon@inside.org
  *
  * This software is provided 'as-is', without any express or implied
- * warranty.  In no event will the authors be held liable for any damages
+ * warranty.	In no event will the authors be held liable for any damages
  * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -47,17 +47,17 @@ typedef struct NSVGrasterizer NSVGrasterizer;
 NSVGrasterizer* nsvgCreateRasterizer();
 
 // Rasterizes SVG image, returns RGBA image (non-premultiplied alpha)
-//   r - pointer to rasterizer context
-//   image - pointer to image to rasterize
-//   tx,ty - image offset (applied after scaling)
-//   scale - image scale
-//   dst - pointer to destination image data, 4 bytes per pixel (RGBA)
-//   w - width of the image to render
-//   h - height of the image to render
+//	 r - pointer to rasterizer context
+//	 image - pointer to image to rasterize
+//	 tx,ty - image offset (applied after scaling)
+//	 scale - image scale
+//	 dst - pointer to destination image data, 4 bytes per pixel (RGBA)
+//	 w - width of the image to render
+//	 h - height of the image to render
 void nsvgRasterize(NSVGrasterizer* r,
-				   NSVGimage* image, float tx, float ty, float scale,
-				   LIBAROMA_CANVASP dst);
-				   
+					 NSVGimage* image, float tx, float ty, float scale,
+					 LIBAROMA_CANVASP dst);
+					 
 // Deletes rasterizer context.
 void nsvgDeleteRasterizer(NSVGrasterizer*);
 
@@ -325,9 +325,9 @@ static float nsvg__normalize(float *x, float* y)
 static float nsvg__absf(float x) { return x < 0 ? -x : x; }
 
 static void nsvg__flattenCubicBez(NSVGrasterizer* r,
-								  float x1, float y1, float x2, float y2,
-								  float x3, float y3, float x4, float y4,
-								  int level, int type)
+									float x1, float y1, float x2, float y2,
+									float x3, float y3, float x4, float y4,
+									int level, int type)
 {
 	float x12,y12,x23,y23,x34,y34,x123,y123,x234,y234,x1234,y1234;
 	float dx,dy,d2,d3;
@@ -841,7 +841,7 @@ static int nsvg__cmpEdge(const void *p, const void *q)
 	NSVGedge* b = (NSVGedge*)q;
 
 	if (a->y0 < b->y0) return -1;
-	if (a->y0 > b->y0) return  1;
+	if (a->y0 > b->y0) return	1;
 	return 0;
 }
 
@@ -975,21 +975,21 @@ static unsigned int nsvg__applyOpacity(unsigned int c, float u)
 
 static inline int nsvg__div255(int x)
 {
-    return ((x+1) * 257) >> 16;
+		return ((x+1) * 257) >> 16;
 }
 
 static void nsvg__scanlineSolid(
-  LIBAROMA_CANVASP image,
-  int count,
-  unsigned char* cover,
-  int x, int y,
+	LIBAROMA_CANVASP image,
+	int count,
+	unsigned char* cover,
+	int x, int y,
 	float tx, float ty,
 	float scale,
 	NSVGcachedPaint* cache)
 {
-  int pos = (y * image->l) + x;
-  wordp im_data  = image->data + pos;
-  bytep im_alpha = image->alpha + pos;
+	int pos = (y * image->l) + x;
+	wordp im_data	= image->data + pos;
+	bytep im_alpha = image->alpha + pos;
 	if (cache->type == NSVG_PAINT_COLOR) {
 		int i, cr, cg, cb, ca;
 		cr = cache->colors[0] & 0xff;
@@ -997,7 +997,7 @@ static void nsvg__scanlineSolid(
 		cb = (cache->colors[0] >> 16) & 0xff;
 		ca = (cache->colors[0] >> 24) & 0xff;
 
-    
+		
 		for (i = 0; i < count; i++) {
 			int r,g,b;
 			int a = nsvg__div255((int)cover[0] * ca);
@@ -1013,8 +1013,8 @@ static void nsvg__scanlineSolid(
 			b += nsvg__div255(ia * (int) libaroma_color_b(*im_data));
 			a += nsvg__div255(ia * (int) (*im_alpha));
 			
-      *im_data++  = libaroma_rgb((byte) r,(byte) g,(byte) b);
-      *im_alpha++ = (byte) a;
+			*im_data++	= libaroma_rgb((byte) r,(byte) g,(byte) b);
+			*im_alpha++ = (byte) a;
 			cover++;
 		}
 	} else if (cache->type == NSVG_PAINT_LINEAR_GRADIENT) {
@@ -1052,8 +1052,8 @@ static void nsvg__scanlineSolid(
 			b += nsvg__div255(ia * (int) libaroma_color_b(*im_data));
 			a += nsvg__div255(ia * (int) (*im_alpha));
 
-			*im_data++  = libaroma_rgb((byte) r,(byte) g,(byte) b);
-      *im_alpha++ = (byte) a;
+			*im_data++	= libaroma_rgb((byte) r,(byte) g,(byte) b);
+			*im_alpha++ = (byte) a;
 			
 			cover++;
 			fx += dx;
@@ -1096,8 +1096,8 @@ static void nsvg__scanlineSolid(
 			b += nsvg__div255(ia * (int) libaroma_color_b(*im_data));
 			a += nsvg__div255(ia * (int) (*im_alpha));
 
-			*im_data++  = libaroma_rgb((byte) r,(byte) g,(byte) b);
-      *im_alpha++ = (byte) a;
+			*im_data++	= libaroma_rgb((byte) r,(byte) g,(byte) b);
+			*im_alpha++ = (byte) a;
 
 			cover++;
 			fx += dx;
@@ -1110,7 +1110,7 @@ static void nsvg__rasterizeSortedEdges(NSVGrasterizer *r, float tx, float ty, fl
 	NSVGactiveEdge *active = NULL;
 	int y, s;
 	int e = 0;
-	int maxWeight = (255 / NSVG__SUBSAMPLES);  // weight per vertical scanline
+	int maxWeight = (255 / NSVG__SUBSAMPLES);	// weight per vertical scanline
 	int xmin, xmax;
 
 	for (y = 0; y < r->height; y++) {
@@ -1188,13 +1188,13 @@ static void nsvg__rasterizeSortedEdges(NSVGrasterizer *r, float tx, float ty, fl
 		if (xmax > r->width-1) xmax = r->width-1;
 		if (xmin <= xmax) {
 			nsvg__scanlineSolid(
-			  r->bitmap, 
-			    xmax-xmin+1,
-			    &r->scanline[xmin],
-			    xmin, y,
-			    tx,ty,
-			    scale,
-			    cache
+				r->bitmap, 
+					xmax-xmin+1,
+					&r->scanline[xmin],
+					xmin, y,
+					tx,ty,
+					scale,
+					cache
 			);
 		}
 	}
@@ -1304,8 +1304,8 @@ static void dumpEdges(NSVGrasterizer* r, const char* name)
 */
 
 void nsvgRasterize(NSVGrasterizer* r,
-				   NSVGimage* image, float tx, float ty, float scale,
-				   LIBAROMA_CANVASP dst)
+					 NSVGimage* image, float tx, float ty, float scale,
+					 LIBAROMA_CANVASP dst)
 {
 	NSVGshape *shape = NULL;
 	NSVGedge *e = NULL;
@@ -1313,7 +1313,7 @@ void nsvgRasterize(NSVGrasterizer* r,
 	int i;
 
 	r->bitmap = dst;
-	r->width  = dst->w;
+	r->width	= dst->w;
 	r->height = dst->h;
 
 	if (dst->w > r->cscanline) {

@@ -3,39 +3,39 @@
 #include <linux/types.h>
 #include <linux/fb.h>
 #define MSMFB_IOCTL_MAGIC 'm'
-#define MSMFB_GRP_DISP          _IOW(MSMFB_IOCTL_MAGIC, 1, unsigned int)
-#define MSMFB_BLIT              _IOW(MSMFB_IOCTL_MAGIC, 2, unsigned int)
+#define MSMFB_GRP_DISP					_IOW(MSMFB_IOCTL_MAGIC, 1, unsigned int)
+#define MSMFB_BLIT							_IOW(MSMFB_IOCTL_MAGIC, 2, unsigned int)
 #define MSMFB_SUSPEND_SW_REFRESHER _IOW(MSMFB_IOCTL_MAGIC, 128, unsigned int)
 #define MSMFB_RESUME_SW_REFRESHER _IOW(MSMFB_IOCTL_MAGIC, 129, unsigned int)
 #define MSMFB_CURSOR _IOW(MSMFB_IOCTL_MAGIC, 130, struct fb_cursor)
 #define MSMFB_SET_LUT _IOW(MSMFB_IOCTL_MAGIC, 131, struct fb_cmap)
 #define MSMFB_HISTOGRAM _IOWR(MSMFB_IOCTL_MAGIC, 132, struct mdp_histogram_data)
 /* new ioctls's for set/get ccs matrix */
-#define MSMFB_GET_CCS_MATRIX  _IOWR(MSMFB_IOCTL_MAGIC, 133, struct mdp_ccs)
-#define MSMFB_SET_CCS_MATRIX  _IOW(MSMFB_IOCTL_MAGIC, 134, struct mdp_ccs)
-#define MSMFB_OVERLAY_SET       _IOWR(MSMFB_IOCTL_MAGIC, 135, \
+#define MSMFB_GET_CCS_MATRIX	_IOWR(MSMFB_IOCTL_MAGIC, 133, struct mdp_ccs)
+#define MSMFB_SET_CCS_MATRIX	_IOW(MSMFB_IOCTL_MAGIC, 134, struct mdp_ccs)
+#define MSMFB_OVERLAY_SET			 _IOWR(MSMFB_IOCTL_MAGIC, 135, \
 						struct mdp_overlay)
-#define MSMFB_OVERLAY_UNSET     _IOW(MSMFB_IOCTL_MAGIC, 136, unsigned int)
-#define MSMFB_OVERLAY_PLAY      _IOW(MSMFB_IOCTL_MAGIC, 137, \
+#define MSMFB_OVERLAY_UNSET		 _IOW(MSMFB_IOCTL_MAGIC, 136, unsigned int)
+#define MSMFB_OVERLAY_PLAY			_IOW(MSMFB_IOCTL_MAGIC, 137, \
 						struct msmfb_overlay_data)
 #define MSMFB_OVERLAY_QUEUE	MSMFB_OVERLAY_PLAY
 #define MSMFB_GET_PAGE_PROTECTION _IOR(MSMFB_IOCTL_MAGIC, 138, \
 					struct mdp_page_protection)
 #define MSMFB_SET_PAGE_PROTECTION _IOW(MSMFB_IOCTL_MAGIC, 139, \
 					struct mdp_page_protection)
-#define MSMFB_OVERLAY_GET      _IOR(MSMFB_IOCTL_MAGIC, 140, \
+#define MSMFB_OVERLAY_GET			_IOR(MSMFB_IOCTL_MAGIC, 140, \
 						struct mdp_overlay)
-#define MSMFB_OVERLAY_PLAY_ENABLE     _IOW(MSMFB_IOCTL_MAGIC, 141, unsigned int)
-#define MSMFB_OVERLAY_BLT       _IOWR(MSMFB_IOCTL_MAGIC, 142, \
+#define MSMFB_OVERLAY_PLAY_ENABLE		 _IOW(MSMFB_IOCTL_MAGIC, 141, unsigned int)
+#define MSMFB_OVERLAY_BLT			 _IOWR(MSMFB_IOCTL_MAGIC, 142, \
 						struct msmfb_overlay_blt)
-#define MSMFB_OVERLAY_BLT_OFFSET     _IOW(MSMFB_IOCTL_MAGIC, 143, unsigned int)
+#define MSMFB_OVERLAY_BLT_OFFSET		 _IOW(MSMFB_IOCTL_MAGIC, 143, unsigned int)
 #define MSMFB_HISTOGRAM_START	_IOR(MSMFB_IOCTL_MAGIC, 144, \
 						struct mdp_histogram_start_req)
 #define MSMFB_HISTOGRAM_STOP	_IOR(MSMFB_IOCTL_MAGIC, 145, unsigned int)
 #define MSMFB_NOTIFY_UPDATE	_IOWR(MSMFB_IOCTL_MAGIC, 146, unsigned int)
-#define MSMFB_OVERLAY_3D       _IOWR(MSMFB_IOCTL_MAGIC, 147, \
+#define MSMFB_OVERLAY_3D			 _IOWR(MSMFB_IOCTL_MAGIC, 147, \
 						struct msmfb_overlay_3d)
-#define MSMFB_MIXER_INFO       _IOWR(MSMFB_IOCTL_MAGIC, 148, \
+#define MSMFB_MIXER_INFO			 _IOWR(MSMFB_IOCTL_MAGIC, 148, \
 						struct msmfb_mixer_info_req)
 #define MSMFB_OVERLAY_PLAY_WAIT _IOWR(MSMFB_IOCTL_MAGIC, 149, \
 						struct msmfb_overlay_data)
@@ -49,16 +49,16 @@
 #define MSMFB_WRITEBACK_TERMINATE _IO(MSMFB_IOCTL_MAGIC, 155)
 #define MSMFB_MDP_PP _IOWR(MSMFB_IOCTL_MAGIC, 156, struct msmfb_mdp_pp)
 #define MSMFB_OVERLAY_VSYNC_CTRL _IOW(MSMFB_IOCTL_MAGIC, 160, unsigned int)
-#define MSMFB_VSYNC_CTRL  _IOW(MSMFB_IOCTL_MAGIC, 161, unsigned int)
-#define MSMFB_BUFFER_SYNC  _IOW(MSMFB_IOCTL_MAGIC, 162, struct mdp_buf_sync)
-#define MSMFB_OVERLAY_COMMIT      _IO(MSMFB_IOCTL_MAGIC, 163)
-#define MSMFB_DISPLAY_COMMIT      _IOW(MSMFB_IOCTL_MAGIC, 164, \
+#define MSMFB_VSYNC_CTRL	_IOW(MSMFB_IOCTL_MAGIC, 161, unsigned int)
+#define MSMFB_BUFFER_SYNC	_IOW(MSMFB_IOCTL_MAGIC, 162, struct mdp_buf_sync)
+#define MSMFB_OVERLAY_COMMIT			_IO(MSMFB_IOCTL_MAGIC, 163)
+#define MSMFB_DISPLAY_COMMIT			_IOW(MSMFB_IOCTL_MAGIC, 164, \
 						struct mdp_display_commit)
-#define MSMFB_METADATA_SET  _IOW(MSMFB_IOCTL_MAGIC, 165, struct msmfb_metadata)
-#define MSMFB_METADATA_GET  _IOW(MSMFB_IOCTL_MAGIC, 166, struct msmfb_metadata)
+#define MSMFB_METADATA_SET	_IOW(MSMFB_IOCTL_MAGIC, 165, struct msmfb_metadata)
+#define MSMFB_METADATA_GET	_IOW(MSMFB_IOCTL_MAGIC, 166, struct msmfb_metadata)
 #define MSMFB_WRITEBACK_SET_MIRRORING_HINT _IOW(MSMFB_IOCTL_MAGIC, 167, \
 						unsigned int)
-#define MSMFB_ASYNC_BLIT              _IOW(MSMFB_IOCTL_MAGIC, 168, unsigned int)
+#define MSMFB_ASYNC_BLIT							_IOW(MSMFB_IOCTL_MAGIC, 168, unsigned int)
 #define MSMFB_OVERLAY_PREPARE		_IOWR(MSMFB_IOCTL_MAGIC, 169, \
 						struct mdp_overlay_list)
 #define FB_TYPE_3D_PANEL 0x10101010
@@ -74,7 +74,7 @@
 #define MDSS_MDP_REV(major, minor, step)	\
 	((((major) & 0x000F) << 28) |		\
 	 (((minor) & 0x0FFF) << 16) |		\
-	 ((step)   & 0xFFFF))
+	 ((step)	 & 0xFFFF))
 #define MDSS_MDP_HW_REV_100	MDSS_MDP_REV(1, 0, 0) /* 8974 v1.0 */
 #define MDSS_MDP_HW_REV_101	MDSS_MDP_REV(1, 1, 0) /* 8x26 v1.0 */
 #define MDSS_MDP_HW_REV_101_1	MDSS_MDP_REV(1, 1, 1) /* 8x26 v2.0, 8926 v1.0 */
@@ -96,49 +96,49 @@ enum {
 	NOTIFY_TYPE_UPDATE,
 };
 enum {
-	MDP_RGB_565,      /* RGB 565 planer */
-	MDP_XRGB_8888,    /* RGB 888 padded */
-	MDP_Y_CBCR_H2V2,  /* Y and CbCr, pseudo planer w/ Cb is in MSB */
+	MDP_RGB_565,			/* RGB 565 planer */
+	MDP_XRGB_8888,		/* RGB 888 padded */
+	MDP_Y_CBCR_H2V2,	/* Y and CbCr, pseudo planer w/ Cb is in MSB */
 	MDP_Y_CBCR_H2V2_ADRENO,
-	MDP_ARGB_8888,    /* ARGB 888 */
-	MDP_RGB_888,      /* RGB 888 planer */
-	MDP_Y_CRCB_H2V2,  /* Y and CrCb, pseudo planer w/ Cr is in MSB */
-	MDP_YCRYCB_H2V1,  /* YCrYCb interleave */
-	MDP_CBYCRY_H2V1,  /* CbYCrY interleave */
-	MDP_Y_CRCB_H2V1,  /* Y and CrCb, pseduo planer w/ Cr is in MSB */
-	MDP_Y_CBCR_H2V1,   /* Y and CrCb, pseduo planer w/ Cr is in MSB */
+	MDP_ARGB_8888,		/* ARGB 888 */
+	MDP_RGB_888,			/* RGB 888 planer */
+	MDP_Y_CRCB_H2V2,	/* Y and CrCb, pseudo planer w/ Cr is in MSB */
+	MDP_YCRYCB_H2V1,	/* YCrYCb interleave */
+	MDP_CBYCRY_H2V1,	/* CbYCrY interleave */
+	MDP_Y_CRCB_H2V1,	/* Y and CrCb, pseduo planer w/ Cr is in MSB */
+	MDP_Y_CBCR_H2V1,	 /* Y and CrCb, pseduo planer w/ Cr is in MSB */
 	MDP_Y_CRCB_H1V2,
 	MDP_Y_CBCR_H1V2,
-	MDP_RGBA_8888,    /* ARGB 888 */
-	MDP_BGRA_8888,	  /* ABGR 888 */
-	MDP_RGBX_8888,	  /* RGBX 888 */
-	MDP_Y_CRCB_H2V2_TILE,  /* Y and CrCb, pseudo planer tile */
-	MDP_Y_CBCR_H2V2_TILE,  /* Y and CbCr, pseudo planer tile */
-	MDP_Y_CR_CB_H2V2,  /* Y, Cr and Cb, planar */
-	MDP_Y_CR_CB_GH2V2,  /* Y, Cr and Cb, planar aligned to Android YV12 */
-	MDP_Y_CB_CR_H2V2,  /* Y, Cb and Cr, planar */
-	MDP_Y_CRCB_H1V1,  /* Y and CrCb, pseduo planer w/ Cr is in MSB */
-	MDP_Y_CBCR_H1V1,  /* Y and CbCr, pseduo planer w/ Cb is in MSB */
-	MDP_YCRCB_H1V1,   /* YCrCb interleave */
-	MDP_YCBCR_H1V1,   /* YCbCr interleave */
-	MDP_BGR_565,      /* BGR 565 planer */
-	MDP_BGR_888,      /* BGR 888 */
+	MDP_RGBA_8888,		/* ARGB 888 */
+	MDP_BGRA_8888,		/* ABGR 888 */
+	MDP_RGBX_8888,		/* RGBX 888 */
+	MDP_Y_CRCB_H2V2_TILE,	/* Y and CrCb, pseudo planer tile */
+	MDP_Y_CBCR_H2V2_TILE,	/* Y and CbCr, pseudo planer tile */
+	MDP_Y_CR_CB_H2V2,	/* Y, Cr and Cb, planar */
+	MDP_Y_CR_CB_GH2V2,	/* Y, Cr and Cb, planar aligned to Android YV12 */
+	MDP_Y_CB_CR_H2V2,	/* Y, Cb and Cr, planar */
+	MDP_Y_CRCB_H1V1,	/* Y and CrCb, pseduo planer w/ Cr is in MSB */
+	MDP_Y_CBCR_H1V1,	/* Y and CbCr, pseduo planer w/ Cb is in MSB */
+	MDP_YCRCB_H1V1,	 /* YCrCb interleave */
+	MDP_YCBCR_H1V1,	 /* YCbCr interleave */
+	MDP_BGR_565,			/* BGR 565 planer */
+	MDP_BGR_888,			/* BGR 888 */
 	MDP_Y_CBCR_H2V2_VENUS,
-	MDP_BGRX_8888,   /* BGRX 8888 */
-	MDP_RGBA_8888_TILE,	  /* RGBA 8888 in tile format */
-	MDP_ARGB_8888_TILE,	  /* ARGB 8888 in tile format */
-	MDP_ABGR_8888_TILE,	  /* ABGR 8888 in tile format */
-	MDP_BGRA_8888_TILE,	  /* BGRA 8888 in tile format */
-	MDP_RGBX_8888_TILE,	  /* RGBX 8888 in tile format */
-	MDP_XRGB_8888_TILE,	  /* XRGB 8888 in tile format */
-	MDP_XBGR_8888_TILE,	  /* XBGR 8888 in tile format */
-	MDP_BGRX_8888_TILE,	  /* BGRX 8888 in tile format */
-	MDP_YCBYCR_H2V1,  /* YCbYCr interleave */
-	MDP_RGB_565_TILE,	  /* RGB 565 in tile format */
-	MDP_BGR_565_TILE,	  /* BGR 565 in tile format */
+	MDP_BGRX_8888,	 /* BGRX 8888 */
+	MDP_RGBA_8888_TILE,		/* RGBA 8888 in tile format */
+	MDP_ARGB_8888_TILE,		/* ARGB 8888 in tile format */
+	MDP_ABGR_8888_TILE,		/* ABGR 8888 in tile format */
+	MDP_BGRA_8888_TILE,		/* BGRA 8888 in tile format */
+	MDP_RGBX_8888_TILE,		/* RGBX 8888 in tile format */
+	MDP_XRGB_8888_TILE,		/* XRGB 8888 in tile format */
+	MDP_XBGR_8888_TILE,		/* XBGR 8888 in tile format */
+	MDP_BGRX_8888_TILE,		/* BGRX 8888 in tile format */
+	MDP_YCBYCR_H2V1,	/* YCbYCr interleave */
+	MDP_RGB_565_TILE,		/* RGB 565 in tile format */
+	MDP_BGR_565_TILE,		/* BGR 565 in tile format */
 	MDP_IMGTYPE_LIMIT,
 	MDP_RGB_BORDERFILL,	/* border fill pipe */
-	MDP_FB_FORMAT = MDP_IMGTYPE2_START,    /* framebuffer format */
+	MDP_FB_FORMAT = MDP_IMGTYPE2_START,		/* framebuffer format */
 	MDP_IMGTYPE_LIMIT2 /* Non valid image type after this enum */
 };
 enum {
@@ -169,15 +169,15 @@ enum {
 #define MDP_SOLID_FILL 0x00000020
 #define MDP_VPU_PIPE 0x00000040
 #define MDP_DEINTERLACE 0x80000000
-#define MDP_SHARPENING  0x40000000
+#define MDP_SHARPENING	0x40000000
 #define MDP_NO_DMA_BARRIER_START	0x20000000
 #define MDP_NO_DMA_BARRIER_END		0x10000000
 #define MDP_NO_BLIT			0x08000000
 #define MDP_BLIT_WITH_DMA_BARRIERS	0x000
-#define MDP_BLIT_WITH_NO_DMA_BARRIERS    \
+#define MDP_BLIT_WITH_NO_DMA_BARRIERS		\
 	(MDP_NO_DMA_BARRIER_START | MDP_NO_DMA_BARRIER_END)
-#define MDP_BLIT_SRC_GEM                0x04000000
-#define MDP_BLIT_DST_GEM                0x02000000
+#define MDP_BLIT_SRC_GEM								0x04000000
+#define MDP_BLIT_DST_GEM								0x02000000
 #define MDP_BLIT_NON_CACHED		0x01000000
 #define MDP_OV_PIPE_SHARE		0x00800000
 #define MDP_DEINTERLACE_ODD		0x00400000
@@ -186,7 +186,7 @@ enum {
 #define MDP_OVERLAY_PP_CFG_EN		0x00080000
 #define MDP_BACKEND_COMPOSITION		0x00040000
 #define MDP_BORDERFILL_SUPPORTED	0x00010000
-#define MDP_SECURE_OVERLAY_SESSION      0x00008000
+#define MDP_SECURE_OVERLAY_SESSION			0x00008000
 #define MDP_SECURE_DISPLAY_OVERLAY_SESSION	0x00002000
 #define MDP_OV_PIPE_FORCE_DMA		0x00004000
 #define MDP_MEMORY_ID_TYPE_FB		0x00001000
@@ -194,15 +194,15 @@ enum {
 #define MDP_DECIMATION_EN		0x00000800
 #define MDP_TRANSP_NOP 0xffffffff
 #define MDP_ALPHA_NOP 0xff
-#define MDP_FB_PAGE_PROTECTION_NONCACHED         (0)
-#define MDP_FB_PAGE_PROTECTION_WRITECOMBINE      (1)
+#define MDP_FB_PAGE_PROTECTION_NONCACHED				 (0)
+#define MDP_FB_PAGE_PROTECTION_WRITECOMBINE			(1)
 #define MDP_FB_PAGE_PROTECTION_WRITETHROUGHCACHE (2)
-#define MDP_FB_PAGE_PROTECTION_WRITEBACKCACHE    (3)
-#define MDP_FB_PAGE_PROTECTION_WRITEBACKWACACHE  (4)
+#define MDP_FB_PAGE_PROTECTION_WRITEBACKCACHE		(3)
+#define MDP_FB_PAGE_PROTECTION_WRITEBACKWACACHE	(4)
 /* Sentinel: Don't use! */
-#define MDP_FB_PAGE_PROTECTION_INVALID           (5)
+#define MDP_FB_PAGE_PROTECTION_INVALID					 (5)
 /* Count of the number of MDP_FB_PAGE_PROTECTION_... values. */
-#define MDP_NUM_FB_PAGE_PROTECTION_VALUES        (5)
+#define MDP_NUM_FB_PAGE_PROTECTION_VALUES				(5)
 struct mdp_rect {
 	uint32_t x;
 	uint32_t y;
@@ -257,7 +257,7 @@ struct mdp_blit_req {
 	uint32_t alpha;
 	uint32_t transp_mask;
 	uint32_t flags;
-	int sharpening_strength;  /* -127 <--> 127, default 64 */
+	int sharpening_strength;	/* -127 <--> 127, default 64 */
 };
 struct mdp_blit_req_list {
 	uint32_t count;
@@ -347,14 +347,14 @@ struct mdp_qseed_cfg_data {
 	uint32_t block;
 	struct mdp_qseed_cfg qseed_data;
 };
-#define MDP_OVERLAY_PP_CSC_CFG         0x1
-#define MDP_OVERLAY_PP_QSEED_CFG       0x2
-#define MDP_OVERLAY_PP_PA_CFG          0x4
-#define MDP_OVERLAY_PP_IGC_CFG         0x8
-#define MDP_OVERLAY_PP_SHARP_CFG       0x10
-#define MDP_OVERLAY_PP_HIST_CFG        0x20
-#define MDP_OVERLAY_PP_HIST_LUT_CFG    0x40
-#define MDP_OVERLAY_PP_PA_V2_CFG       0x80
+#define MDP_OVERLAY_PP_CSC_CFG				 0x1
+#define MDP_OVERLAY_PP_QSEED_CFG			 0x2
+#define MDP_OVERLAY_PP_PA_CFG					0x4
+#define MDP_OVERLAY_PP_IGC_CFG				 0x8
+#define MDP_OVERLAY_PP_SHARP_CFG			 0x10
+#define MDP_OVERLAY_PP_HIST_CFG				0x20
+#define MDP_OVERLAY_PP_HIST_LUT_CFG		0x40
+#define MDP_OVERLAY_PP_PA_V2_CFG			 0x80
 #define MDP_CSC_FLAG_ENABLE	0x1
 #define MDP_CSC_FLAG_YUV_IN	0x2
 #define MDP_CSC_FLAG_YUV_OUT	0x4
@@ -434,21 +434,21 @@ struct mdp_overlay_pp_params {
 /**
  * enum mdss_mdp_blend_op - Different blend operations set by userspace
  *
- * @BLEND_OP_NOT_DEFINED:    No blend operation defined for the layer.
- * @BLEND_OP_OPAQUE:         Apply a constant blend operation. The layer
- *                           would appear opaque in case fg plane alpha is
- *                           0xff.
- * @BLEND_OP_PREMULTIPLIED:  Apply source over blend rule. Layer already has
- *                           alpha pre-multiplication done. If fg plane alpha
- *                           is less than 0xff, apply modulation as well. This
- *                           operation is intended on layers having alpha
- *                           channel.
- * @BLEND_OP_COVERAGE:       Apply source over blend rule. Layer is not alpha
- *                           pre-multiplied. Apply pre-multiplication. If fg
- *                           plane alpha is less than 0xff, apply modulation as
- *                           well.
- * @BLEND_OP_MAX:            Used to track maximum blend operation possible by
- *                           mdp.
+ * @BLEND_OP_NOT_DEFINED:		No blend operation defined for the layer.
+ * @BLEND_OP_OPAQUE:				 Apply a constant blend operation. The layer
+ *													 would appear opaque in case fg plane alpha is
+ *													 0xff.
+ * @BLEND_OP_PREMULTIPLIED:	Apply source over blend rule. Layer already has
+ *													 alpha pre-multiplication done. If fg plane alpha
+ *													 is less than 0xff, apply modulation as well. This
+ *													 operation is intended on layers having alpha
+ *													 channel.
+ * @BLEND_OP_COVERAGE:			 Apply source over blend rule. Layer is not alpha
+ *													 pre-multiplied. Apply pre-multiplication. If fg
+ *													 plane alpha is less than 0xff, apply modulation as
+ *													 well.
+ * @BLEND_OP_MAX:						Used to track maximum blend operation possible by
+ *													 mdp.
  */
 enum mdss_mdp_blend_op {
 	BLEND_OP_NOT_DEFINED = 0,
@@ -951,7 +951,7 @@ struct mdp_mixer_info {
 	int mixer_num;
 	int z_order;
 };
-#define MAX_PIPE_PER_MIXER  4
+#define MAX_PIPE_PER_MIXER	4
 struct msmfb_mixer_info_req {
 	int mixer_num;
 	int cnt;

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : strings.h
+ * Filename		: strings.h
  * Description : strings utility
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,53 +22,53 @@
  *
  */
 #ifndef __libaroma_aroma_h__
-  #error "Include <aroma.h> instead."
+	#error "Include <aroma.h> instead."
 #endif
 #ifndef __libaroma_strings_h__
 #define __libaroma_strings_h__
 
 /*
- * Function    : libaroma_hash
+ * Function		: libaroma_hash
  * Return Value: dword
  * Descriptions: adler32 hash
  */
 dword libaroma_hash(
-  char * str);
+	char * str);
 
 /*
- * Function    : libaroma_stristr
+ * Function		: libaroma_stristr
  * Return Value: char *
  * Descriptions: stristr
  */
 char * libaroma_stristr(const char *ch1, const char *ch2, int sz);
 
 /*
- * Function    : libaroma_lang_get
+ * Function		: libaroma_lang_get
  * Return Value: char *
  * Descriptions: get language item
  */
 char * libaroma_lang_get(
-    char * key);
+		char * key);
 
 /*
- * Function    : libaroma_lang_set
+ * Function		: libaroma_lang_set
  * Return Value: byte
  * Descriptions: set language item
  */
 byte libaroma_lang_set(
-    char * key,
-    char * value);
+		char * key,
+		char * value);
 
 /*
- * Function    : libaroma_lang_delete
+ * Function		: libaroma_lang_delete
  * Return Value: byte
  * Descriptions: delete language item
  */
 byte libaroma_lang_delete(
-    char * key);
+		char * key);
 
 /*
- * Function    : libaroma_lang_cleanup
+ * Function		: libaroma_lang_cleanup
  * Return Value: void
  * Descriptions: cleanup language items
  */

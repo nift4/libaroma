@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : x86_sse.h
+ * Filename		: x86_sse.h
  * Description : x86 SSE optimizer header
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -27,10 +27,10 @@
 #ifdef __SSE3__
 #ifdef __SSSE3__
 
-#include <xmmintrin.h>     /* SSE   */
-#include <emmintrin.h>     /* SSE2  */
-#include <pmmintrin.h>     /* SSE3  */
-#include <tmmintrin.h>     /* SSSE3 */
+#include <xmmintrin.h>		 /* SSE	 */
+#include <emmintrin.h>		 /* SSE2	*/
+#include <pmmintrin.h>		 /* SSE3	*/
+#include <tmmintrin.h>		 /* SSSE3 */
 
 #include "x86_sse_dither.h"
 // #include "x86_sse_blt.h"

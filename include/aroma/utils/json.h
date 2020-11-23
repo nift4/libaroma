@@ -23,7 +23,7 @@
  * JSON parser in C.
  *______________________________________________________________________________
  *
- * Filename    : json.h
+ * Filename		: json.h
  * Description : json utility
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -32,7 +32,7 @@
  *
  */
 #ifndef __libaroma_aroma_h__
-  #error "Include <aroma.h> instead."
+	#error "Include <aroma.h> instead."
 #endif
 #ifndef __libaroma_json_h__
 #define __libaroma_json_h__
@@ -47,24 +47,24 @@
 #define cJSON_Object 6
 #define cJSON_IsReference 256
 typedef struct cJSON {
-  struct cJSON * next, *prev;
-  struct cJSON * child;  
-  int type;
-  char * valuestring;	
-  int valueint;
-  double valuedouble;
-  char * string;
+	struct cJSON * next, *prev;
+	struct cJSON * child;	
+	int type;
+	char * valuestring;	
+	int valueint;
+	double valuedouble;
+	char * string;
 } cJSON;
 typedef struct cJSON_Hooks {
-  void * (*malloc_fn)(size_t sz);
-  void (*free_fn)(void * ptr);
+	void * (*malloc_fn)(size_t sz);
+	void (*free_fn)(void * ptr);
 } cJSON_Hooks;
 extern void cJSON_InitHooks(cJSON_Hooks * hooks);
 extern cJSON * cJSON_Parse(const char * value);
 extern char * cJSON_Print(cJSON * item);
 extern char * cJSON_PrintUnformatted(cJSON * item);
-extern void   cJSON_Delete(cJSON * c);
-extern int	  cJSON_GetArraySize(cJSON * array);
+extern void	 cJSON_Delete(cJSON * c);
+extern int		cJSON_GetArraySize(cJSON * array);
 extern cJSON * cJSON_GetArrayItem(cJSON * array, int item);
 extern cJSON * cJSON_GetObjectItem(cJSON * object, const char * string);
 extern const char * cJSON_GetErrorPtr(void);
@@ -85,9 +85,9 @@ extern void	cJSON_AddItemToObject(cJSON * object, const char * string, cJSON * i
 extern void cJSON_AddItemReferenceToArray(cJSON * array, cJSON * item);
 extern void	cJSON_AddItemReferenceToObject(cJSON * object, const char * string, cJSON * item);
 extern cJSON * cJSON_DetachItemFromArray(cJSON * array, int which);
-extern void   cJSON_DeleteItemFromArray(cJSON * array, int which);
+extern void	 cJSON_DeleteItemFromArray(cJSON * array, int which);
 extern cJSON * cJSON_DetachItemFromObject(cJSON * object, const char * string);
-extern void   cJSON_DeleteItemFromObject(cJSON * object, const char * string);
+extern void	 cJSON_DeleteItemFromObject(cJSON * object, const char * string);
 extern void cJSON_ReplaceItemInArray(cJSON * array, int which, cJSON * newitem);
 extern void cJSON_ReplaceItemInObject(cJSON * object, const char * string, cJSON * newitem);
 extern cJSON * cJSON_Duplicate(cJSON * item, int recurse);
@@ -106,21 +106,21 @@ extern void cJSON_Minify(char * json);
  */
 typedef cJSON LIBAROMA_JSON;
 typedef cJSON * LIBAROMA_JSONP;
-#define libaroma_json(x)          cJSON_Parse(x)
-#define libaroma_json_free(x)      cJSON_Delete(x)
-#define libaroma_json_is_object(x)  ((x)->type==cJSON_Object)
-#define libaroma_json_is_array(x)   ((x)->type==cJSON_Array)
-#define libaroma_json_is_string(x)  ((x)->type==cJSON_String)
-#define libaroma_json_is_number(x)  ((x)->type==cJSON_Number)
-#define libaroma_json_is_null(x)    ((x)->type==cJSON_NULL)
-#define libaroma_json_is_true(x)    ((x)->type==cJSON_True)
-#define libaroma_json_is_false(x)   ((x)->type==cJSON_False)
-#define libaroma_json_array(x,n)   cJSON_GetArrayItem((x),(n))
+#define libaroma_json(x)					cJSON_Parse(x)
+#define libaroma_json_free(x)			cJSON_Delete(x)
+#define libaroma_json_is_object(x)	((x)->type==cJSON_Object)
+#define libaroma_json_is_array(x)	 ((x)->type==cJSON_Array)
+#define libaroma_json_is_string(x)	((x)->type==cJSON_String)
+#define libaroma_json_is_number(x)	((x)->type==cJSON_Number)
+#define libaroma_json_is_null(x)		((x)->type==cJSON_NULL)
+#define libaroma_json_is_true(x)		((x)->type==cJSON_True)
+#define libaroma_json_is_false(x)	 ((x)->type==cJSON_False)
+#define libaroma_json_array(x,n)	 cJSON_GetArrayItem((x),(n))
 #define libaroma_json_array_size(x) cJSON_GetArraySize(x)
-#define libaroma_json_object(x,n)  cJSON_GetObjectItem((x),(n))
-#define libaroma_json_string(x)    ((x)->valuestring)
-#define libaroma_json_int(x)       ((x)->valueint)
-#define libaroma_json_float(x)     ((x)->valuedouble)
-#define libaroma_json_bool(x)      (!libaroma_json_is_false(x)&&!libaroma_json_is_null(x))
+#define libaroma_json_object(x,n)	cJSON_GetObjectItem((x),(n))
+#define libaroma_json_string(x)		((x)->valuestring)
+#define libaroma_json_int(x)			 ((x)->valueint)
+#define libaroma_json_float(x)		 ((x)->valuedouble)
+#define libaroma_json_bool(x)			(!libaroma_json_is_false(x)&&!libaroma_json_is_null(x))
 
 #endif /* __libaroma_json_h__ */

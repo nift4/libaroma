@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : memory.h
+ * Filename		: memory.h
  * Description : memory utilities
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,21 +22,21 @@
  *
  */
 #ifndef __libaroma_aroma_internal_h__
-  #error "Include <aroma_internal.h> instead."
+	#error "Include <aroma_internal.h> instead."
 #endif
 #ifndef __libaroma_memory_h__
 #define __libaroma_memory_h__
 #ifndef LIBAROMA_CONFIG_NO_ANDROID_MEM
 
 /*
- * Function    : android_memset16
+ * Function		: android_memset16
  * Return Value: void
  * Descriptions: size is given in bytes and must be multiple of 2
  */
 void android_memset16(uint16_t* dst, uint16_t value, size_t size);
 
 /*
- * Function    : android_memset16
+ * Function		: android_memset16
  * Return Value: void
  * Descriptions: size is given in bytes and must be multiple of 4
  */

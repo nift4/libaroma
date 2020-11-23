@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 
 #if defined(__slm__)
 /* Values are optimized for Silvermont */
-#define SHARED_CACHE_SIZE   (1024*1024)         /* Silvermont L2 Cache */
-#define DATA_CACHE_SIZE     (24*1024)           /* Silvermont L1 Data Cache */
+#define SHARED_CACHE_SIZE	 (1024*1024)				 /* Silvermont L2 Cache */
+#define DATA_CACHE_SIZE		 (24*1024)					 /* Silvermont L1 Data Cache */
 #else
 /* Values are optimized for Atom */
-#define SHARED_CACHE_SIZE   (512*1024)          /* Atom L2 Cache */
-#define DATA_CACHE_SIZE     (24*1024)           /* Atom L1 Data Cache */
+#define SHARED_CACHE_SIZE	 (512*1024)					/* Atom L2 Cache */
+#define DATA_CACHE_SIZE		 (24*1024)					 /* Atom L1 Data Cache */
 #endif
 
-#define SHARED_CACHE_SIZE_HALF  (SHARED_CACHE_SIZE / 2)
-#define DATA_CACHE_SIZE_HALF    (DATA_CACHE_SIZE / 2)
+#define SHARED_CACHE_SIZE_HALF	(SHARED_CACHE_SIZE / 2)
+#define DATA_CACHE_SIZE_HALF		(DATA_CACHE_SIZE / 2)

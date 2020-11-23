@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : patform.c
+ * Filename		: patform.c
  * Description : linux system specific source
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -29,41 +29,41 @@
 
 /* event & condition */
 void libaroma_cond_init(
-  LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex){
-  pthread_mutex_init(mutex,NULL);
-  pthread_cond_init(cond,NULL);
+	LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex){
+	pthread_mutex_init(mutex,NULL);
+	pthread_cond_init(cond,NULL);
 }
 void libaroma_cond_free(
-  LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex){
-  pthread_cond_destroy(cond);
-  pthread_mutex_destroy(mutex);
+	LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex){
+	pthread_cond_destroy(cond);
+	pthread_mutex_destroy(mutex);
 }
 
 /* get filesize */
 int libaroma_filesize(const char * filename){
-  struct stat st;
-  if (stat(filename, &st) < 0) {
-    return -1;
-  }
-  return st.st_size;
+	struct stat st;
+	if (stat(filename, &st) < 0) {
+		return -1;
+	}
+	return st.st_size;
 }
 
 /* get filesize from fd */
 int libaroma_filesize_fd(int fd){
-  struct stat st;
-  if (fstat(fd, &st) < 0) {
-    return -1;
-  }
-  return st.st_size;
+	struct stat st;
+	if (fstat(fd, &st) < 0) {
+		return -1;
+	}
+	return st.st_size;
 }
 
 /* file exists */
 byte libaroma_file_exists(const char * filename){
-  struct stat st;
-  if (stat(filename, &st) < 0) {
-    return 0;
-  }
-  return 1;
+	struct stat st;
+	if (stat(filename, &st) < 0) {
+		return 0;
+	}
+	return 1;
 }
 
 #endif /* __libaroma_platform_c__ */

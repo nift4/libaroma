@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : aromart_core.h
+ * Filename		: aromart_core.h
  * Description : AROMA Runtime core headers
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,7 +22,7 @@
  *
  */
 #ifndef __libaromart_h__
-  #error "Include <aromart.h> instead."
+	#error "Include <aromart.h> instead."
 #endif
 #ifndef __libaromart_core_h__
 #define __libaromart_core_h__
@@ -36,10 +36,10 @@ typedef byte (*LART_SYSTEM_UI_MESSAGE)(LIBAROMA_MSGP);
 
 /* start aroma runtime */
 int lart_start(
-  char **argv,
-  LART_APP_RUN_HANDLER run_handler,
-  LART_SYSTEM_UI_HANDLER  sysui_handler,
-  LART_SYSTEM_UI_STATUSBAR_DRAW sysui_sb_draw
+	char **argv,
+	LART_APP_RUN_HANDLER run_handler,
+	LART_SYSTEM_UI_HANDLER	sysui_handler,
+	LART_SYSTEM_UI_STATUSBAR_DRAW sysui_sb_draw
 );
 
 /* start application - return application id */

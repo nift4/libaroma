@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : fb_qcom.h
+ * Filename		: fb_qcom.h
  * Description : qcom overlay fb header - cherrypick from ion.h & msm_ion.h
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -59,7 +59,7 @@ enum ion_heap_ids {
 };
 #define ION_IOC_MAGIC		'I'
 #define ION_IOC_ALLOC		_IOWR(ION_IOC_MAGIC, 0, struct ion_allocation_data)
-#define ION_IOC_MAP		  _IOWR(ION_IOC_MAGIC, 2, struct ion_fd_data)
+#define ION_IOC_MAP			_IOWR(ION_IOC_MAGIC, 2, struct ion_fd_data)
 #define ION_IOC_FREE		_IOWR(ION_IOC_MAGIC, 1, struct ion_handle_data)
 #define MSMFB_NEW_REQUEST -1
 #define QCOMFB_ALIGN_WIDTH(x, align) (((x) + ((align)-1)) & ~((align)-1))
@@ -106,7 +106,7 @@ struct mdp_overlay_44 {
 	struct mdp_overlay_pp_params44 overlay_pp_cfg;
 };
 #define MSMFB_OVERLAY_SET_44 \
-  _IOWR(MSMFB_IOCTL_MAGIC, 135, struct mdp_overlay_44)
+	_IOWR(MSMFB_IOCTL_MAGIC, 135, struct mdp_overlay_44)
 
 /*
 struct mdp_display_commit_44 {
@@ -115,81 +115,81 @@ struct mdp_display_commit_44 {
 	struct fb_var_screeninfo var;
 };
 #define MSMFB_DISPLAY_COMMIT_44 \
-  _IOW(MSMFB_IOCTL_MAGIC, 164, struct mdp_display_commit_44)
+	_IOW(MSMFB_IOCTL_MAGIC, 164, struct mdp_display_commit_44)
 */
 #define MSMFB_DISPLAY_COMMIT_44 \
-  _IOC(_IOC_WRITE,(MSMFB_IOCTL_MAGIC), (164), \
-    sizeof(struct mdp_display_commit)-(sizeof(struct mdp_rect)*2))
+	_IOC(_IOC_WRITE,(MSMFB_IOCTL_MAGIC), (164), \
+		sizeof(struct mdp_display_commit)-(sizeof(struct mdp_rect)*2))
 #define MSMFB_DISPLAY_COMMIT_NON_NOTE4 \
-  _IOC(_IOC_WRITE,(MSMFB_IOCTL_MAGIC), (164), \
-    sizeof(struct mdp_display_commit)-sizeof(struct mdp_rect))
+	_IOC(_IOC_WRITE,(MSMFB_IOCTL_MAGIC), (164), \
+		sizeof(struct mdp_display_commit)-sizeof(struct mdp_rect))
 
 /* qcom internal data */
 typedef struct{
-  byte      id;
-  int       ionfd;
-  int       memfd;
-  voidp     handle;
-  
-  int       yoffset;
-  int       overlay_lid;
-  int       overlay_rid;
-  
-  byte      split;
-  int       split_left;
-  int       split_right;
-  byte      dbuf;
-  
-  struct msmfb_overlay_data overlay;
-  struct mdp_display_commit commiter;
-/*  struct mdp_display_commit_44 commiter44;*/
-  byte      commit_type;
+	byte			id;
+	int			 ionfd;
+	int			 memfd;
+	voidp		 handle;
+	
+	int			 yoffset;
+	int			 overlay_lid;
+	int			 overlay_rid;
+	
+	byte			split;
+	int			 split_left;
+	int			 split_right;
+	byte			dbuf;
+	
+	struct msmfb_overlay_data overlay;
+	struct mdp_display_commit commiter;
+/*	struct mdp_display_commit_44 commiter44;*/
+	byte			commit_type;
 } QCOMFB_INTERNAL, * QCOMFB_INTERNALP;
 
 /*
- * Function    : QCOMFB_release
+ * Function		: QCOMFB_release
  * Return Value: void
  * Descriptions: release qcom overlay driver
  */
 void QCOMFB_release(LIBAROMA_FBP me);
 
 /*
- * Function    : QCOMFB_check_id
+ * Function		: QCOMFB_check_id
  * Return Value: byte
  * Descriptions: check framebuffer id
  */
 byte QCOMFB_check_id(LINUXFBDR_INTERNALP mi);
 
 /*
- * Function    : QCOMFB_split_display
+ * Function		: QCOMFB_split_display
  * Return Value: void
  * Descriptions: get split display info
  */
 void QCOMFB_split_display(LIBAROMA_FBP me);
 
 /*
- * Function    : QCOMFB_allocate_overlays
+ * Function		: QCOMFB_allocate_overlays
  * Return Value: byte
  * Descriptions: allocate mdp overlays
  */
 byte QCOMFB_allocate_overlays(LIBAROMA_FBP me);
 
 /*
- * Function    : QCOMFB_swap_buffer
+ * Function		: QCOMFB_swap_buffer
  * Return Value: void
  * Descriptions: qcom swap back buffer
  */
 void QCOMFB_swap_buffer(LIBAROMA_FBP me);
 
 /*
- * Function    : QCOMFB_sync
+ * Function		: QCOMFB_sync
  * Return Value: byte
  * Descriptions: sync callback for qcom overlay
  */
 byte QCOMFB_sync(LIBAROMA_FBP me, wordp src,int x, int y, int w, int h);
 
 /*
- * Function    : QCOMFB_flush
+ * Function		: QCOMFB_flush
  * Return Value: void
  * Descriptions: flush overlay update
  */

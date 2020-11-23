@@ -2,7 +2,7 @@
  * Copyright (c) 2013-14 Mikko Mononen memon@inside.org
  *
  * This software is provided 'as-is', without any express or implied
- * warranty.  In no event will the authors be held liable for any damages
+ * warranty.	In no event will the authors be held liable for any damages
  * arising from the use of this software.
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -233,8 +233,8 @@ static NSVG_INLINE float nsvg__maxf(float a, float b) { return a > b ? a : b; }
 #define NSVG_XML_MAX_ATTRIBS 256
 
 static void nsvg__parseContent(char* s,
-							   void (*contentCb)(void* ud, const char* s),
-							   void* ud)
+								 void (*contentCb)(void* ud, const char* s),
+								 void* ud)
 {
 	// Trim start white spaces
 	while (*s && nsvg__isspace(*s)) s++;
@@ -245,9 +245,9 @@ static void nsvg__parseContent(char* s,
 }
 
 static void nsvg__parseElement(char* s,
-							   void (*startelCb)(void* ud, const char* el, const char** attr),
-							   void (*endelCb)(void* ud, const char* el),
-							   void* ud)
+								 void (*startelCb)(void* ud, const char* el, const char** attr),
+								 void (*endelCb)(void* ud, const char* el),
+								 void* ud)
 {
 	const char* attr[NSVG_XML_MAX_ATTRIBS];
 	int nattr = 0;
@@ -312,10 +312,10 @@ static void nsvg__parseElement(char* s,
 }
 
 int nsvg__parseXML(char* input,
-				   void (*startelCb)(void* ud, const char* el, const char** attr),
-				   void (*endelCb)(void* ud, const char* el),
-				   void (*contentCb)(void* ud, const char* s),
-				   void* ud)
+					 void (*startelCb)(void* ud, const char* el, const char** attr),
+					 void (*endelCb)(void* ud, const char* el),
+					 void (*contentCb)(void* ud, const char* s),
+					 void* ud)
 {
 	char* s = input;
 	char* mark = s;
@@ -772,7 +772,7 @@ static float nsvg__convertToPixels(NSVGparser* p, NSVGcoordinate c, float orig, 
 	NSVGattrib* attr = nsvg__getAttr(p);
 	switch (c.units) {
 		case NSVG_UNITS_USER:		return c.value;
-		case NSVG_UNITS_DP:     return c.value * 160.0f / p->dpi; //p->dpi / 160.0f;
+		case NSVG_UNITS_DP:		 return c.value * 160.0f / p->dpi; //p->dpi / 160.0f;
 		case NSVG_UNITS_PX:			return c.value;
 		case NSVG_UNITS_PT:			return c.value / 72.0f * p->dpi;
 		case NSVG_UNITS_PC:			return c.value / 6.0f * p->dpi;
@@ -1357,7 +1357,7 @@ static float nsvg__parseOpacity(const char* str)
 
 static int nsvg__parseUnits(const char* units)
 {
-  if (units[0] == 'd' && units[1] == 'p')
+	if (units[0] == 'd' && units[1] == 'p')
 		return NSVG_UNITS_DP;
 	else if (units[0] == 'p' && units[1] == 'x')
 		return NSVG_UNITS_PX;
@@ -1719,7 +1719,7 @@ static int nsvg__parseNameValue(NSVGparser* p, const char* start, const char* en
 	val = str;
 
 	// Right Trim
-	while (str > start &&  (*str == ':' || nsvg__isspace(*str))) --str;
+	while (str > start &&	(*str == ':' || nsvg__isspace(*str))) --str;
 	++str;
 
 	n = (int)(str - start);
@@ -1750,7 +1750,7 @@ static void nsvg__parseStyle(NSVGparser* p, const char* str)
 		end = str;
 
 		// Right Trim
-		while (end > start &&  (*end == ';' || nsvg__isspace(*end))) --end;
+		while (end > start &&	(*end == ';' || nsvg__isspace(*end))) --end;
 		++end;
 
 		nsvg__parseNameValue(p, start, end);
@@ -1872,7 +1872,7 @@ static void nsvg__pathCubicBezTo(NSVGparser* p, float* cpx, float* cpy,
 }
 
 static void nsvg__pathCubicBezShortTo(NSVGparser* p, float* cpx, float* cpy,
-									  float* cpx2, float* cpy2, float* args, int rel)
+										float* cpx2, float* cpy2, float* args, int rel)
 {
 	float x1, y1, x2, y2, cx1, cy1, cx2, cy2;
 
@@ -2149,23 +2149,23 @@ static void nsvg__parsePath(NSVGparser* p, const char** attr)
 							// Moveto can be followed by multiple coordinate pairs,
 							// which should be treated as linetos.
 							cmd = (cmd == 'm') ? 'l' : 'L';
-                            rargs = nsvg__getArgsPerElement(cmd);
-                            cpx2 = cpx; cpy2 = cpy;
+														rargs = nsvg__getArgsPerElement(cmd);
+														cpx2 = cpx; cpy2 = cpy;
 							break;
 						case 'l':
 						case 'L':
 							nsvg__pathLineTo(p, &cpx, &cpy, args, cmd == 'l' ? 1 : 0);
-                            cpx2 = cpx; cpy2 = cpy;
+														cpx2 = cpx; cpy2 = cpy;
 							break;
 						case 'H':
 						case 'h':
 							nsvg__pathHLineTo(p, &cpx, &cpy, args, cmd == 'h' ? 1 : 0);
-                            cpx2 = cpx; cpy2 = cpy;
+														cpx2 = cpx; cpy2 = cpy;
 							break;
 						case 'V':
 						case 'v':
 							nsvg__pathVLineTo(p, &cpx, &cpy, args, cmd == 'v' ? 1 : 0);
-                            cpx2 = cpx; cpy2 = cpy;
+														cpx2 = cpx; cpy2 = cpy;
 							break;
 						case 'C':
 						case 'c':
@@ -2186,13 +2186,13 @@ static void nsvg__parsePath(NSVGparser* p, const char** attr)
 						case 'A':
 						case 'a':
 							nsvg__pathArcTo(p, &cpx, &cpy, args, cmd == 'a' ? 1 : 0);
-                            cpx2 = cpx; cpy2 = cpy;
+														cpx2 = cpx; cpy2 = cpy;
 							break;
 						default:
 							if (nargs >= 2) {
 								cpx = args[nargs-2];
 								cpy = args[nargs-1];
-	                            cpx2 = cpx; cpy2 = cpy;
+															cpx2 = cpx; cpy2 = cpy;
 							}
 							break;
 					}
@@ -2605,19 +2605,19 @@ static void nsvg__startElement(void* ud, const char* el, const char** attr)
 		nsvg__pushAttr(p);
 		nsvg__parseEllipse(p, attr);
 		nsvg__popAttr(p);
-	} else if (strcmp(el, "line") == 0)  {
+	} else if (strcmp(el, "line") == 0)	{
 		nsvg__pushAttr(p);
 		nsvg__parseLine(p, attr);
 		nsvg__popAttr(p);
-	} else if (strcmp(el, "polyline") == 0)  {
+	} else if (strcmp(el, "polyline") == 0)	{
 		nsvg__pushAttr(p);
 		nsvg__parsePoly(p, attr, 0);
 		nsvg__popAttr(p);
-	} else if (strcmp(el, "polygon") == 0)  {
+	} else if (strcmp(el, "polygon") == 0)	{
 		nsvg__pushAttr(p);
 		nsvg__parsePoly(p, attr, 1);
 		nsvg__popAttr(p);
-	} else  if (strcmp(el, "linearGradient") == 0) {
+	} else	if (strcmp(el, "linearGradient") == 0) {
 		nsvg__parseGradient(p, attr, NSVG_PAINT_LINEAR_GRADIENT);
 	} else if (strcmp(el, "radialGradient") == 0) {
 		nsvg__parseGradient(p, attr, NSVG_PAINT_RADIAL_GRADIENT);

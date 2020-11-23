@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : ctl_label.h
+ * Filename		: ctl_label.h
  * Description : label control
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,22 +22,22 @@
  *
  */
 #ifndef __libaroma_aroma_h__
-  #error "Include <aroma.h> instead."
+	#error "Include <aroma.h> instead."
 #endif
 #ifndef __libaroma_ctl_label_h__
 #define __libaroma_ctl_label_h__
 
 int libaroma_ctl_label_height(
-  const char * text, int w,
-  byte fontid, byte size,
-  dword flags, byte lineheight
+	const char * text, int w,
+	byte fontid, byte size,
+	dword flags, byte lineheight
 );
 
 LIBAROMA_CONTROLP libaroma_ctl_label_valign(
-  LIBAROMA_WINDOWP win, word id, const char * text,
-  int x, int y, int w, int h,
-  word color, byte fontid, byte size, dword flags, byte lineheight,
-  byte valign
+	LIBAROMA_WINDOWP win, word id, const char * text,
+	int x, int y, int w, int h,
+	word color, byte fontid, byte size, dword flags, byte lineheight,
+	byte valign
 );
 
 #define libaroma_ctl_label_ex(win,i,t,x,y,w,h,c,fn,s,f,l) \

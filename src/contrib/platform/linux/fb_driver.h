@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *			http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : fb_driver.h
+ * Filename		: fb_driver.h
  * Description : linux framebuffer driver header
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -36,7 +36,7 @@
 
 #include <aroma_internal.h>
 #ifdef LIBAROMA_CONFIG_OPENMP
-  #include <omp.h>
+	#include <omp.h>
 #endif
 
 typedef struct _LINUXFBDR_INTERNAL LINUXFBDR_INTERNAL;
@@ -48,8 +48,8 @@ typedef struct _LINUXFBDR_INTERNAL * LINUXFBDR_INTERNALP;
 /*
  * device path
  */
-#define LINUXFBDR_DEVICE              "/dev/graphics/fb0"
-#define LINUXFBDR_DEVICE_NON_ANDROID  "/dev/fb0"
+#define LINUXFBDR_DEVICE							"/dev/graphics/fb0"
+#define LINUXFBDR_DEVICE_NON_ANDROID	"/dev/fb0"
 
 /* omap ioctl */
 #define OMAP_IOW(num, dtype) _IOW('O', num, dtype)
@@ -61,32 +61,32 @@ typedef struct _LINUXFBDR_INTERNAL * LINUXFBDR_INTERNALP;
  * structure : internal framebuffer data
  */
 struct _LINUXFBDR_INTERNAL{
-  int       fb;                         /* framebuffer handler */
-  byte      is32;                       /* is 32bit framebuffer? */
-  struct    fb_fix_screeninfo   fix;    /* linux framebuffer fix info */
-  struct    fb_var_screeninfo   var;    /* linux framebuffer var info */
-  int       fb_sz;                      /* framebuffer memory size */
-  voidp     buffer;                     /* direct buffer */
-  int       stride;                     /* stride size */
-  int       line;                       /* line size */
-  byte      depth;                      /* color depth */
-  byte      pixsz;                      /* memory size per pixel */
-  byte      rgb_pos[6];                 /* framebuffer 32bit rgb position */
+	int			 fb;												 /* framebuffer handler */
+	byte			is32;											 /* is 32bit framebuffer? */
+	struct		fb_fix_screeninfo	 fix;		/* linux framebuffer fix info */
+	struct		fb_var_screeninfo	 var;		/* linux framebuffer var info */
+	int			 fb_sz;											/* framebuffer memory size */
+	voidp		 buffer;										 /* direct buffer */
+	int			 stride;										 /* stride size */
+	int			 line;											 /* line size */
+	byte			depth;											/* color depth */
+	byte			pixsz;											/* memory size per pixel */
+	byte			rgb_pos[6];								 /* framebuffer 32bit rgb position */
 
-  byte      double_buffering;           /* is double buffering? */
-  voidp     current_buffer;             /* current buffer to write */
-  voidp     unswap_buffer;              /* unswapped buffer to write */
-  
-  LIBAROMA_MUTEX  mutex;
-  
-  int       last_vsync;
-  byte      is_omap;                    /* is omap fb? - vsync */
-  QCOMFB_INTERNALP  qcom;               /* qcom fb internal data */
-  
-  /* pointer */
-  byte pointered;
-  word pointer_x;
-  word pointer_y;
+	byte			double_buffering;					 /* is double buffering? */
+	voidp		 current_buffer;						 /* current buffer to write */
+	voidp		 unswap_buffer;							/* unswapped buffer to write */
+	
+	LIBAROMA_MUTEX	mutex;
+	
+	int			 last_vsync;
+	byte			is_omap;										/* is omap fb? - vsync */
+	QCOMFB_INTERNALP	qcom;							 /* qcom fb internal data */
+	
+	/* pointer */
+	byte pointered;
+	word pointer_x;
+	word pointer_y;
 };
 
 /* release function */
