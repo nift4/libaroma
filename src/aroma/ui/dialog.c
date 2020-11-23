@@ -351,10 +351,13 @@ byte _libaroma_dialog_list_simple_option_cb(
 int libaroma_dialog_list(
 	const char * title,
 	const char * button1,
-	const char * button2,
+	const char * button2, 
+	LIBAROMA_LISTITEM_TEMPLATE templates[], 
+	size_t items_num, 
+	byte returnOnSelect,
 	LIBAROMA_COLORSETP colorset,
 	byte flags){
-
+	
 	int dialog_w = libaroma_wm()->w-libaroma_dp(58);
 	int text_w = dialog_w-libaroma_dp(48);
 	int title_h = 0;
@@ -389,7 +392,7 @@ int libaroma_dialog_list(
 	}
 	
 	LIBAROMA_CONTROLP listc=libaroma_ctl_list(
-		win, 999,
+		win, 1,
 		libaroma_px(cdata->x),
 		libaroma_px(cdata->y)+44+libaroma_px(title_h),
 		libaroma_px(cdata->w),
@@ -400,27 +403,67 @@ int libaroma_dialog_list(
 	);
 	
 	LIBAROMA_CTL_LIST_ITEMP selitem=NULL;
-	int u;
-	for (u=0;u<24;u++){
-		char extraText[100];
-		snprintf(extraText,100,"Checkbox Number %i",u+1);
-		LIBAROMA_CTL_LIST_ITEMP itm=libaroma_listitem_check(
-				listc, u+10, 0,
-				extraText,
-				NULL,
-				NULL,
-				LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL|LIBAROMA_LISTITEM_CHECK_OPTION,
-				-1
+	
+	int i;
+	int last_id = 1;
+	for (i=0; i < items_num; i++){
+		printf("ITEM N° %d, ID %d, TYPE %i, LAST_ID %d\n", i, templates[i].id, templates[i].type, last_id);
+		LIBAROMA_CTL_LIST_ITEMP itm;
+		switch (templates[i].type)
+		{
+			case LIBAROMA_LIST_ITEM_KIND_CHECK:
+				 itm=libaroma_listitem_check(
+						listc, templates[i].id, templates[i].selected,
+						templates[i].title,
+						templates[i].message,
+						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].flags,	-1);				
+				break;
+			case LIBAROMA_LIST_ITEM_KIND_OPTION:
+				 itm=libaroma_listitem_option(
+						listc, templates[i].id, templates[i].selected,
+						templates[i].title,
+						templates[i].message,
+						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].flags,	-1);				
+				break;
+			case LIBAROMA_LIST_ITEM_KIND_MENU:
+				itm=libaroma_listitem_menu(
+						listc, templates[i].id, 
+						templates[i].title,
+						templates[i].message,
+						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].flags,	-1);
+				break;
+			case LIBAROMA_LIST_ITEM_KIND_CAPTION:
+				itm=libaroma_listitem_caption(
+						listc, templates[i].id, 
+						templates[i].title, -1);
+				break;
+			case LIBAROMA_LIST_ITEM_KIND_DIVIDER:
+				itm=libaroma_listitem_divider(
+						listc, templates[i].id, 
+						templates[i].flags, -1);
+				break;
+			case LIBAROMA_LIST_ITEM_KIND_IMAGE:
+				itm=libaroma_listitem_image(
+						listc, templates[i].id, 
+						templates[i].image, 
+						templates[i].imageheight, 
+						templates[i].flags, -1);
+				break;
+		}
+		if (templates[i].id > last_id){
+			last_id=templates[i].id;
+		}
+		
+		if (templates[i].selected){		
+			libaroma_listitem_check_set_cb(
+				listc,
+				itm,
+				_libaroma_dialog_list_simple_option_cb,
+				(voidp) &selitem
 			);
-		
-		libaroma_listitem_check_set_cb(
-			listc,
-			itm,
-			_libaroma_dialog_list_simple_option_cb,
-			(voidp) &selitem
-		);
-		
-		if (u==15){
 			libaroma_listitem_set_selected(
 				listc,itm,1
 			);
@@ -430,6 +473,7 @@ int libaroma_dialog_list(
 	if (msg_h>libaroma_wm()->h-(libaroma_dp(160)+title_h)){
 		msg_h=libaroma_wm()->h-(libaroma_dp(160)+title_h);
 	}
+	
 	dialog_h = libaroma_dp(100)+title_h+msg_h;
 	cdata->h = dialog_h;
 	cdata->y = (libaroma_wm()->h>>1) - (cdata->h>>1);
@@ -458,9 +502,10 @@ int libaroma_dialog_list(
 	if (button1){
 		int button1_w = libaroma_ctl_button_width(button1);
 		int button1_x = libaroma_px(cdata->x+cdata->w-button1_w)-16;
-		libaroma_ctl_button(
+		last_id++;
+		LIBAROMA_CONTROLP button1_ctl = libaroma_ctl_button(
 			win,
-			1,
+			last_id, //last used ID + 1
 			button1_x, 
 			button_y, 
 			libaroma_px(button1_w), 36,
@@ -468,14 +513,15 @@ int libaroma_dialog_list(
 			button_style,
 			btncolor
 		);
+		printf("Created button1 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button1_ctl->id);
 		
 		if (button2){
 			int button2_w = libaroma_ctl_button_width(button2);
 			int button2_x = button1_x-libaroma_px(button2_w);
-			
-			libaroma_ctl_button(
+			last_id++;
+			LIBAROMA_CONTROLP button2_ctl = libaroma_ctl_button(
 				win,
-				2,
+				last_id,
 				button2_x, 
 				button_y, 
 				libaroma_px(button2_w), 36,
@@ -483,12 +529,13 @@ int libaroma_dialog_list(
 				button_style,
 				btncolor
 			);
+		printf("Created button2 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button2_ctl->id);
 		}
 	}
 	
 	
-	// libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
-	libaroma_window_anishow(win,0,0);
+	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE, 400);
+	//libaroma_window_anishow(win,0,0);
 	
 	if (selitem){
 		libaroma_ctl_list_scroll_to_item(
@@ -516,19 +563,36 @@ int libaroma_dialog_list(
 			}
 		}
 		else if (cmd==LIBAROMA_CMD_CLICK){
-			if (id==1){
+			if (button2 && id==last_id) {
+				ALOGV("libaroma_dialog_confirm: Button 2 Selected");
+				retval=-1;
+				onpool=0;
+			}
+			else if (button2 && id==(last_id-1)){
 				ALOGV("libaroma_dialog_confirm: Button 1 Selected");
-				if (selitem!=NULL){
-					retval=selitem->id-10;
+				if (msg.key!=0){
+					retval = msg.key;
+				}
+				else {
+					retval=id;
 				}
 				onpool=0;
 				//libaroma_sleep(300);
 			}
-			else if (id==2){
-				ALOGV("libaroma_dialog_confirm: Button 2 Selected");
-				retval=-1;
-				onpool=0;
-				//libaroma_sleep(300);
+			else if (id==last_id) {
+				ALOGV("libaroma_dialog_confirm: Button 1 Selected");
+				if (msg.key!=0){
+					retval = msg.key;
+				}
+				else {
+					retval=id;
+				}
+				onpool=0;				
+			}
+			else { 
+				retval = msg.key;
+				printf("Returning value: %d\n", retval);
+				if (returnOnSelect) { onpool = 0; }; 
 			}
 		}
 		else if (msg.msg==LIBAROMA_MSG_TOUCH){
@@ -542,13 +606,17 @@ int libaroma_dialog_list(
 				}
 			}
 		}
+			printf("Dialog Command = (CMD: %i, ID: %i, Msg.Key: %i), i: %d\n",
+				LIBAROMA_CMD(command),
+				LIBAROMA_CMD_ID(command),
+				msg.key, 
+				  i);
 	}
 	while(onpool);
 	
 	libaroma_dialog_free(win);
 	return retval;
 }
-
 
 #endif /* __libaroma_dialog_c__ */
 
