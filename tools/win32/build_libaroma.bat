@@ -49,6 +49,9 @@ echo Compiling Libaroma
 
 cd ..
 
+echo Creating target binaries folder (for later compiling)
+mkdir bin
+
 if "%1"=="-f" GOTO DONE
 pause
 :DONE
