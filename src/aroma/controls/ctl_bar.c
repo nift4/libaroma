@@ -1192,6 +1192,7 @@ LIBAROMA_CONTROLP libaroma_ctl_bar(
 	}
 	me->text_gap = 60;
 	me->bgcolor = bgcolor;
+	win->appbar_bg = bgcolor;
 	me->selcolor = selcolor;
 	
 	/* init control */
@@ -1305,6 +1306,7 @@ byte libaroma_ctl_bar_set_color(LIBAROMA_CONTROLP ctl,
 	libaroma_mutex_lock(me->mutex);
 	me->bgcolor = bgcolor;
 	me->selcolor = selcolor;
+	ctl->window->appbar_bg = bgcolor;
 	me->change_flags |= _LIBAROMA_CTL_BAR_CHANGE_COLOR;
 	libaroma_mutex_unlock(me->mutex);
 	if (update_now){
