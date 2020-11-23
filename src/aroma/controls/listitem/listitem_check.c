@@ -155,11 +155,26 @@ byte _libaroma_listitem_check_message(
 			{
 				mi->onchangeani=0;
 				if (param!=LIBAROMA_CTL_LIST_ITEM_MSGPARAM_HOLDED){
-					libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);
-					libaroma_window_post_command_ex(
-						LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
-						mi->selected, item->id, 0, (voidp) item
-					);
+					//printf("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d\n", 
+					//	  x, y, item->checkx, item->checkwidth);
+					if (item->flags&LIBAROMA_LISTITEM_CHECK_HAS_SUBMENU){
+						if (x >= item->checkx && x<= (item->checkx + item->checkwidth)) {
+							libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);
+						}
+						else {
+							libaroma_window_post_command_ex(
+								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
+								mi->selected, item->id, 0, (voidp) item
+							);
+						}
+					}
+					else {
+						libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);					
+						libaroma_window_post_command_ex(
+							LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
+							mi->selected, item->id, 0, (voidp) item
+						);
+					}
 				}
 				return 0;
 			}
@@ -239,6 +254,10 @@ void _libaroma_listitem_check_draw(
 		int tw = cv->w-libaroma_dp(
 			(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88
 		);
+		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
+			item->is_leftcontrol=1;
+		} else { item->is_leftcontrol=0; }
+		
 		int tx = libaroma_dp(16);
 		int dpsz=libaroma_dp(small_icon?24:40);
 		if (mi->icon){
@@ -399,6 +418,9 @@ void _libaroma_listitem_check_draw(
 			int base_x = xpos-(b_width>>1);
 			int h_sz = libaroma_dp(20);
 			int base_w = b_width - h_sz;
+			
+			item->checkwidth=b_width;
+			item->checkx=base_x;
 			int h_draw_x = base_x + round(base_w*selrelstate);
 			int h_draw_y = ypos-(h_sz>>1);
 			
@@ -464,7 +486,8 @@ void _libaroma_listitem_check_draw(
 			libaroma_colorget(ctl,NULL)->primary;
 			word dprimary=libaroma_colorget(ctl,NULL)->control_secondary_text;
 			int rsz	= libaroma_dp(18);
-			
+			item->checkwidth=rsz;
+			item->checkx=xpos;
 			/* init cache */
 			byte new_cache = 0;
 			LIBAROMA_CANVASP checkcache = NULL;
