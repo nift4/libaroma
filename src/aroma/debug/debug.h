@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *			http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename		: debug.h
+ * Filename    : debug.h
  * Description : debug header
  *
  * + This is part of libaroma, an embedded ui toolkit.
@@ -22,7 +22,7 @@
  *
  */
 #ifndef __libaroma_aroma_internal_h__
-	#error "Include <aroma_internal.h> instead."
+  #error "Include <aroma_internal.h> instead."
 #endif
 #ifndef __libaroma_debug_h__
 #define __libaroma_debug_h__
@@ -42,19 +42,19 @@ void ___mtrack_free(void ** x, char * filename, long line);
 char * ___mtrack_strdup(const char * str, char * filename, long line);
 
 #define malloc(x) \
-	___mtrack_malloc (x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
+  ___mtrack_malloc (x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
 #define calloc(x,s) \
-	___mtrack_calloc (x, s, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
+  ___mtrack_calloc (x, s, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
 #define realloc(x,s) \
-	___mtrack_realloc(x,s, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
+  ___mtrack_realloc(x,s, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
 #define free(x) \
-	___mtrack_free((void **) &x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
+  ___mtrack_free((void **) &x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
 
 #ifdef strdup
 #undef strdup
 #endif
 #define strdup(x) \
-	___mtrack_strdup(x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
+  ___mtrack_strdup(x, ___MEMTRACK_FILE(),___MEMTRACK_LINE())
 
 #endif /* LIBAROMA_CONFIG_DEBUG_MEMORY >=1 */
 #endif /* LIBAROMA_CONFIG_DEBUG_MEMORY */
@@ -65,14 +65,14 @@ char * ___mtrack_strdup(const char * str, char * filename, long line);
 #endif
 
 /*
- * Function		: libaroma_debug_output
+ * Function    : libaroma_debug_output
  * Return Value: FILE *
  * Descriptions: get debug output fd
  */
 FILE * libaroma_debug_output();
 
 /*
- * Function		: libaroma_debug_tag
+ * Function    : libaroma_debug_tag
  * Return Value: char *
  * Descriptions: get debug tag
  */
@@ -85,10 +85,10 @@ char * libaroma_debug_tag();
 #define LIBAROMA_STRINGZE(x) LIBAROMA_STRINGZE2(x)
 #define __LINE_STRING__ LIBAROMA_STRINGZE(__LINE__)
 #define LIBAROMA_DEBUG_SOURCE \
-	" ==> on " __FILE__ " line " __LINE_STRING__ "\n		"
+  " ==> on " __FILE__ " line " __LINE_STRING__ "\n    "
 #else
 #define LIBAROMA_DEBUG_SOURCE \
-	" ==> on " __FILE__ "\n		"
+  " ==> on " __FILE__ "\n    "
 #endif
 #else
 #define LIBAROMA_DEBUG_SOURCE ""
@@ -97,9 +97,9 @@ char * libaroma_debug_tag();
 /* Error Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 1
 #define ALOGE(...) \
-	fprintf(libaroma_debug_output(), "E/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "%s\n",LIBAROMA_DEBUG_SOURCE);
+  fprintf(libaroma_debug_output(), "E/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "%s\n",LIBAROMA_DEBUG_SOURCE);
 #else
 #define ALOGE(...)
 #endif
@@ -107,9 +107,9 @@ char * libaroma_debug_tag();
 /* Process/Info Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 2
 #define ALOGI(...) \
-	fprintf(libaroma_debug_output(), "I/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "\n");
+  fprintf(libaroma_debug_output(), "I/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "\n");
 #define ALOGI_IF(x, ...) if(x){ ALOGI(__VA_ARGS__) }
 #else
 #define ALOGI(...)
@@ -119,9 +119,9 @@ char * libaroma_debug_tag();
 /* Important String Information Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 3
 #define ALOGS(...) \
-	fprintf(libaroma_debug_output(), "N/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "\n");
+  fprintf(libaroma_debug_output(), "N/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "\n");
 #define ALOGS_IF(x, ...) if(x){ ALOGS(__VA_ARGS__) }
 #else
 #define ALOGS(...)
@@ -133,9 +133,9 @@ char * libaroma_debug_tag();
 /* Warning Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 4
 #define ALOGW(...) \
-	fprintf(libaroma_debug_output(), "W/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "%s\n",LIBAROMA_DEBUG_SOURCE);
+  fprintf(libaroma_debug_output(), "W/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "%s\n",LIBAROMA_DEBUG_SOURCE);
 #define ALOGW_IF(x, ...) if(x){ ALOGW(__VA_ARGS__) }
 #else
 #define ALOGW(...)
@@ -145,9 +145,9 @@ char * libaroma_debug_tag();
 /* Verbose Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 5
 #define ALOGV(...) \
-	fprintf(libaroma_debug_output(), "D/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "\n");
+  fprintf(libaroma_debug_output(), "D/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "\n");
 #define ALOGV_IF(x, ...) if(x){ ALOGV(__VA_ARGS__) }
 #else
 #define ALOGV(...)
@@ -160,9 +160,9 @@ char * libaroma_debug_tag();
 /* Event Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 6
 #define ALOGT(...) \
-	fprintf(libaroma_debug_output(), "V/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "\n");
+  fprintf(libaroma_debug_output(), "V/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "\n");
 #define ALOGT_IF(x, ...) if(x){ ALOGT(__VA_ARGS__) }
 #else
 #define ALOGT(...)
@@ -172,9 +172,9 @@ char * libaroma_debug_tag();
 /* Event Logs */
 #if LIBAROMA_CONFIG_DEBUG >= 7
 #define ALOGRT(...) \
-	fprintf(libaroma_debug_output(), "V/%s: ",libaroma_debug_tag()); \
-	fprintf(libaroma_debug_output(), __VA_ARGS__); \
-	fprintf(libaroma_debug_output(), "\n");
+  fprintf(libaroma_debug_output(), "V/%s: ",libaroma_debug_tag()); \
+  fprintf(libaroma_debug_output(), __VA_ARGS__); \
+  fprintf(libaroma_debug_output(), "\n");
 #define ALOGRT_IF(x, ...) if(x){ ALOGRT(__VA_ARGS__) }
 #else
 #define ALOGRT(...)
