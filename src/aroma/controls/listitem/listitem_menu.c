@@ -188,6 +188,20 @@ void _libaroma_listitem_menu_draw(
 		int m_h=0;
 		if (mi->main_text){
 			byte fsz=(flags&LIBAROMA_LISTITEM_MENU_SMALL)?3:4;
+	  if (flags&LIBAROMA_LISTITEM_MENU_SMALL){
+        mtextp = libaroma_text(
+          mi->main_text,
+          textcolor,
+          tw,
+          LIBAROMA_FONT(0,fsz)|
+          LIBAROMA_TEXT_FIXED_INDENT|
+          LIBAROMA_TEXT_FIXED_COLOR|
+          LIBAROMA_TEXT_NOHR|
+		  LIBAROMA_TEXT_SINGLELINE,
+          137
+        );
+	  }
+	  else {
 			mtextp = libaroma_text(
 				mi->main_text,
 				textcolor,
@@ -198,6 +212,7 @@ void _libaroma_listitem_menu_draw(
 				LIBAROMA_TEXT_NOHR,
 				137
 			);
+	  }
 			m_h=libaroma_text_height(mtextp);
 			ty+=m_h;
 			txtsh+=m_h;
@@ -207,6 +222,20 @@ void _libaroma_listitem_menu_draw(
 		int e_h = 0;
 		int etremsz=0;
 		if (mi->extra_text){
+	  if (flags&LIBAROMA_LISTITEM_MENU_SMALL){
+        etextp = libaroma_text(
+          mi->extra_text,
+          graycolor,
+          tw,
+          LIBAROMA_FONT(0,3)|
+          LIBAROMA_TEXT_FIXED_INDENT|
+          LIBAROMA_TEXT_FIXED_COLOR|
+          LIBAROMA_TEXT_NOHR|
+		  LIBAROMA_TEXT_SINGLELINE,
+          143
+        );
+	  }
+	  else {
 			etextp = libaroma_text(
 				mi->extra_text,
 				graycolor,
@@ -217,6 +246,7 @@ void _libaroma_listitem_menu_draw(
 				LIBAROMA_TEXT_NOHR,
 				143
 			);
+	  }
 			e_h=libaroma_text_height(etextp)-(libaroma_font_size_px(3) / 3.5);
 			ty+=e_h;
 			txtsh+=e_h;
