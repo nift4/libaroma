@@ -98,16 +98,23 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	LIBAROMA_CANVASP push_canvas=NULL;
 	
 	byte is_disabled = (me->style&LIBAROMA_CTL_BUTTON_DISABLED)?1:0;
+	byte keepcolor_disabled = (me->style&LIBAROMA_CTL_BUTTON_KEEP_COLOR)?1:0;
 	rest_canvas = libaroma_canvas(ctl->w,ctl->h);
-	if (!is_disabled){
+	if (!is_disabled || (is_disabled && keepcolor_disabled)){
 		push_canvas = libaroma_canvas(ctl->w,ctl->h);
 	}
 	LIBAROMA_CANVASP bg = libaroma_canvas(ctl->w,ctl->h);
-	libaroma_control_erasebg(ctl,rest_canvas);
-	if (!is_disabled){
-		libaroma_control_erasebg(ctl,push_canvas);
+	libaroma_draw_ex(bg, ctl->window->bg, 0, 0, ctl->x, ctl->y, 
+					 bg->w, bg->h, 0, 0xFF);
+	//libaroma_control_erasebg(ctl,rest_canvas);
+	libaroma_draw_ex(rest_canvas, bg, 0, 0, 0, 0, 
+					 rest_canvas->w, rest_canvas->h, 0, 0xFF);
+	if (!is_disabled || (is_disabled && keepcolor_disabled)){
+		//libaroma_control_erasebg(ctl,push_canvas);
+		libaroma_draw_ex(push_canvas, bg, 0, 0, 0, 0, 
+					 	push_canvas->w, push_canvas->h, 0, 0xFF);
 	}
-	libaroma_control_erasebg(ctl,bg);
+	//libaroma_control_erasebg(ctl,bg);
 	
 	byte is_circle=(me->style&LIBAROMA_CTL_BUTTON_CIRCLE)?1:0;
 	int ix = libaroma_dp(is_circle?6:4);
@@ -129,6 +136,8 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	/* buttons */
 	LIBAROMA_CANVASP btnmask = libaroma_canvas_ex(iw,ih,1);
 	libaroma_canvas_setcolor(btnmask,0,0);
+	libaroma_draw_ex(btnmask, bg, 0, 0, 0, 0, 
+					 btnmask->w, btnmask->h, 0, 0xFF);
 	libaroma_gradient(btnmask,
 		0,0,
 		ctl->w-libaroma_dp(is_circle?12:8), ctl->h-libaroma_dp(12),
@@ -153,7 +162,7 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	}
 	
 	if (me->style&LIBAROMA_CTL_BUTTON_COLORED) {
-		if (is_disabled){
+		if (is_disabled && !keepcolor_disabled){
 			libaroma_draw_ex(btnmask,bg,0,0,ix,iy,btnmask->w,btnmask->h,0,0xff);
 			libaroma_draw_rect(btnmask,0,0,btnmask->w,btnmask->h,
 				me->isdark?0xffff:0,127);
@@ -167,7 +176,7 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 		else{
 			rest_text_color = me->color;
 		}
-		if (!is_disabled){
+		if (!is_disabled || (is_disabled && keepcolor_disabled)){
 			libaroma_draw_rect(btnmask,0,0,btnmask->w,btnmask->h,push_color,push_opa);
 			libaroma_draw(push_canvas, btnmask, ix, iy, 1);
 		}
@@ -175,14 +184,14 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	else{
 		if (me->style&LIBAROMA_CTL_BUTTON_RAISED){
 			libaroma_draw_ex(btnmask,bg,0,0,ix,iy,btnmask->w,btnmask->h,0,0xff);
-			if (!is_disabled){
+			if (!is_disabled || (is_disabled && keepcolor_disabled)){
 				libaroma_draw_rect(btnmask,0,0,btnmask->w,btnmask->h,0xffff,
 					me->isdark?20:49
 				);
 			}
 			libaroma_draw(rest_canvas, btnmask, ix, iy, 1);
 		}
-		if (!is_disabled){
+		if (!is_disabled || (is_disabled && keepcolor_disabled)){
 			libaroma_draw_ex(btnmask,bg,0,0,ix,iy,btnmask->w,btnmask->h,0,0xff);
 			libaroma_draw_rect(btnmask,0,0,btnmask->w,btnmask->h,push_color,push_opa);
 			libaroma_draw(push_canvas, btnmask, ix, iy, 1);
@@ -205,14 +214,14 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	// libaroma_mutex_unlock(me->mutex);
 	int y = (ctl->h>>1) - ((libaroma_text_height(textp)>>1)+libaroma_dp(2));
 	
-	if (is_disabled){
+	if (is_disabled && !keepcolor_disabled){
 		rest_text_color=me->isdark?0xffff:0;
 	}
 	libaroma_text_draw_color(rest_canvas,textp,libaroma_dp(8)+ix,y,
 		rest_text_color
 	);
 	
-	if (!is_disabled){
+	if (!is_disabled || (is_disabled && keepcolor_disabled)){
 		libaroma_text_draw(push_canvas,textp,libaroma_dp(8)+ix,y);
 	}
 	else{
