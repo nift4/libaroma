@@ -435,10 +435,10 @@ byte _libaroma_window_ready(LIBAROMA_WINDOWP win){
 	if (win->dc==NULL){
 		ALOGW("window_ready cannot allocate workspace drawing canvas");
 		return 0;
-	}
+	}/*
 	if (libaroma_window_isactive(win)){
 		libaroma_wm_clean_workspace();
-	}
+	}*/
 	win->x = x;
 	win->y = y;
 	win->w = win->dc->w;
@@ -1087,7 +1087,7 @@ byte libaroma_window_aniclose(
 						int y=delta+win->h;
 						if (y>0 && y<=(win->h*2)){
 							//printf("Y: %d\n", y);
-							libaroma_draw(wmc, win->prev_screen, 0, 0, 0);
+							libaroma_draw(wmc, win->prev_screen, -(libaroma_wm()->x), -(libaroma_wm()->y), 0);
 							libaroma_draw_ex(
 								wmc, 
 								tdc, 
