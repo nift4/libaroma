@@ -1,14 +1,19 @@
 @ECHO OFF
+cls
 mkdir libaroma
 cd libaroma
+if not "%1"=="" (
+del /F /Q %1.*
+) else (
 del /F /Q *
+)
 
 echo Compiling Libaroma
 %LIBAROMA_GCC% -c ^
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
-  -fPIC -DPIC -Wl,-s -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter ^
+  -fPIC -DPIC -Wl,-s ^
  ^
   %LIBAROMA_CFLAGS% ^
  ^
@@ -49,7 +54,7 @@ echo Compiling Libaroma
 
 cd ..
 
-echo Creating target binaries folder (for later compiling)
+echo "Creating target binaries folder (for later compiling)"
 mkdir bin
 
 if "%1"=="-f" GOTO DONE

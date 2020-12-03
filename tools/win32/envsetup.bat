@@ -2,11 +2,11 @@
 REM
 REM TOOLCHAIN AND ADB
 REM
-setx LIBAROMA_GDB "D:\DevTools\linaro\bin\arm-linux-gnueabihf-gdb.exe"
-setx LIBAROMA_NM "D:\DevTools\linaro\bin\arm-linux-gnueabihf-nm.exe"
-setx LIBAROMA_ADB "D:\DevTools\sdk\platform-tools\adb.exe"
-setx LIBAROMA_GCC "D:\DevTools\linaro\bin\arm-linux-gnueabihf-gcc.exe"
-setx LIBAROMA_GPP "D:\DevTools\linaro\bin\arm-linux-gnueabihf-g++.exe"
+setx LIBAROMA_GDB "C:\arm\bin\arm-linux-gnueabihf-gdb.exe"
+setx LIBAROMA_NM "C:\arm\bin\arm-linux-gnueabihf-nm.exe"
+setx LIBAROMA_ADB "C:\ADB\adb.exe"
+setx LIBAROMA_GCC "C:\arm\bin\arm-linux-gnueabihf-gcc.exe"
+setx LIBAROMA_GPP "C:\arm\bin\arm-linux-gnueabihf-g++.exe"
 
 REM
 REM PRODUCTION CFLAGS
@@ -22,7 +22,7 @@ setx LIBAROMA_DEBUG_CFLAGS "-ggdb -fopenmp -mfloat-abi=hard -mfpu=neon -D__ARM_H
 REM
 REM LIBAROMA CONFIGS
 REM
-setx LIBAROMA_CONFIG_DEBUG "3"
+setx LIBAROMA_CONFIG_DEBUG "4"
 setx LIBAROMA_CONFIG_DEBUG_FILE "0"
 setx LIBAROMA_CONFIG_DEBUG_MEMORY "0"
 setx LIBAROMA_CONFIG_COMPILER_MESSAGE "1"
