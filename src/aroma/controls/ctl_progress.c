@@ -39,7 +39,7 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_progress_handler={
 	thread:_libaroma_ctl_progress_thread
 };
 
-#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING		500
+#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING    1 //500
 
 
 
