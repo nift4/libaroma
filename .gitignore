@@ -4,4 +4,8 @@ Makefile
 cmake_install.cmake
 install_manifest.txt
 
-/build
+/tools/win32/bin
+/tools/win32/libaroma
+/tools/win32/libaroma_rt
+/tools/win32/obj.squirrel
+/tools/win32/obj
