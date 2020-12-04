@@ -1,10 +1,11 @@
 #include <aroma.h>
-#include "statusbar.c"
+#include "../statusbar.c"
+#include "../navbar.c"
 #include "template.c"
 
 
 LIBAROMA_ZIP zip;
-LIBAROMA_STREAMP recovery_stream_uri_cb(char * uri);
+LIBAROMA_STREAMP stream_uri_cb(char * uri);
 
 void aroma_init();
 
@@ -37,7 +38,7 @@ int main(int argc, char ** argv){
 	return 0;
 }
 
-LIBAROMA_STREAMP recovery_stream_uri_cb(char * uri){
+LIBAROMA_STREAMP stream_uri_cb(char * uri){
 	int n = strlen(uri);
 	char kwd[11];
 	int i;
@@ -68,7 +69,7 @@ void aroma_init(){
 	
 	STATUSBAR_HEIGHT=libaroma_dp(STATUSBAR_HEIGHT);
 	/* init stream callback */
-	libaroma_stream_set_uri_callback(recovery_stream_uri_cb);
+	libaroma_stream_set_uri_callback(stream_uri_cb);
 	/* load font id=0 */
 	libaroma_font(0, libaroma_stream(
 		"res:///fonts/Roboto-Regular.ttf"));	

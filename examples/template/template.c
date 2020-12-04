@@ -2,7 +2,9 @@
 void template_page(LIBAROMA_WINDOWP parent){
 
 	LIBAROMA_WINDOWP win = libaroma_window(
-		NULL, 0, 0, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL);	
+		NULL, 0, 0, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL);
+		
+	navbar_draw(win);
 	
 	printf("Showing window!\n");
 	statusbar_end_thread(); /* stop sb thread to play window open/close animations */
@@ -30,11 +32,14 @@ void template_page(LIBAROMA_WINDOWP parent){
 		}
 		
 		if (cmd == 1){ //window received click event, handle it
-			/*
-			if (id==buttonname->id){ 
+			/* check which item got a click by comparing the message's 
+			ID with the button ID you want to handle */
+			
+			if (id==ID_NAVBACK){	//navbar back button clicked, ID_NAVBACK defined on ../navbar.c
+				win->onpool=0; 		//close the window by ending it's message loop (the do while)
 			} 
-			*/
-			/* if list item was clicked, it receives the click event
+			
+			/* if a list item was clicked, it receives the click event
 				so use this instead */
 			/*
 			if (id==somelist->id){
