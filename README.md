@@ -39,8 +39,8 @@ If you can test wether Linux compiling does work correctly or not, I would be gr
 
 ## In progress
 This is a list of changes I'm currently implementing (or didn't prepare for upload)
-- [ ] Template app, empty window with basic things to get started (in progress)
-- [ ] Statusbar example for window (preparing for upload)
+- [X] Template app, empty window with basic things to get started (uploaded)
+- [X] Statusbar example for window (included with the sample)
 - [ ] Slider control (in progress, need to make it a control)
  
 For more info, please visit github page (it's outdated and not-so-useful, though): http://amarullz.github.io/libaroma/  
