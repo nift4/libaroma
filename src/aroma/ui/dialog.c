@@ -416,7 +416,7 @@ int libaroma_dialog_list(
 						listc, templates[i].id, templates[i].selected,
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].image, 
 						templates[i].flags,	-1);				
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_OPTION:
@@ -424,7 +424,7 @@ int libaroma_dialog_list(
 						listc, templates[i].id, templates[i].selected,
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].image, 
 						templates[i].flags,	-1);				
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_MENU:
@@ -432,7 +432,7 @@ int libaroma_dialog_list(
 						listc, templates[i].id, 
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, /*(templates[i].image == NULL) ? templates[i].image : NULL,*/
+						templates[i].image, 
 						templates[i].flags,	-1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_CAPTION:
@@ -513,7 +513,7 @@ int libaroma_dialog_list(
 			button_style,
 			btncolor
 		);
-		printf("Created button1 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button1_ctl->id);
+		//printf("Created button1 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button1_ctl->id);
 		
 		if (button2){
 			int button2_w = libaroma_ctl_button_width(button2);
@@ -529,7 +529,7 @@ int libaroma_dialog_list(
 				button_style,
 				btncolor
 			);
-		printf("Created button2 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button2_ctl->id);
+		//printf("Created button2 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button2_ctl->id);
 		}
 	}
 	
@@ -591,7 +591,7 @@ int libaroma_dialog_list(
 			}
 			else { 
 				retval = msg.key;
-				printf("Returning value: %d\n", retval);
+				printf("Dialog returning value: %d\n", retval);
 				if (returnOnSelect) { onpool = 0; }; 
 			}
 		}
@@ -606,11 +606,11 @@ int libaroma_dialog_list(
 				}
 			}
 		}
-			printf("Dialog Command = (CMD: %i, ID: %i, Msg.Key: %i), i: %d\n",
+			/*printf("Dialog Command = (CMD: %i, ID: %i, Msg.Key: %i), i: %d\n",
 				LIBAROMA_CMD(command),
 				LIBAROMA_CMD_ID(command),
 				msg.key, 
-				  i);
+				  i);*/
 	}
 	while(onpool);
 	

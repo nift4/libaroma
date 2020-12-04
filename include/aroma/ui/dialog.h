@@ -46,8 +46,8 @@ typedef struct{
 typedef struct{
 	byte type;
 	int id;
-	char title[128];
-	char message[128];
+	char *title;
+	char *message;
 	LIBAROMA_CANVASP image;
 	int imageheight;
 	byte selected;
