@@ -22,7 +22,7 @@ After that, the correct way to compile everything is this:
 - Open a new CMD window (needed to make the envsetup work), and go to the tools/win32/libs then run makelibs.bat
 - After that, go back (tools/win32) and run build_libaroma.bat
 - You should have libaroma compiled and ready to build a test app! 
-To compile the test app, you can use either deploy_recovery.bat template (or deploy_android.bat if your phone is on Android). Those scripts will compile the app, push it and run it on your device! **make sure to be rooted if you awnt to run it while on Android. Also, to close the app just press the power or home button**.  
+To compile the test app, you can use either deploy_recovery.bat template (or deploy_android.bat if your phone is on Android). Those scripts will compile the app, push it and run it on your device! **make sure to be rooted if you want to run it while on Android. Also, to close the app just press the power or home button**.  
 If you just want to build the app, run build_app.bat template; the resulting binary will be at bin folder (tools/win32/bin)  
 **To compile custom apps with the scripts**, they should have a folder inside examples\ with the name you want (like examples/template) and inside that a file called main.c (the app source code, look at template for an, ehm, template) and a folder called zip (with the resources you want to embed in the app like fonts, images, etc). If you want to make a flashable zip, just create META-INF/com/google/android folders inside zip and put there the resulting binary (rename it as update-binary). 
 
