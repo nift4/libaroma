@@ -14,13 +14,13 @@ void navbar_draw(LIBAROMA_WINDOWP win){
 	LIBAROMA_CANVASP menu_icon = libaroma_canvas(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT));
 	LIBAROMA_CANVASP home_icon = libaroma_canvas(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT));
 	LIBAROMA_CANVASP back_icon = libaroma_canvas(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT));
-
+	// let's use 64x64 PNGs in order to get some quality 
 	libaroma_draw_scale_smooth(menu_icon, libaroma_image_uri("res:///icons/menu.png"), 
-									0, 0, menu_icon->w, menu_icon->h, 0, 0, menu_icon->w, menu_icon->h); 
+									0, 0, menu_icon->w, menu_icon->h, 0, 0, 64, 64); 
 	libaroma_draw_scale_smooth(home_icon, libaroma_image_uri("res:///icons/home.png"), 
-									0, 0, home_icon->w, home_icon->h, 0, 0, home_icon->w, home_icon->h);
+									0, 0, home_icon->w, home_icon->h, 0, 0, 64, 64);
 	libaroma_draw_scale_smooth(back_icon, libaroma_image_uri("res:///icons/back.png"),
-									0, 0, back_icon->w, back_icon->h, 0, 0, back_icon->w, back_icon->h);
+									0, 0, back_icon->w, back_icon->h, 0, 0, 64, 64);
 
 	int menubtn_x=(win->w/2)/2;
 	int backbtn_x=((win->w/2)/2)*3;	
