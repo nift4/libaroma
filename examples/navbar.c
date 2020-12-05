@@ -36,10 +36,12 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 
 	int menubtn_x=(win->w/2)/2;
 	int backbtn_x=((win->w/2)/2)*3;	
-	LIBAROMA_CONTROLP buttons[3];
+	int navbar_y=libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT));
+	
+	libaroma_draw_rect(win->bg, 0, navbar_y, libaroma_px(win->w), libaroma_dp(30), bg_color, 0);
 	LIBAROMA_CONTROLP menubtn_list = libaroma_ctl_list(
 		win, ID_NAVMENU,
-		0, libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
+		0, navbar_y, 96, NAVBAR_HEIGHT,
 		0, 0,
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
@@ -47,7 +49,7 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);
 	LIBAROMA_CONTROLP homebtn_list = libaroma_ctl_list(
 		win, ID_NAVHOME,
-		libaroma_px((win->w/2)-(libaroma_dp(96)/2)), libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
+		libaroma_px((win->w/2)-(libaroma_dp(96)/2)), navbar_y, 96, NAVBAR_HEIGHT,
 		0, 0,
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
@@ -55,7 +57,7 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
 	LIBAROMA_CONTROLP backbtn_list = libaroma_ctl_list(
 		win, ID_NAVBACK,
-		libaroma_px(win->w-libaroma_dp(96)), libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
+		libaroma_px(win->w-libaroma_dp(96)), navbar_y, 96, NAVBAR_HEIGHT,
 		0, 0,
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
