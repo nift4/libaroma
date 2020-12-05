@@ -25,7 +25,7 @@ void navbar_draw(LIBAROMA_WINDOWP win){
 	int menubtn_x=(win->w/2)/2;
 	int backbtn_x=((win->w/2)/2)*3;	
 	LIBAROMA_CONTROLP buttons[3];
-	buttons[0] = libaroma_ctl_list(
+	LIBAROMA_CONTROLP menubtn_list = libaroma_ctl_list(
 		win, ID_NAVMENU,
 		0, libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
 		0, 0,
@@ -33,7 +33,7 @@ void navbar_draw(LIBAROMA_WINDOWP win){
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
 	libaroma_listitem_image(menubtn_list, ID_NAVMENU, menu_icon, 
 								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);
-	buttons[1] = libaroma_ctl_list(
+	LIBAROMA_CONTROLP homebtn_list = libaroma_ctl_list(
 		win, ID_NAVHOME,
 		libaroma_px((win->w/2)-(libaroma_dp(96)/2)), libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
 		0, 0,
@@ -41,7 +41,7 @@ void navbar_draw(LIBAROMA_WINDOWP win){
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
 	libaroma_listitem_image(homebtn_list, ID_NAVHOME, home_icon, 
 								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
-	buttons[2] = libaroma_ctl_list(
+	LIBAROMA_CONTROLP backbtn_list = libaroma_ctl_list(
 		win, ID_NAVBACK,
 		libaroma_px(win->w-libaroma_dp(96)), libaroma_px(win->h-libaroma_dp(NAVBAR_HEIGHT)), 96, NAVBAR_HEIGHT,
 		0, 0,
