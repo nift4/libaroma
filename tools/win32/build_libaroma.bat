@@ -4,9 +4,10 @@ mkdir libaroma
 cd libaroma
 if not "%1"=="" (
 del /F /Q %1.*
-) else (
-del /F /Q *
-)
+) 
+REM else (
+REM del /F /Q *
+REM )
 
 echo Compiling Libaroma
 %LIBAROMA_GCC% -c ^
@@ -56,7 +57,3 @@ cd ..
 
 echo "Creating target binaries folder (for later compiling)"
 mkdir bin
-
-if "%1"=="-f" GOTO DONE
-pause
-:DONE
