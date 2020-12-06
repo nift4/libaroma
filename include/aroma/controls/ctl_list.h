@@ -119,6 +119,8 @@ struct _LIBAROMA_CTL_LIST_ITEM{
 	byte is_leftcontrol;
 	int checkwidth;
 	int checkx;
+	/* if you want to hold any data within a list item, use this */
+	void *tag;
 };
 
 /*

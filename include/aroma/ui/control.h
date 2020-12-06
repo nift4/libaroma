@@ -68,6 +68,9 @@ struct _LIBAROMA_CONTROL{
 	int minw;
 	int minh;
 	
+	/* if you want to hold any kind of data within a control, use this */
+	void* tag;
+	
 	/* callbacks */
 	LIBAROMA_CONTROL_HANDLERP handler;
 };
