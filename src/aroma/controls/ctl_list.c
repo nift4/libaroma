@@ -931,6 +931,27 @@ LIBAROMA_CTL_LIST_TOUCHPOSP libaroma_ctl_list_getpos(LIBAROMA_CONTROLP ctl){
 } /* End of libaroma_ctl_list_getpos */
 
 /*
+ * Function		: libaroma_ctl_list_get_item_count
+ * Return Value	: int
+ * Descriptions	: get listitem's item count
+ */
+int libaroma_ctl_list_get_item_count(
+	LIBAROMA_CONTROLP ctl){
+	LIBAROMA_CTL_SCROLL_CLIENTP client = libaroma_ctl_scroll_get_client(ctl);
+	if (!client){
+		return 0;
+	}
+	if (client->handler!=&_libaroma_ctl_list_handler){
+		return 0;
+	}
+	LIBAROMA_CTL_LISTP mi = (LIBAROMA_CTL_LISTP) client->internal;
+	if (!(mi->itemn)){
+		return 0;
+	}
+	return mi->itemn;
+}
+
+/*
  * Function		: libaroma_ctl_list_get_touched_item
  * Return Value	: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions	: get touched item

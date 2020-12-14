@@ -146,6 +146,15 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_item_internal(
 );
 
 /*
+ * Function		: libaroma_ctl_list_get_item_count
+ * Return Value: int
+ * Descriptions: get listitem's item count
+ */
+int libaroma_ctl_list_get_item_count(
+	LIBAROMA_CONTROLP ctl
+);
+
+/*
  * Function		: libaroma_ctl_list_get_touched_item
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions: get touched item
