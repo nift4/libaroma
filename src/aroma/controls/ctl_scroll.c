@@ -1407,7 +1407,7 @@ LIBAROMA_CONTROLP libaroma_ctl_scroll(
 		libaroma_control_new(
 			id,
 			x, y, w, h,
-			libaroma_dp(48),libaroma_dp(48), /* min size */
+			libaroma_dp(32),libaroma_dp(32), /* min size */
 			me,
 			&_libaroma_ctl_scroll_handler,
 			win
