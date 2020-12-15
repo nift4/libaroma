@@ -15,7 +15,7 @@
  *______________________________________________________________________________
  *
  * Filename		: listitem_text.c
- * Description	: list text item source
+ * Description	: text item source
  *
  * + This is part of libaroma, an embedded ui toolkit.
  * + 25/06/15 - Author(s): Ahmad Amarullah
@@ -28,8 +28,6 @@
 
 #include "../../ui/ui_internal.h"
 
-#define LIBAROMA_LISTITEM_TEXT_UPDATEABLE		0x1
-#define LIBAROMA_LISTITEM_TEXT_BOLD				0x2
 
 /* LIST ITEM HANDLER */
 byte _libaroma_listitem_text_message(
@@ -54,6 +52,7 @@ typedef struct{
 	int hpad;
 	int font_id;
 	int font_size;
+	word flags;
 	int h;
 } _LIBAROMA_LISTITEM_TEXT, * _LIBAROMA_LISTITEM_TEXTP;
 
@@ -118,10 +117,7 @@ void _libaroma_listitem_text_draw(
 				mi->text,
 				mi->textcolor,
 				tw,
-				LIBAROMA_FONT(mi->font_id,mi->font_size)|
-				LIBAROMA_TEXT_FIXED_INDENT|
-				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR|LIBAROMA_TEXT_BOLD,
+				LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags,
 				137
 			);
 			m_h=libaroma_text_height(mtextp);
@@ -169,7 +165,7 @@ void _libaroma_listitem_text_release_internal(
 /*
  * Function		: _libaroma_listitem_text_destroy
  * Return Value: void
- * Descriptions: destroy check item
+ * Descriptions: destroy text item
  */
 void _libaroma_listitem_text_destroy(
 		LIBAROMA_CONTROLP ctl,
@@ -231,11 +227,10 @@ void libaroma_listitem_text_add(
 	mi->redraw=1;
 }
 
-
 /*
  * Function		: libaroma_listitem_text_color
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
- * Descriptions: create check item custom text color
+ * Descriptions: create text item with custom color
  */
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		LIBAROMA_CONTROLP ctl,
@@ -247,6 +242,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		int font_id,
 		int font_size,
 		word flags,
+		byte updateable,
 		int at_index){
 	/* check valid list control */
 	if (!libaroma_ctl_list_is_valid(ctl)){
@@ -267,21 +263,17 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 	mi->hpad=hpad;
 	mi->font_id=font_id;
 	mi->font_size=font_size?font_size:3;
-	
+	mi->flags=flags;
 	/* calculate height */
 	int tw = ctl->w-hpad;//-libaroma_dp(52);
 	int th = libaroma_dp(vpad*2);
-	byte isbold=(flags&LIBAROMA_LISTITEM_TEXT_BOLD);
 	if (tw>0){
 		if (mi->text){
 			LIBAROMA_TEXT mtextp = libaroma_text(
 				mi->text,
 				0,
 				tw,
-				LIBAROMA_FONT(font_id,font_size)|
-				LIBAROMA_TEXT_FIXED_INDENT|
-				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR|(isbold?LIBAROMA_TEXT_BOLD:0),
+				LIBAROMA_FONT(font_id,font_size)|flags,
 				137
 			);
 			th+=libaroma_text_height(mtextp);
@@ -294,7 +286,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
-		h,(flags&LIBAROMA_LISTITEM_TEXT_UPDATEABLE)?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
+		h,updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
 		(voidp) mi,
 		&_libaroma_listitem_text_handler,
 		at_index
@@ -309,16 +301,16 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 /*
  * Function		: libaroma_listitem_text
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
- * Descriptions: create check item
+ * Descriptions: create text item
  */
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
 		const char * text,
-		int vpad, int hpad, int font_id, int font_size, word flags,
+		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
 		int at_index){
 	return libaroma_listitem_text_color(ctl,id,text,
-		libaroma_colorget(ctl,NULL)->accent,vpad,hpad,font_id,font_size,flags,at_index);
+		libaroma_colorget(ctl,NULL)->accent,vpad,hpad,font_id,font_size,flags,updateable,at_index);
 }
 
 #endif /* __libaroma_listitem_text_c__ */

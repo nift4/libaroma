@@ -15,10 +15,11 @@
  *______________________________________________________________________________
  *
  * Filename		: listitem_text.h
- * Description : item caption header
+ * Description : text item header
  *
  * + This is part of libaroma, an embedded ui toolkit.
  * + 25/06/15 - Author(s): Ahmad Amarullah
+ * + 14/12/20 - Modified by: MLXProjects
  *
  */
 #ifndef __libaroma_aroma_h__
@@ -26,6 +27,7 @@
 #endif
 #ifndef __libaroma_listitem_text_h__
 #define __libaroma_listitem_text_h__
+
 /*
  * Function		: libaroma_listitem_text_set
  * Return Value: void
@@ -46,7 +48,7 @@ void libaroma_listitem_text_add(
 /*
  * Function		: libaroma_listitem_text_color
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
- * Descriptions: create check item custom text color
+ * Descriptions: create text item with custom text color
  */
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		LIBAROMA_CONTROLP ctl,
@@ -58,6 +60,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		int font_id,
 		int font_size,
 		word flags,
+		byte updateable,
 		int at_index);
 		
 /*
@@ -69,7 +72,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
 		const char * text,
-		int vpad, int hpad, int font_id, int font_size, word flags,
+		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
 		int at_index);
 
 #endif /* __libaroma_listitem_text_h__ */
