@@ -43,15 +43,15 @@
 /*
  * Window Messages Queue
  */
-#define LIBAROMA_MSG_WIN_ACTIVE			 LIBAROMA_MSG_SYS(0x1)
-#define LIBAROMA_MSG_WIN_INACTIVE		 LIBAROMA_MSG_SYS(0x2)
-#define LIBAROMA_MSG_WIN_INVALIDATE	 LIBAROMA_MSG_SYS(0x3)
-#define LIBAROMA_MSG_WIN_RESIZE			 LIBAROMA_MSG_SYS(0x4)
-#define LIBAROMA_MSG_WIN_MEASURED		 LIBAROMA_MSG_SYS(0x5)
+#define LIBAROMA_MSG_WIN_ACTIVE			LIBAROMA_MSG_SYS(0x1)
+#define LIBAROMA_MSG_WIN_INACTIVE		LIBAROMA_MSG_SYS(0x2)
+#define LIBAROMA_MSG_WIN_INVALIDATE		LIBAROMA_MSG_SYS(0x3)
+#define LIBAROMA_MSG_WIN_RESIZE			LIBAROMA_MSG_SYS(0x4)
+#define LIBAROMA_MSG_WIN_MEASURED		LIBAROMA_MSG_SYS(0x5)
 #define LIBAROMA_MSG_WIN_DIRECTMSG		LIBAROMA_MSG_SYS(0x6)
-#define LIBAROMA_MSG_WIN_FOCUS				LIBAROMA_MSG_SYS(0x7)
-#define LIBAROMA_MSG_WIN_BLUR				 LIBAROMA_MSG_SYS(0x8)
-#define LIBAROMA_MSG_WIN_TITLE				LIBAROMA_MSG_SYS(0x9)
+#define LIBAROMA_MSG_WIN_FOCUS			LIBAROMA_MSG_SYS(0x7)
+#define LIBAROMA_MSG_WIN_BLUR			LIBAROMA_MSG_SYS(0x8)
+#define LIBAROMA_MSG_WIN_TITLE			LIBAROMA_MSG_SYS(0x9)
 
 /*
  * Window Show Animation
@@ -82,6 +82,9 @@
 #define LIBAROMA_POS_2P3			-6
 #define LIBAROMA_POS_1P4			-7
 #define LIBAROMA_POS_3P4			-8
+
+#define LIBAROMA_NOTIF_PULLDOWN_SLIDE	0x1
+#define LIBAROMA_NOTIF_PULLDOWN_CLEAN	0x2
 
 /* transition callback */
 typedef void (*LIBAROMA_TRANSITION_CB)(
@@ -327,6 +330,36 @@ byte libaroma_window_layer_init(LIBAROMA_WINDOWP win);
  */
 byte libaroma_window_layer_release(LIBAROMA_WINDOWP win);
 
+/*********************NOTIFPULLDOWN*********************/
+
+/*
+ * Function		: libaroma_window_notifpulldown
+ * Return Value: LIBAROMA_WINDOWP
+ * Descriptions: new or get notifpulldown window
+ */
+LIBAROMA_WINDOWP libaroma_window_notifpulldown(LIBAROMA_WINDOWP win, int height, byte showtype);
+
+/*
+ * Function		: libaroma_window_notifpulldown_show
+ * Return Value: byte
+ * Descriptions: show/hide notifpulldown
+ */
+byte libaroma_window_notifpulldown_show(LIBAROMA_WINDOWP win, byte show);
+
+/* slide notifpulldown callback */
+typedef void (*LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB)(
+	LIBAROMA_WINDOWP,int,int);
+
+/*
+ * Function		: libaroma_window_notifpulldown_onslide
+ * Return Value: byte
+ * Descriptions: set notifpulldown slide position callback
+ */
+byte libaroma_window_sidebar_onslide(
+	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB cb);
+
+
+/************************SIDEBAR************************/
 /*
  * Function		: libaroma_window_sidebar
  * Return Value: LIBAROMA_WINDOWP

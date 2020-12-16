@@ -28,15 +28,23 @@
 
 /* max touch x dp to trigger sidebar */
 #define _LIBAROMA_LAYER_SIDEBAR_TOUCH_DP 16
+/* max touch x dp to trigger notifications pulldown */
+#define _LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP 16
 
 /* root window client data */
 typedef struct{
 	LIBAROMA_WINDOWP win;
 	LIBAROMA_WINDOWP sidebar;
+	LIBAROMA_WINDOWP notifpulldown;
 	byte sidebar_showed;
+	byte notifpulldown_showed;
 	int sidebar_xpos;
 	int sidebar_req_x;
+	int notifpulldown_ypos;
+	int notifpulldown_req_y;
 	int sidebar_velocity;
+	int notifpulldown_velocity;
+	byte notifpulldown_drawtype;
 	byte redraw;
 	
 	LIBAROMA_MUTEX mutex;
@@ -54,6 +62,7 @@ typedef struct{
 	LIBAROMA_CONTROLP pretouched;
 	
 	LIBAROMA_WINDOW_SIDEBAR_SLIDE_CB slide_cb;
+	LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB notif_slide_cb;
 	LIBAROMA_FLING fling;
 } _LIBAROMA_WINDOW_LAYER, *_LIBAROMA_WINDOW_LAYERP;
 
@@ -129,6 +138,24 @@ void _libaroma_window_layer_postfree(LIBAROMA_WINDOWP win){
 		libaroma_window_free(me->sidebar);
 		libaroma_mutex_unlock(me->mutex);
 	}
+	if (me->notifpulldown){
+		if (me->notifpulldown->active){
+			me->notifpulldown->active=0;
+			LIBAROMA_MSG msgia;
+			msgia.msg=LIBAROMA_MSG_WIN_INACTIVE;
+			int i;
+			for (i=0;i<me->notifpulldown->childn;i++){
+				if (me->notifpulldown->childs[i]->handler->message){
+					me->notifpulldown->childs[i]->handler->message(
+						me->notifpulldown->childs[i], &msgia
+					);
+				}
+			}
+		}
+		libaroma_mutex_lock(me->mutex);
+		libaroma_window_free(me->notifpulldown);
+		libaroma_mutex_unlock(me->mutex);
+	}
 	libaroma_mutex_lock(me->mutex);
 	if (me->tdc){
 		libaroma_canvas_free(me->tdc);
@@ -158,6 +185,7 @@ byte _libaroma_window_layer_updatedc(LIBAROMA_WINDOWP win){
 	if (!me->on_direct_canvas){
 		if (me->tdc){
 			byte sidebar_draw=0;
+			byte notifpulldown_draw=0;
 			if (win->active==1){
 				if (me->sidebar_showed){
 					if (me->sidebar){
@@ -183,8 +211,46 @@ byte _libaroma_window_layer_updatedc(LIBAROMA_WINDOWP win){
 						}
 					}
 				}
+				if (me->notifpulldown_showed){
+					if (me->notifpulldown){
+						if (me->notifpulldown_ypos>0){
+							libaroma_draw_ex(				//draw notif window
+								win->dc,													//dest
+								me->notifpulldown->dc,										//src
+								0, 															//destx
+								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+									0:me->notifpulldown->y,									//desty
+								0, 															//srcx
+								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+									0:(me->notifpulldown->h-me->notifpulldown_ypos),		//srcy
+								win->dc->w,													//width
+								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+									me->notifpulldown_ypos:me->notifpulldown->h,			//height
+								0,0xff														//usealpha, level
+							);
+							if ((win->dc->h - me->notifpulldown_ypos) > 0){
+								libaroma_draw_ex(				//draw alpha section
+									win->dc,me->tdc,										//dest, src
+									0,me->notifpulldown_ypos,								//destx, desty
+									0,me->notifpulldown_ypos,								//srcx, srcy
+									win->dc->w, win->dc->h-me->notifpulldown_ypos,			//width, height
+									(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+										0:LIBAROMA_DRAW_TO_BLACK,							//alphaflags
+									(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+										255:(245-(150*me->notifpulldown_ypos/me->notifpulldown->h))//alphalevel
+								);
+							}
+							//printf("drawing window at x %d, y %d (srcx %d, srcy %d) with w %d, h %d\n", 
+							//		0, me->notifpulldown->y, 0, me->notifpulldown->h-me->notifpulldown_ypos, 
+							//		win->dc->w, me->notifpulldown->h);
+							//printf("notifpulldown has width %d, height %d, x %d and y %d\n", 
+							//					win->dc->w, me->notifpulldown->h, 0, me->notifpulldown_ypos);
+							notifpulldown_draw=1;
+						}
+					}
+				}
 			}
-			if (!sidebar_draw){
+			if (!sidebar_draw && !notifpulldown_draw){
 				libaroma_draw(win->dc,me->tdc,0,0,0);
 			}
 		}
@@ -357,6 +423,76 @@ byte _libaroma_window_layer_set_sidebar_pos(LIBAROMA_WINDOWP win, int x){
 	return 1;
 } /* End of _libaroma_window_layer_set_sidebar_pos */
 
+/*
+ * Function		: _libaroma_window_layer_set_notifpulldown_pos
+ * Return Value: byte
+ * Descriptions: set notifpulldown position
+ */
+byte _libaroma_window_layer_set_notifpulldown_pos(LIBAROMA_WINDOWP win, int y){
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win);
+	if (!me){
+		return 0;
+	}
+	libaroma_mutex_lock(me->mutex);
+	if (!me->notifpulldown){
+		libaroma_mutex_unlock(me->mutex);
+		return 0;
+	}
+	if (y>0){
+		if (y>me->notifpulldown->h){
+			printf("Touch Y %d is greater than window height %d!\n", y, me->notifpulldown->h);
+			y=me->notifpulldown->h;
+		}
+		if (!me->notifpulldown_showed){
+			if (!me->notifpulldown->active){
+				/* activate notifpulldown */
+				LIBAROMA_MSG msgr;
+				dword rv=0;
+				msgr.msg=LIBAROMA_MSG_WIN_MEASURED;
+				libaroma_mutex_unlock(me->mutex);
+				me->notifpulldown->handler->message_hooker(me->notifpulldown,&msgr,&rv);
+				msgr.msg=LIBAROMA_MSG_WIN_ACTIVE;
+				me->notifpulldown->handler->message_hooker(me->notifpulldown,&msgr,&rv);
+				libaroma_window_invalidate(me->notifpulldown,0);
+				libaroma_mutex_lock(me->mutex);
+			}
+			libaroma_mutex_unlock(me->mutex);
+			libaroma_window_layer_direct_canvas(win,0);
+			libaroma_mutex_lock(me->mutex);
+			me->notifpulldown_showed=1;
+		}
+		if (me->notifpulldown_ypos!=y){
+			me->redraw=1;
+		}
+		if (y==me->notifpulldown->y){
+			if (me->notifpulldown_showed!=2){
+				me->notifpulldown_showed=2;
+			}
+		}
+		else if (me->notifpulldown_showed==2){
+			me->notifpulldown_showed=1;
+		}
+		me->notifpulldown_ypos=y;
+	}
+	else{
+		if (me->notifpulldown_showed){
+			me->notifpulldown_showed=0;
+			libaroma_mutex_unlock(me->mutex);
+			libaroma_window_layer_direct_canvas(win,1);
+			libaroma_mutex_lock(me->mutex);
+		}
+		if (me->notifpulldown_ypos!=0){
+			me->redraw=1;
+		}
+		me->notifpulldown_ypos=0;
+	}
+	if (me->notif_slide_cb){
+		me->notif_slide_cb(me->notifpulldown, me->notifpulldown_ypos, me->notifpulldown->h);
+	}
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+} /* End of _libaroma_window_layer_set_notifpulldown_pos */
+
 byte _libaroma_window_layer_message_hooker(
 		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval){
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win);
@@ -373,14 +509,98 @@ byte _libaroma_window_layer_message_hooker(
 				}
 			}
 		}
+		else if (me->notifpulldown_showed==2){
+			if (me->notifpulldown){
+				if (me->notifpulldown->handler->message_hooker(
+						me->notifpulldown, msg, retval
+					)){
+					return 1;
+				}
+			}
+		}
 		else if (me->touched==10){
 			/* cancel any touch event */
 			if (msg->msg==LIBAROMA_MSG_TOUCH){
 				return 1;
 			}
 		}
-		else if (me->sidebar){
-			switch (msg->msg){
+		else if (me->notifpulldown || me->sidebar || (me->notifpulldown && me->sidebar)){
+			if (me->notifpulldown){
+				switch (msg->msg){
+					case LIBAROMA_MSG_TOUCH:
+						{
+							int x = msg->x;
+							int y = msg->y;
+							libaroma_window_calculate_pos(win,NULL,&x,&y);
+							if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
+								if (y<libaroma_dp(_LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP) || 
+									(y>=(me->notifpulldown->h-libaroma_dp(20)) && me->notifpulldown_showed)){
+									// start showing pulldown
+									printf("Touching to show/hide! y=%d\n", y);
+									libaroma_mutex_lock(me->mutex);
+									me->notifpulldown_velocity=0;
+									if (y>=(me->notifpulldown->h-libaroma_dp(20))){
+										me->notifpulldown_req_y=me->notifpulldown->h;										
+									}
+									else me->notifpulldown_req_y=libaroma_dp(15);
+									me->touched=1;
+									me->touch_x=x;
+									me->touch_y=y;
+									libaroma_fling_down(&me->fling, y);
+									libaroma_mutex_unlock(me->mutex);
+									return 1;
+								}
+							}
+							else if (me->touched){
+								if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
+									libaroma_mutex_lock(me->mutex);/*
+									if (y>=(me->notifpulldown->h-libaroma_dp(20))){									
+										me->notifpulldown_req_y=me->notifpulldown->h;
+										libaroma_fling_move(&me->fling, me->notifpulldown->h);
+										libaroma_mutex_unlock(me->mutex);
+										return 1;
+									}*/
+									int reqy=y;
+									if (me->touched==2){
+										reqy=(me->notifpulldown->h)+(y-me->touch_y);
+									}
+									me->notifpulldown_req_y=MAX(
+										libaroma_dp(_LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP),reqy);
+									libaroma_fling_move(&me->fling, y);
+									libaroma_mutex_unlock(me->mutex);
+								}
+								else if (msg->state==LIBAROMA_HID_EV_STATE_UP){
+									libaroma_mutex_lock(me->mutex);
+									me->notifpulldown_velocity=
+										((int) (libaroma_fling_up(&me->fling, y)*1.3)>>8);
+									if (me->notifpulldown_velocity>=0||y<=(me->notifpulldown->h)/2){
+										printf("Swiped up!\n");
+										me->notifpulldown_req_y=0;
+									}
+									else{
+										printf("Swiped down!\n");
+										me->notifpulldown_req_y=me->notifpulldown->h;
+										me->notifpulldown_velocity=abs(me->notifpulldown_velocity);
+									}
+									if (me->notifpulldown_velocity){
+										/* fix velocity */
+										int diff = me->notifpulldown->h;
+										me->notifpulldown_velocity = MAX(MIN(
+											me->notifpulldown_velocity, 0.45*diff),0.05*diff);
+									}
+									if (me->notifpulldown_req_y!=me->notifpulldown_ypos){
+										me->touched=10;
+									}
+									libaroma_mutex_unlock(me->mutex);
+								}
+								return 1;
+							}
+						}
+						break;
+				}
+			}
+			if (me->sidebar){
+				switch (msg->msg){
 				case LIBAROMA_MSG_TOUCH:
 					{
 						int x = msg->x;
@@ -437,6 +657,7 @@ byte _libaroma_window_layer_message_hooker(
 						}
 					}
 					break;
+				}
 			}
 		}
 	}
@@ -525,12 +746,93 @@ byte _libaroma_window_layer_ui_thread(LIBAROMA_WINDOWP win) {
 				libaroma_mutex_lock(me->mutex);
 			}
 		}
+		
+		if ((me->notifpulldown)&&(me->notifpulldown_req_y!=-1)){
+			/* show - hide notifpulldown */
+			if (!me->notifpulldown->active){
+				libaroma_mutex_unlock(me->mutex);
+				_libaroma_window_layer_set_notifpulldown_pos(win,1);
+				libaroma_mutex_lock(me->mutex);
+			}
+			else if (me->notifpulldown->h<=0){
+				/* invalid notifpulldown */
+				me->notifpulldown_req_y=-1;
+			}
+			else if (me->notifpulldown_req_y!=me->notifpulldown_ypos){
+				int move_sz = (me->notifpulldown_req_y-me->notifpulldown_ypos);
+				if (me->notifpulldown_velocity!=0){
+					me->notifpulldown_velocity=(me->notifpulldown_velocity*246)>>8;
+					int minh=MAX(1,0.05*me->notifpulldown->h);
+					if (me->notifpulldown_velocity<minh){
+						me->notifpulldown_velocity=minh;
+					}
+					if (move_sz<0){
+						move_sz = 0-me->notifpulldown_velocity;
+					}
+					else{
+						move_sz = me->notifpulldown_velocity;
+					}
+				}
+				else{
+					move_sz = (move_sz<<6)>>8;
+				}
+				if (abs(move_sz)<2){
+					if (me->notifpulldown_req_y<me->notifpulldown_ypos){
+						move_sz=-1;
+					}
+					else{
+						move_sz=1;
+					}
+				}
+				int target_sz = me->notifpulldown_ypos+move_sz;
+				if (target_sz>=me->notifpulldown->h){
+					if ((me->touched)&&(me->touched!=10)){
+						target_sz=me->notifpulldown->y-1;
+					}
+					else{
+						if (me->touched==10){
+							me->touched=0;
+						}
+						target_sz=me->notifpulldown->h;
+						me->notifpulldown_req_y=-1;
+						me->notifpulldown_velocity=0;
+					}
+				}
+				else if (target_sz<=0){
+					if ((me->touched)&&(me->touched!=10)){
+						target_sz=1;
+					}
+					else{
+						if (me->touched==10){
+							me->touched=0;
+						}
+						target_sz=0;
+						me->notifpulldown_req_y=-1;
+						me->notifpulldown_velocity=0;
+					}
+				}
+				libaroma_mutex_unlock(me->mutex);
+				_libaroma_window_layer_set_notifpulldown_pos(win,target_sz);
+				libaroma_mutex_lock(me->mutex);
+			}
+		}
+		
 		libaroma_mutex_unlock(me->mutex);
 		
 		if (me->sidebar_showed){
 			if (me->sidebar){	
 				if (me->sidebar->ui_thread){
 					if (me->sidebar->ui_thread(me->sidebar)){
+						need_sync=1;
+					}
+				}
+			}
+		}
+		
+		if (me->notifpulldown_showed){
+			if (me->notifpulldown){	
+				if (me->notifpulldown->ui_thread){
+					if (me->notifpulldown->ui_thread(me->notifpulldown)){
 						need_sync=1;
 					}
 				}
@@ -591,6 +893,7 @@ byte libaroma_window_layer_init(LIBAROMA_WINDOWP win){
 	me->on_direct_canvas=1;
 	me->ori_ui_thread=win->ui_thread;
 	me->sidebar_req_x=-1;
+	me->notifpulldown_req_y=-1;
 	win->handler = &_libaroma_window_layer_handler;
 	win->client_data = me;
 	win->ui_thread=_libaroma_window_layer_ui_thread;
@@ -612,6 +915,444 @@ byte libaroma_window_layer_release(LIBAROMA_WINDOWP win){
 	libaroma_window_invalidate(win,1);
 	return 1;
 } /* End of libaroma_window_layer_release */
+
+/**************************** NOTIFPULLDOWN ************************************/
+
+/* sidebar window handler */
+byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync);
+byte _libaroma_window_notifpulldown_sync(LIBAROMA_WINDOWP win,
+	int x,int y,int w,int h);
+byte _libaroma_window_notifpulldown_message_hooker(
+		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval
+);
+
+static LIBAROMA_WINDOW_HANDLER _libaroma_window_notifpulldown_handler={
+	prefree:NULL,
+	postfree:NULL,
+	updatebg:NULL,
+	invalidate:_libaroma_window_notifpulldown_invalidate,
+	sync:_libaroma_window_notifpulldown_sync,
+	message_hooker:_libaroma_window_notifpulldown_message_hooker,
+	control_draw_flush:NULL,
+	control_erasebg:NULL,
+	control_isvisible:NULL,
+	control_draw_begin:NULL
+};
+
+/*
+ * Function		: _libaroma_window_notifpulldown_invalidate
+ * Return Value: byte
+ * Descriptions: invalidate
+ */
+byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync){
+	if (win->handler!=&_libaroma_window_notifpulldown_handler){
+		return 0;
+	}
+	if ((win->dc)&&(win->bg)){
+		libaroma_draw(win->dc,win->bg,0,0,0);
+		/* draw childs */
+		int i;
+#ifdef LIBAROMA_CONFIG_OPENMP
+	#pragma omp parallel for
+#endif
+		for (i=0;i<win->childn;i++){
+			libaroma_control_draw(win->childs[i], 0);
+		}
+	}
+	if (sync){
+		return _libaroma_window_notifpulldown_sync(win,0,0,win->w,win->h);
+	}
+	return 1;
+} /* End of _libaroma_window_notifpulldown_invalidate */
+
+/*
+ * Function		: _libaroma_window_notifpulldown_sync
+ * Return Value: byte
+ * Descriptions: sync notifpulldown
+ */
+byte _libaroma_window_notifpulldown_sync(LIBAROMA_WINDOWP win,
+	int x,int y,int w,int h){
+	if (win->handler!=&_libaroma_window_notifpulldown_handler){
+		return 0;
+	}
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
+	if (!me){
+		return 0;
+	}
+	if (me->notifpulldown_showed){
+		me->redraw=1;
+	}
+	return 1;
+} /* End of _libaroma_window_notifpulldown_sync */
+
+/*
+ * Function		: libaroma_window_notifpulldown_show
+ * Return Value: byte
+ * Descriptions: show/hide notifpulldown
+ */
+byte libaroma_window_notifpulldown_show(LIBAROMA_WINDOWP win, byte show){
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
+	if (!me){
+		return 0;
+	}
+	libaroma_mutex_lock(me->mutex);
+	if (show){
+		if (!me->notifpulldown_showed){
+			libaroma_mutex_unlock(me->mutex);
+			_libaroma_window_layer_set_notifpulldown_pos(win->parent,1);
+			libaroma_mutex_lock(me->mutex);
+			me->notifpulldown_req_y=win->h;
+			me->touched=10;
+			libaroma_mutex_unlock(me->mutex);
+			return 1;
+		}
+	}
+	else{
+		if (me->notifpulldown_showed){
+			if (me->notifpulldown_showed==2){
+				libaroma_mutex_unlock(me->mutex);
+				_libaroma_window_layer_set_notifpulldown_pos(win->parent,win->h-1);
+				libaroma_mutex_lock(me->mutex);
+			}
+			me->notifpulldown_req_y=0;
+			me->touched=10;
+			libaroma_mutex_unlock(me->mutex);
+			return 1;
+		}
+	}
+	libaroma_mutex_unlock(me->mutex);
+	return 0;
+} /* End of libaroma_window_notifpulldown_show */
+
+/*
+ * Function		: _libaroma_window_notifpulldown_message_hooker
+ * Return Value: byte
+ * Descriptions: notifpulldown message hooker
+ */
+byte _libaroma_window_notifpulldown_message_hooker(
+		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval
+){
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
+	if (!me){
+		return 0;
+	}
+	byte return_state=0;
+	libaroma_mutex_lock(me->mutex);
+	switch (msg->msg){
+		case LIBAROMA_MSG_KEY_BACK:
+			{
+				libaroma_mutex_unlock(me->mutex);
+				libaroma_window_notifpulldown_show(win, 0);
+				libaroma_mutex_lock(me->mutex);
+				return_state=1;
+				goto end_message;
+			}
+			break;
+		case LIBAROMA_MSG_TOUCH:
+			{
+				if (win->parent->active!=1){
+					return_state=0;
+					goto end_message;
+				}
+				/* touch handler */
+				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
+					memcpy(&me->pretouched_msg,msg,sizeof(LIBAROMA_MSG));
+					win->touched = NULL;
+					me->pretouched=NULL;
+					
+					int x = msg->x;
+					int y = msg->y;
+					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
+					if (y<win->h){
+						int i;
+						for (i=0;i<win->childn;i++){
+							if (_libaroma_window_is_inside(win->childs[i],x,y)){
+								me->pretouched = win->childs[i];
+								break;
+							}
+						}
+						if (me->pretouched!=NULL){
+							if (me->pretouched->handler->message){
+								me->client_touch_start=libaroma_tick();
+							}
+							else{
+								me->pretouched=NULL;
+							}
+						}
+					}
+					/*
+					else{
+						libaroma_mutex_unlock(me->mutex);
+						libaroma_window_sidebar_show(win, 0);
+						libaroma_mutex_lock(me->mutex);
+					}*/
+					me->allow_scroll=2;
+					me->touch_x=x;
+					me->touch_y=y;
+					libaroma_fling_down(&me->fling, y);
+				}
+				else if (win->touched!=NULL){
+					if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
+						if (win->touched->handler->message){
+							*retval=win->touched->handler->message(win->touched, msg);
+						}
+					}
+					else if (msg->state==LIBAROMA_HID_EV_STATE_UP){
+						if (win->touched->handler->message){
+							*retval=win->touched->handler->message(win->touched, msg);
+						}
+						win->touched=NULL;
+					}
+				}
+				else if (msg->state==LIBAROMA_HID_EV_STATE_UP){
+					int x = msg->x;
+					int y = msg->y;
+					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
+					if (y>=win->h){
+						libaroma_mutex_unlock(me->mutex);
+						libaroma_window_notifpulldown_show(win, 0);
+						libaroma_mutex_lock(me->mutex);
+					}
+					else if (me->pretouched){
+						if (me->pretouched->handler->message){
+							me->pretouched->handler->message(
+								me->pretouched,&me->pretouched_msg);
+							me->pretouched->handler->message(
+								me->pretouched,msg);
+						}
+						me->pretouched=NULL;
+						me->client_touch_start=0;
+						me->allow_scroll=0;
+						me->touch_x=x;
+						me->touch_y=y;
+						me->redraw=1;
+					}
+				}
+				else if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
+					int x = msg->x;
+					int y = msg->y;
+					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
+					
+					if (me->allow_scroll==2){
+						int move_sz = me->touch_x - x;
+						int move_sz_y = me->touch_y - y;
+						int scrdp=libaroma_dp(24);
+						if ((abs(move_sz_y)>=scrdp)&&(abs(move_sz_y)>=abs(move_sz))){
+							/* halt the scroll and send to control */
+							if (me->pretouched){
+								if (me->pretouched->handler->message){
+									me->client_touch_start=0;
+									win->touched=me->pretouched;
+									me->pretouched=NULL;
+									win->touched->handler->message(
+										win->touched,&me->pretouched_msg);
+									win->touched->handler->message(
+										win->touched,msg);
+								}
+								else{
+									me->pretouched=NULL;
+								}
+								me->client_touch_start=0;
+								me->allow_scroll=0;
+								me->touch_x=x;
+								me->touch_y=y;
+								me->redraw=1;
+							}
+						}
+						else if (abs(move_sz)>=scrdp){
+							me->allow_scroll=1;
+							me->client_touch_start=0;
+							me->pretouched=NULL;
+							win->touched=NULL;
+							me->notifpulldown_showed=1;
+							me->touched=2;
+							me->touch_x=x;
+							me->touch_y=y;
+							libaroma_mutex_unlock(me->mutex);
+							_libaroma_window_layer_set_notifpulldown_pos(win->parent,win->h-1);
+							libaroma_mutex_lock(me->mutex);
+						}
+					}
+				}
+				return_state=1;
+				goto end_message;
+			}
+			break;
+		case LIBAROMA_MSG_WIN_ACTIVE:
+			{
+				if (!win->active){
+					int i;
+					win->active=1;
+					for (i=0;i<win->childn;i++){
+						if (win->childs[i]->handler->message){
+							win->childs[i]->handler->message(win->childs[i], msg);
+						}
+					}
+				}
+			}
+			break;
+		case LIBAROMA_MSG_WIN_RESIZE:
+			{
+				int i;
+				for (i=0;i<win->childn;i++){
+					if (win->childs[i]->handler->message){
+						win->childs[i]->handler->message(win->childs[i], msg);
+					}
+				}
+			}
+			break;
+		case LIBAROMA_MSG_WIN_MEASURED:
+			{
+				/*int target_h = libaroma_window_usedp(2)?win->rh:libaroma_dp(win->rh);
+				target_h = libaroma_window_measure_calculate(
+					target_h,win->rh,win->parent->h,1,0
+				);*/
+				win->x=win->y=win->rx=win->ry=win->left=win->top=0;
+				win->ax=win->x;
+				win->ay=win->y;
+				win->w	= win->parent->w;
+				win->h	= win->parent->h;
+				if (libaroma_window_usedp(2)){
+					win->rw=win->width=libaroma_px(win->w);
+					win->rh=win->height=libaroma_px(win->h);
+				}
+				else{
+					win->rw=win->width= win->w;
+					win->rh=win->height= win->h;
+				}
+				if (win->dc){
+					if ((win->dc->w!=win->w)||(win->dc->h!=win->h)){
+						libaroma_canvas_free(win->dc);
+						if (win->bg){
+							libaroma_canvas_free(win->bg);
+						}
+						win->dc=NULL;
+						win->bg=NULL;
+					}
+				}
+				if (!win->dc){
+					win->dc = libaroma_canvas(win->w,win->h);
+					win->bg = libaroma_canvas(win->w,win->h);
+					libaroma_canvas_setcolor(win->dc,0xffff,0);
+					libaroma_canvas_setcolor(win->bg,0xffff,0);
+				}
+				
+				/* remeasured all childs */
+				int i;
+				for (i=0;i<win->childn;i++){
+					libaroma_window_measure(win,win->childs[i]);
+				}
+			}
+			break;
+	}
+end_message:
+	libaroma_mutex_unlock(me->mutex);
+	return return_state;
+} /* End of _libaroma_window_notifpulldown_message_hooker */
+
+/*
+ * Function		: _libaroma_window_notifpulldown_ui_thread
+ * Return Value: byte
+ * Descriptions: window notifpulldown ui thread
+ */
+byte _libaroma_window_notifpulldown_ui_thread(LIBAROMA_WINDOWP win) {
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
+	if (!me){
+		return 0;
+	}
+	
+	int i;
+	byte need_sync = 0;
+	if (win->active==1){
+		/* pretouched */
+		libaroma_mutex_lock(me->mutex);
+		if ((me->client_touch_start!=0)&&
+				(libaroma_tick()-me->client_touch_start>180)){
+			me->client_touch_start=0;
+			if (me->pretouched!=NULL){
+				win->touched=me->pretouched;
+				me->pretouched=NULL;
+				if (win->touched->handler->message){
+					win->touched->handler->message(
+						win->touched,&me->pretouched_msg);
+				}
+			}
+		}
+		libaroma_mutex_unlock(me->mutex);
+		
+		
+#ifdef LIBAROMA_CONFIG_OPENMP
+	#pragma omp parallel for
+#endif
+		for (i=0;i<win->childn;i++){
+			LIBAROMA_CONTROLP c=win->childs[i];
+			if (c->handler->thread!=NULL){
+				if (c->handler->thread(c)){
+					if(libaroma_control_draw(c,0)){
+						need_sync=1;
+					}
+				}
+			}
+		}
+	}
+	return need_sync;
+} /* End of _libaroma_window_notifpulldown_ui_thread */
+
+/*
+ * Function		: libaroma_window_sidebar
+ * Return Value: LIBAROMA_WINDOWP
+ * Descriptions: new or get notifpulldown window
+ */
+LIBAROMA_WINDOWP libaroma_window_notifpulldown(LIBAROMA_WINDOWP win, int height, byte showtype){
+	if (!libaroma_window_layer_init(win)){
+		return NULL;
+	}
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win);
+	if (!me){
+		return NULL;
+	}
+	if (me->notifpulldown){
+		return me->notifpulldown;
+	}
+	
+	libaroma_mutex_lock(me->mutex);
+	LIBAROMA_WINDOWP notifpulldown = (LIBAROMA_WINDOWP)
+		calloc(sizeof(LIBAROMA_WINDOW),1);
+	if (!notifpulldown){
+		libaroma_mutex_unlock(me->mutex);
+		ALOGW("window_notifpulldown alloc notifpulldown data failed");
+		return NULL;
+	}
+	notifpulldown->rh = height;
+	notifpulldown->handler=&_libaroma_window_notifpulldown_handler;
+	notifpulldown->parent=win;
+	notifpulldown->ui_thread=_libaroma_window_notifpulldown_ui_thread;
+	me->notifpulldown=notifpulldown;
+	if (!showtype) me->notifpulldown_drawtype=LIBAROMA_NOTIF_PULLDOWN_SLIDE;
+	else me->notifpulldown_drawtype=showtype;
+	me->redraw=1;
+	libaroma_mutex_unlock(me->mutex);
+	return notifpulldown;
+} /* End of libaroma_window_notifpulldown */
+
+
+/*
+ * Function		: libaroma_window_notifpulldown_onslide
+ * Return Value: byte
+ * Descriptions: set notifpulldown slide position callback
+ */
+byte libaroma_window_notifpulldown_onslide(
+	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB cb){
+	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
+	if (!me){
+		return 0;
+	}
+	libaroma_mutex_lock(me->mutex);
+	me->notif_slide_cb = cb;
+	ALOGI("Init notifpulldown slide callback");
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+} /* End of libaroma_window_notifpulldown_onslide */
 
 
 /******************************* SIDEBAR **************************************/
