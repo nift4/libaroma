@@ -1,7 +1,9 @@
 #!/bin/sh
+rm -rf libaroma
+mkdir -p libaroma
 cd libaroma
-rm -rf *
 
+echo Building libaroma
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
@@ -16,9 +18,9 @@ $LIBAROMA_GCC -c \
   -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
   -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
  \
-  ../../../src/contrib/linux/fb_driver.c \
-  ../../../src/contrib/linux/hid_driver.c \
-  ../../../src/contrib/linux/linux_syscall.c \
+  ../../../src/contrib/platform/linux/fb_driver.c \
+  ../../../src/contrib/platform/linux/hid_driver.c \
+  ../../../src/contrib/platform/linux/platform.c \
  \
   ../../../src/aroma/aroma.c \
   ../../../src/aroma/version.c \
@@ -33,8 +35,9 @@ $LIBAROMA_GCC -c \
   ../../../src/aroma/controls/listitem/*.c \
  \
   -I../../../include \
+  -I../../../src/contrib/platform/linux/include \
   -I../../../src \
-  -I../../../libs/zlib \
+  -I../../../libs/zlib/src \
   -I../../../libs/freetype/builds \
   -I../../../libs/freetype/include \
   -I../../../libs/minzip \
@@ -44,3 +47,4 @@ $LIBAROMA_GCC -c \
   -I../../../libs/harfbuzz-ng/src/hb-ucdn
 
 cd ..
+mkdir -p bin

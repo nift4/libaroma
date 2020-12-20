@@ -1,6 +1,7 @@
 #!/bin/sh
 cd ../obj
 
+echo Compiling hb
 $LIBAROMA_GPP -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \

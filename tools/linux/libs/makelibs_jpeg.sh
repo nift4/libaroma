@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ../obj
 
-
+echo Compiling jpeg
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \

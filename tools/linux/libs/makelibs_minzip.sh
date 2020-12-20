@@ -1,6 +1,7 @@
 #!/bin/sh
 cd ../obj
 
+echo Compiling minzip
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \

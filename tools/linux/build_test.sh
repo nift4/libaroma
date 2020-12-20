@@ -1,6 +1,7 @@
 #!/bin/sh
 cd libaroma
 
+echo Building test
 $LIBAROMA_GCC \
   -static \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
@@ -23,3 +24,4 @@ $LIBAROMA_GCC \
   -o ../bin/libaroma_test \
   \
   -lm -lpthread -lstdc++ -lrt
+cd ..
