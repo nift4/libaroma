@@ -348,6 +348,7 @@ byte libaroma_draw_rect(
 #endif
 		}
 	}
+	libaroma_canvas_fillalpha(dst, x, y, w, h, alpha);
 	return 1;
 } /* End of libaroma_draw_rect */
 
