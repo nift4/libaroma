@@ -92,6 +92,12 @@ void libaroma_canvas_blank(
 			}
 		}
 	}
+	if (c->alpha){
+		int i;
+		for (i=0; i<c->s; i++){
+			c->alpha[i]=0x00;
+		}
+	}
 } /* End of libaroma_canvas_blank */
 
 /*
@@ -158,6 +164,33 @@ void libaroma_canvas_fillcolor(
 		}
 	}
 } /* End of libaroma_canvas_fillcolor */
+
+/*
+ * Function		: libaroma_canvas_fillalpha
+ * Return Value	: void
+ * Description	: set canvas region's alpha data
+ */
+void libaroma_canvas_fillalpha(
+		LIBAROMA_CANVASP cv, 
+		int x, int y, int w, int h, 
+		byte alpha){
+	if (!cv) return;
+	if (!cv->alpha) {		
+		cv->alpha = calloc(cv->s, 1);
+	}
+	if (!alpha) alpha=0x00; //clear region by default
+	
+	int cury=cv->w*y;
+	int i;
+	for (i=0; i<h; i++){
+		int j;
+		for (j=0; j<w; j++){ 
+			cv->alpha[cury+x+j]=alpha;
+		}
+		cury+=cv->w;
+	}
+}
+
 
 /*
  * Function		: libaroma_canvas_new_ex
@@ -332,13 +365,14 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 		return NULL;
 	}
 	if (useAlpha) {
-		c->alpha	= malloc(c->s);
+		c->alpha	= calloc(c->s, 1);
 		if (!c->alpha) {
 			ALOGW("CANVAS malloc(c->alpha) failed");
 			free(c->data);
 			free(c);
 			return NULL;
 		}
+		libaroma_canvas_blank(c);
 		/* memset(c->alpha, 0xff, c->s); */
 	}
 	else {

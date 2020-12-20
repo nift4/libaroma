@@ -291,6 +291,13 @@ byte libaroma_draw_rect(
 		dst = libaroma_fb()->canvas;
 	}
 	
+	if (x < 0) {
+		x = 0;
+	}
+	if (y < 0) {
+		y = 0;
+	}
+	
 	/* fix position */
 	int x2 = x + w;
 	int y2 = y + h;
@@ -299,12 +306,6 @@ byte libaroma_draw_rect(
 	}
 	if (y2 > dst->h) {
 		y2 = dst->h;
-	}
-	if (x < 0) {
-		x = 0;
-	}
-	if (y < 0) {
-		y = 0;
 	}
 	
 	/* fixed size */

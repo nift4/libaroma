@@ -135,7 +135,8 @@ void _libaroma_listitem_text_draw(
 		
 		/* draw main text */
 		if (mtextp){
-			libaroma_text_draw(cv,mtextp,tx,txt_sy);
+			//libaroma_text_draw(cv,mtextp,tx,txt_sy
+			libaroma_draw_text(cv, mi->text, tx, txt_sy, mi->textcolor, tw, mi->flags, 0);
 			txt_sy+=m_h;
 			libaroma_text_free(mtextp);
 		}
@@ -263,7 +264,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 	mi->hpad=hpad;
 	mi->font_id=font_id;
 	mi->font_size=font_size?font_size:3;
-	mi->flags=flags;
+	mi->flags=LIBAROMA_FONT(font_id,font_size)|flags;
 	/* calculate height */
 	int tw = ctl->w-hpad;//-libaroma_dp(52);
 	int th = libaroma_dp(vpad*2);
