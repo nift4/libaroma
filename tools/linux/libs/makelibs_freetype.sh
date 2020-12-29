@@ -18,7 +18,6 @@ $LIBAROMA_GCC -c \
   ../../../libs/freetype/src/base/ftlcdfil.c \
   ../../../libs/freetype/src/base/ftstroke.c \
   ../../../libs/freetype/src/base/fttype1.c \
-  ../../../libs/freetype/src/base/ftxf86.c \
   ../../../libs/freetype/src/base/ftbase.c \
   ../../../libs/freetype/src/base/ftsystem.c \
   ../../../libs/freetype/src/base/ftinit.c \

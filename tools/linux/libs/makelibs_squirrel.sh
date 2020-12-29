@@ -1,6 +1,6 @@
 #!/bin/sh
-mkdir ..\obj.squirrel
-cd ..\obj.squirrel
+mkdir ../obj.squirrel
+cd ../obj.squirrel
 
 echo Compiling Squirrel
 $LIBAROMA_GCC -c \
@@ -33,6 +33,6 @@ $LIBAROMA_GCC -c \
  \
   -I../../../libs/squirrel/include \
   -I../../../libs/squirrel/squirrel \
-  -I../../../libs/squirrel/sqstdlib %LIBAROMA_CINCLUDES%
+  -I../../../libs/squirrel/sqstdlib
 
-cd ..\libs
+cd ../libs
