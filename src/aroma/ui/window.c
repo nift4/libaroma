@@ -1110,6 +1110,7 @@ byte libaroma_window_aniclose(
 	if (parent){
 		libaroma_wm_set_active_window(parent);
 	}
+	return 0;
 }
 
 /*

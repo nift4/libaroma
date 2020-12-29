@@ -404,11 +404,11 @@ int libaroma_dialog_list(
 	
 	LIBAROMA_CTL_LIST_ITEMP selitem=NULL;
 	
-	int i;
+	size_t i;
 	int last_id = 1;
 	for (i=0; i < items_num; i++){
 		printf("ITEM N° %d, ID %d, TYPE %i, LAST_ID %d\n", i, templates[i].id, templates[i].type, last_id);
-		LIBAROMA_CTL_LIST_ITEMP itm;
+		LIBAROMA_CTL_LIST_ITEMP itm = malloc(sizeof(LIBAROMA_CTL_LIST_ITEM));
 		switch (templates[i].type)
 		{
 			case LIBAROMA_LIST_ITEM_KIND_CHECK:
@@ -453,11 +453,15 @@ int libaroma_dialog_list(
 						templates[i].flags, -1);
 				break;
 		}
+		if (!itm) {
+			ALOGW("libaroma_dialog_list: invalid item kind");
+			free(itm);
+			return 0;
+		}
 		if (templates[i].id > last_id){
 			last_id=templates[i].id;
 		}
-		
-		if (templates[i].selected){		
+		if (templates[i].selected){
 			libaroma_listitem_check_set_cb(
 				listc,
 				itm,
@@ -503,7 +507,7 @@ int libaroma_dialog_list(
 		int button1_w = libaroma_ctl_button_width(button1);
 		int button1_x = libaroma_px(cdata->x+cdata->w-button1_w)-16;
 		last_id++;
-		LIBAROMA_CONTROLP button1_ctl = libaroma_ctl_button(
+		/*LIBAROMA_CONTROLP button1_ctl = */libaroma_ctl_button(
 			win,
 			last_id, //last used ID + 1
 			button1_x, 
@@ -519,7 +523,7 @@ int libaroma_dialog_list(
 			int button2_w = libaroma_ctl_button_width(button2);
 			int button2_x = button1_x-libaroma_px(button2_w);
 			last_id++;
-			LIBAROMA_CONTROLP button2_ctl = libaroma_ctl_button(
+			/*LIBAROMA_CONTROLP button2_ctl = */libaroma_ctl_button(
 				win,
 				last_id,
 				button2_x, 
