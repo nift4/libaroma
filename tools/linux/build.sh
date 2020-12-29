@@ -8,6 +8,6 @@ if [ -z "$scriptdir" ]; then
 fi
 cd $scriptdir
 ./libs/makelibs.sh
-./build_libaroma.sh
+./libaroma.sh
 ./build_app.sh test
 cd $olddir
