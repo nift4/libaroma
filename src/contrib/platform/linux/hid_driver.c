@@ -209,7 +209,7 @@ byte LINUXHIDRV_init(
 			/* set device id */
 			mi->dev[mi->n].id = mi->n;
 			/* set device filename */
-			snprintf(mi->dev[mi->n].file, 10, "%s", de->d_name);
+			snprintf(mi->dev[mi->n].file, 10, "%s", de->d_name) < 0 ? abort() : (void)0 ;
 			
 			/* load virtualkeys if there are any */
 			if (LINUXHIDRV_init_device(mi, fd, &mi->dev[mi->n])) {
