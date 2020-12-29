@@ -17,6 +17,7 @@ $LIBAROMA_GCC -c \
   -DLIBAROMA_CONFIG_DEBUG_MEMORY=$LIBAROMA_CONFIG_DEBUG_MEMORY \
   -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
   -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
+  -DANDROID=1 -D__ANDROID__ \
  \
   ../../../src/contrib/platform/linux/fb_driver.c \
   ../../../src/contrib/platform/linux/hid_driver.c \
