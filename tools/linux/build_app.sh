@@ -5,7 +5,6 @@ if [ -z "$scriptdir" ]; then
 	echo Unable to get script dir, exiting! 
 	exit
 fi
-echo $scriptdir
 cd $scriptdir/libaroma
 
 echo Building $1
