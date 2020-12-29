@@ -1,4 +1,11 @@
 #!/bin/sh
+olddir=$PWD
+scriptdir=$(dirname "$(readlink -f -- "$0")")
+if [ -z "$scriptdir" ]; then
+	echo Unable to get script dir, exiting! 
+	exit
+fi
+cd $scriptdir
 rm -rf libaroma
 mkdir -p libaroma
 cd libaroma
@@ -49,3 +56,4 @@ $LIBAROMA_GCC -c \
 
 cd ..
 mkdir -p bin
+cd $olddir

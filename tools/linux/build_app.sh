@@ -1,12 +1,19 @@
 #!/bin/sh
-cd libaroma
+olddir=$PWD
+scriptdir=$(dirname "$(readlink -f -- "$0")")
+if [ -z "$scriptdir" ]; then
+	echo Unable to get script dir, exiting! 
+	exit
+fi
+echo $scriptdir
+cd $scriptdir/libaroma
 
-echo Building test
+echo Building $1
 $LIBAROMA_GCC \
   -static \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -Wl,-s -Werror \
+  -fPIC -DPIC -Wl,-s -w \
   \
     $LIBAROMA_CFLAGS \
   \
@@ -17,11 +24,11 @@ $LIBAROMA_GCC \
     -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
   \
     ../obj/*.o ./*.o \
-    ../../../examples/libaroma_test.c \
+    ../../../examples/$1/main.c \
   \
   -I../../../include \
   -I../../../src \
-  -o ../bin/libaroma_test \
+  -o ../bin/$1 \
   \
   -lm -lpthread -lstdc++ -lrt
-cd ..
+cd $olddir
