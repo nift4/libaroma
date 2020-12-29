@@ -12,7 +12,7 @@ I'm just trying to improve it, as the original one has some not-so-nice details 
 So, if you want to know every change I did, then just look at the commit history (I've tried to keep it clear and concise by doing changes, testing them and the adding each change in a individual commit with a descriptive title/message, howerver didn't do that every time). 
 A summary of changes: 
 - Dialog items now are dynamic
-- Window closing animation implemented
+- ~Window closing animation implemented~ (broken)
 - Window now has appbar_bg property (ideal for setting statusbar color, if window has appbar)
 
 ## How to compile (Windows)
@@ -33,14 +33,23 @@ As you noticed before, there are three main scripts for building apps, and they 
 - deploy_recovery.bat nameoftheapp [r] (same as above, but for recovery mode)
 
 ## Linux compiling?
-If you checked the tools tree, you may notice that win32 folder has a lot of things more than linux ones, and that's because Ahmad ever compiled libaroma under windows. I've tried compiling it on Linux, and while the build scripts were outdated they did work (after updating them).  
-Anyway, I don't recommend compiling under Linux, because it has a lot of troubles (maybe it was my toolchain?). It can't use OMP (one library for better performance and other things), the sidebar doesn't work and libaroma in general has pretty strange behavior (if text in a control is more than 10/15 characters it may segfault; also if you draw a gradient on the window background the list background gets drawn too). Oh, and for some reason when I tried to create a menu listitem with the word "Wipe" that segfaulted too. 
-If you can test wether Linux compiling does work correctly or not, I would be grateful to receive a report of any try.
-
+Libaroma was prepared by Amarullz to be compiled on Windows, so linux build is under testing and may half-work (or won't work at all).  
+Anyway, scripts here are a bit different from Windows ones: 
+- envsetup.sh still needs to be edited with correct toolchain paths
+- you still need to run tools/linux/libs/makelibs.sh in order to build dependencies
+- libaroma.sh builds main library
+- build.sh compiles libs, libaroma and the test app.
+- "build_app.sh appname" compiles the app called "appname" and puts the binary at tools/linux/bin/appname
+- "recovery.sh appname [r]" compiles the app and runs it on the recovery-mode connected device, if r is passed, it skips the compile process (just runs the app on the device).  
+  
+So, the main workflow to build libaroma and the test app on Linux is as follows:  
+- Edit tools/linux/envsetup.sh with correct toolchain paths
+- run either build.sh (to do everything automatically) or libs/makelibs.sh, libaroma.sh and then build_app.sh test
+- to run the app on recovery, just use recovery.sh test r (if you want to compile the app and debug, you can omit the "r" at the end).  
 ## In progress
 This is a list of changes I'm currently implementing (or didn't prepare for upload)
-- [X] Template app, empty window with basic things to get started (uploaded)
-- [X] Statusbar example for window (included with the sample)
+- [ ] Graphics composer (work in progress, troubles with transparency and related things)
+- [ ] New stausbar example for window (need to be updated in order to work with composer)
 - [ ] Slider control (in progress, need to make it a control)
  
 For more info, please visit github page (it's outdated and not-so-useful, though): http://amarullz.github.io/libaroma/  
