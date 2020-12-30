@@ -176,7 +176,7 @@ byte _libaroma_ctl_fragment_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 #endif
 		for (i=0;i<win->childn;i++){
 			/* draw no sync */
-			libaroma_control_draw(win->childs[i], 0);
+			libaroma_control_draw(win->childs[i]);
 		}
 	}
 	if (sync){
@@ -225,7 +225,7 @@ void _libaroma_ctl_fragment_activate_win(LIBAROMA_WINDOWP win, byte active){
 		if (win->active){
 			wind->active_state=0;
 				
-			libaroma_wm_compose(
+			libaroma_wm_msgcompose(
 				&msg, LIBAROMA_MSG_WIN_INACTIVE, NULL, 0, 0
 			);
 		
@@ -249,7 +249,7 @@ void _libaroma_ctl_fragment_activate_win(LIBAROMA_WINDOWP win, byte active){
 				_libaroma_ctl_fragment_measure(win);
 			}
 			
-			libaroma_wm_compose(
+			libaroma_wm_msgcompose(
 				&msg, LIBAROMA_MSG_WIN_ACTIVE, NULL, 0, 0
 			);
 			
@@ -512,7 +512,7 @@ byte _libaroma_ctl_fragment_thread(LIBAROMA_CONTROLP ctl) {
 						LIBAROMA_CONTROLP c=win->childs[i];
 						if (c->handler->thread!=NULL){
 							if (c->handler->thread(c)){
-								if (libaroma_control_draw(c,0)){
+								if (libaroma_control_draw(c)){
 									is_draw=1;
 								}
 							}

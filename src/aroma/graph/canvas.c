@@ -60,7 +60,7 @@ struct _LIBAROMA_CANVAS_SHMEM{
  * Descriptions: reset canvas content
  */
 void libaroma_canvas_blank(
-		LIBAROMA_CANVASP c) {
+		LIBAROMA_CANVASP c, byte useAlpha) {
 	if (!c) {
 		ALOGW("libaroma_canvas_blank canvas is not valid");
 		return;
@@ -92,10 +92,13 @@ void libaroma_canvas_blank(
 			}
 		}
 	}
-	if (c->alpha){
-		int i;
-		for (i=0; i<c->s; i++){
-			c->alpha[i]=0x00;
+	if (useAlpha){
+		if (!(c->alpha)) c->alpha=calloc(c->s, 1);
+		if (c->alpha){
+			int i;
+			for (i=0; i<c->s; i++){
+				c->alpha[i]=useAlpha;
+			}
 		}
 	}
 } /* End of libaroma_canvas_blank */
@@ -372,7 +375,7 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 			free(c);
 			return NULL;
 		}
-		libaroma_canvas_blank(c);
+		libaroma_canvas_blank(c, useAlpha);
 		/* memset(c->alpha, 0xff, c->s); */
 	}
 	else {

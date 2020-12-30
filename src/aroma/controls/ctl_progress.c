@@ -39,7 +39,7 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_progress_handler={
 	thread:_libaroma_ctl_progress_thread
 };
 
-#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING    1 //500
+#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING    500
 
 
 
@@ -188,7 +188,7 @@ void _libaroma_ctl_progress_draw(
 		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 
 	);
 	
-	libaroma_control_erasebg(ctl,c);
+	//libaroma_control_erasebg(ctl,c);
 	
 	if (me->type&LIBAROMA_CTL_PROGRESS_CIRCULAR){
 		int sz = MIN(c->w>>1,c->h>>1);

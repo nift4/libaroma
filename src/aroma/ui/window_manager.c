@@ -205,6 +205,7 @@ byte libaroma_wm_init(){
 	_libaroma_wm_default_set(
 		LIBAROMA_WM_FLAG_RESET_COLOR|
 		LIBAROMA_WM_FLAG_RESET_THEME);
+	_libaroma_wm->windows = libaroma_stack(NULL);
 	_libaroma_wm_workspace_canvas();
 	return 1;
 } /* End of libaroma_wm_init */
@@ -227,6 +228,7 @@ byte libaroma_wm_release(){
 		libaroma_mutex_lock(_libaroma_wm_ui_mutex);
 	}
 	ALOGV("libaroma_wm_release release window manager");
+	libaroma_stack_free(_libaroma_wm->windows);
 	libaroma_sarray_free(_libaroma_wm->color);
 	libaroma_sarray_free(_libaroma_wm->theme);
 	if (_libaroma_wm->workspace_bg){
@@ -244,11 +246,11 @@ byte libaroma_wm_release(){
 
 
 /*
- * Function		: libaroma_wm_compose
+ * Function		: libaroma_wm_msgcompose
  * Return Value: LIBAROMA_MSGP
  * Descriptions: compose window message
  */
-LIBAROMA_MSGP libaroma_wm_compose(
+LIBAROMA_MSGP libaroma_wm_msgcompose(
 		LIBAROMA_MSGP msg,
 		byte m,
 		voidp data,
@@ -262,7 +264,7 @@ LIBAROMA_MSGP libaroma_wm_compose(
 	msg->d			= data;
 	msg->sent	 = libaroma_tick();
 	return msg;
-} /* End of libaroma_wm_compose */
+} /* End of libaroma_wm_msgcompose */
 
 /*
  * Function		: libaroma_wm_updatesync
@@ -397,7 +399,7 @@ byte libaroma_wm_set_workspace(int x, int y, int w, int h){
 		LIBAROMA_MSG _msg;
 		libaroma_window_process_event(
 			_libaroma_wm->active_window,
-			libaroma_wm_compose(
+			libaroma_wm_msgcompose(
 				&_msg, LIBAROMA_MSG_WIN_RESIZE, NULL, 0, 0)
 		);
 	}
@@ -548,10 +550,11 @@ LIBAROMA_CANVASP libaroma_wm_canvas(int x, int y, int w, int h){
 	if (h2>_libaroma_wm->h){
 		h2=_libaroma_wm->h;
 	}
-	return libaroma_canvas_area(
+	/*return libaroma_canvas_area(
 		libaroma_fb()->canvas,
 		x2, y2, w2, h2
-	);
+	);*/
+	return libaroma_canvas_alpha(w2, h2);
 } /* End of libaroma_wm_canvas */
 
 /*
@@ -606,7 +609,7 @@ static void * _libaroma_wm_message_thread(void * cookie) {
 				}
 			}
 			/* send to window */
-			if (_libaroma_wm->active_window!=NULL){
+			//if (_libaroma_wm->active_window!=NULL){
 				libaroma_cond_lock(&_libaroma_wm_mutex);
 				if (msg.msg==LIBAROMA_MSG_TOUCH){
 					/* update touch coordinate */
@@ -619,11 +622,45 @@ static void * _libaroma_wm_message_thread(void * cookie) {
 					libaroma_cond_signal(&_libaroma_wm_cond);
 				}
 				libaroma_cond_unlock(&_libaroma_wm_mutex);
-			}
+			//}
 		}
 	}
 	ALOGV("wm messaging ended");
 	return NULL;
+}
+
+void libaroma_window_composer_resize(LIBAROMA_WINDOWP win, int x, int y, int w, int h){
+	if (!win) return;
+	printf("COMPOSER: Resizing window with x/y %d, %d and w/h %dx%d\n", x, y, w, h);
+	win->drawx=x;
+	win->drawy=y;
+	win->draww=w;
+	win->drawh=h;
+}
+
+int libaroma_wm_get_last_zorder(){
+	return (_libaroma_wm->windows->n-1);
+}
+
+byte _libaroma_wm_compose_windows(){
+	//byte sync=0;
+	LIBAROMA_WINDOWP win=_libaroma_wm->active_window;
+	//for (i=0; i<_libaroma_wm->windows->n; i++){
+	if (win!=NULL/* && _libaroma_wm->active_window==_libaroma_wm->windows[i]*/){
+		if (win->ui_thread!=NULL){
+			//if (){
+			win->ui_thread(win);
+				//sync=1;
+			//}
+		}
+	}
+	//libaroma_canvas_blank(libaroma_fb()->canvas, 0xFF);
+	//printf("Drawing window alpha\n");
+	libaroma_canvas_fillalpha(win->dc, win->drawx, win->drawy, win->draww, win->drawh, win->alpha);
+	//printf("Drawing window into framebuffer\n");
+	libaroma_draw_scale_smooth(libaroma_fb()->canvas, win->dc, win->drawx, win->drawy, win->draww, win->drawh, 0, 0, win->w, win->h);//, 1, win->alpha);
+	//printf("Draw finished\n");
+	return 1;
 }
 
 /*
@@ -632,38 +669,32 @@ static void * _libaroma_wm_message_thread(void * cookie) {
  * Descriptions: window manager ui manager
  */
 static void * _libaroma_wm_ui_thread(void * cookie) {
+	printf("UI thread started\n");
 	ALOGV("starting wm ui thread");
-	byte need_sync = 0;
+	//byte need_sync = 0;
 	while(_libaroma_wm->client_started){
-		need_sync=0;
+		//need_sync=0;
 		
 		/* run child thread process */
 		if (_libaroma_wm->client_started){
 			libaroma_mutex_lock(_libaroma_wm_ui_mutex);
 			if (!_libaroma_wm_onprocessing){
-				if (_libaroma_wm->active_window!=NULL){
-					if (_libaroma_wm->active_window->ui_thread!=NULL){
-						if (_libaroma_wm->active_window->ui_thread(
-							_libaroma_wm->active_window
-						)){
-							need_sync=1;
-						}
-					}
-				}
-				if (_libaroma_wm->ui_thread!=NULL){
-					if (_libaroma_wm->ui_thread()){
-						need_sync=1;
-					}
-				}
+				//need_sync=
+				_libaroma_wm_compose_windows();
+				//if (_libaroma_wm->ui_thread!=NULL){
+					///*if (*/_libaroma_wm->ui_thread()/*){*/
+						//need_sync=1;
+					//}
+				//}
 			}
 			libaroma_mutex_unlock(_libaroma_wm_ui_mutex);
-			if (need_sync){
+			//if (need_sync){
 				libaroma_wm_syncarea();
-				need_sync=0;
-				continue;
-			}
+				//need_sync=0;
+				//continue;
+			//}
 		}
-		libaroma_sleep(16);
+		libaroma_sleep(15);
 	}
 	ALOGV("wm ui thread ended");
 	return NULL;
@@ -1029,7 +1060,7 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 		_libaroma_wm->active_window=NULL;
 		libaroma_window_process_event(
 			cwin,
-			libaroma_wm_compose(
+			libaroma_wm_msgcompose(
 				&_msg, LIBAROMA_MSG_WIN_INACTIVE, (voidp) win, 0, 0)
 		);
 	}
@@ -1038,7 +1069,7 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 	
 	if (win!=NULL){
 		/* send active event */
-		libaroma_wm_compose(
+		libaroma_wm_msgcompose(
 				&_msg, LIBAROMA_MSG_WIN_ACTIVE, 
 				(voidp) _libaroma_wm->active_window, 0, 0);
 		_libaroma_wm->active_window = win;

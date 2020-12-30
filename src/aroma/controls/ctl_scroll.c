@@ -149,7 +149,7 @@ dword _libaroma_ctl_scroll_client_msg(
 	);
 	if (me->client.handler->message){
 		LIBAROMA_MSG msgc;
-		libaroma_wm_compose(
+		libaroma_wm_msgcompose(
 			&msgc,
 			LIBAROMA_CTL_SCROLL_MSG,
 			NULL,

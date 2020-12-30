@@ -58,12 +58,35 @@ LIBAROMA_CONTROLP libaroma_control_new(
 	ret->handler = handler;
 	ret->internal = internal;
 	
+	ret->cv=libaroma_canvas_alpha(w, h);
+	if (!ret->cv) {
+		ALOGW("window_control_new cannot create ctl canvas");
+		return NULL;
+	}
 	if (win){
 		return libaroma_window_attach(win,ret);
 	}
 	return ret;
 } /* End of libaroma_control_new */
 
+void libaroma_control_calculate_newsize(
+		LIBAROMA_CONTROLP ctl, int oldwinw, int oldwinh, int winw, int winh){
+	if (ctl==NULL) return;
+	if (winw<1 || winh<1) return;
+	printf("Calculating new control size!\n");
+	float wratio=winw/oldwinw;
+	float hratio=winh/oldwinh;
+	printf("Width change ratio: %4.1f\nHeight change ratio: %4.1f\n", wratio, hratio);
+	int newx=oldwinw*wratio;
+	int newy=oldwinh*hratio;
+	printf("NewX: %d, NewY: %d\n", newx, newy);
+	int neww=ctl->w*wratio;
+	int newh=ctl->h*hratio;
+	printf("NewW: %d, NewH: %d\n", neww, newh);
+	printf("Resizing control!\n");
+	libaroma_control_resize(ctl, newx, newy, neww, newh);
+	printf("Control resized\n");
+}
 
 byte libaroma_window_measure_size(LIBAROMA_WINDOWP win);
 byte _libaroma_window_ready(LIBAROMA_WINDOWP win);
@@ -94,7 +117,7 @@ byte libaroma_control_resize(
 			}
 		}
 	}
-	libaroma_control_draw(ctl,1);
+	libaroma_control_draw(ctl);
 	return 1;
 } /* End of libaroma_control_resize */
 
@@ -129,11 +152,14 @@ byte libaroma_control_draw_flush(
 		return 0;
 	}
 	if (sync){
+		
 		int sx = ctl->x;
 		int sy = ctl->y;
 		libaroma_window_sync(
 			win, sx, sy, ctl->w, ctl->h
 		);
+		
+		libaroma_draw(win->dc, ctl->cv, ctl->x, ctl->y, 1);
 	}
 	return 1;
 } /* End of libaroma_control_draw_flush */
@@ -237,11 +263,12 @@ LIBAROMA_CANVASP libaroma_control_draw_begin(
 	if (win->dc==NULL){
 		return NULL;
 	}
-	LIBAROMA_CANVASP c = libaroma_canvas_area(
+	/*LIBAROMA_CANVASP c = libaroma_canvas_area(
 		win->dc,
 		ctl->x, ctl->y, ctl->w, ctl->h
-	);
-	return c;
+	);*/
+	libaroma_canvas_blank(ctl->cv, 0x00);
+	return ctl->cv;
 } /* End of libaroma_control_draw_begin */
 
 /*
@@ -255,7 +282,8 @@ void libaroma_control_draw_end(
 	if (sync){
 		libaroma_control_draw_flush(ctl, c, sync);
 	}
-	libaroma_canvas_free(c);
+	//libaroma_canvas_free(c);
+	
 } /* End of libaroma_control_draw_end */
 
 /*
@@ -264,14 +292,15 @@ void libaroma_control_draw_end(
  * Descriptions: draw control
  */
 byte libaroma_control_draw(
-	LIBAROMA_CONTROLP ctl, byte sync
+	LIBAROMA_CONTROLP ctl
 ){
-	LIBAROMA_CANVASP c = libaroma_control_draw_begin(ctl);
-	if (c!=NULL){
+	//LIBAROMA_CANVASP c = libaroma_control_draw_begin(ctl);
+	if (ctl->cv!=NULL){
 		if (ctl->handler->draw!=NULL){
-			ctl->handler->draw(ctl,c);
+			ctl->handler->draw(ctl,ctl->cv);
 		}
-		libaroma_control_draw_end(ctl, c, sync);
+		//libaroma_control_draw_end(ctl, c, sync);
+		libaroma_draw(ctl->window->dc, ctl->cv, ctl->x, ctl->y, 1);
 		return 1;
 	}
 	return 0;
@@ -291,6 +320,7 @@ byte libaroma_control_free(
 	if (ctl->handler->destroy){
 		ctl->handler->destroy(ctl);
 	}
+	libaroma_canvas_free(ctl->cv);
 	free(ctl);
 	return 1;
 } /* End of libaroma_control_free */

@@ -51,7 +51,7 @@ struct _LIBAROMA_CANVAS{
  * Descriptions: reset canvas content
  */
 void libaroma_canvas_blank(
-		LIBAROMA_CANVASP c);
+		LIBAROMA_CANVASP c, byte useAlpha);
 
 /*
  * Function		: libaroma_canvas_setcolor

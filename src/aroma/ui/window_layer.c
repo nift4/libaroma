@@ -956,7 +956,7 @@ byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync){
 	#pragma omp parallel for
 #endif
 		for (i=0;i<win->childn;i++){
-			libaroma_control_draw(win->childs[i], 0);
+			libaroma_control_draw(win->childs[i]);
 		}
 	}
 	if (sync){
@@ -1288,7 +1288,7 @@ byte _libaroma_window_notifpulldown_ui_thread(LIBAROMA_WINDOWP win) {
 			LIBAROMA_CONTROLP c=win->childs[i];
 			if (c->handler->thread!=NULL){
 				if (c->handler->thread(c)){
-					if(libaroma_control_draw(c,0)){
+					if(libaroma_control_draw(c)){
 						need_sync=1;
 					}
 				}
@@ -1394,7 +1394,7 @@ byte _libaroma_window_sidebar_invalidate(LIBAROMA_WINDOWP win, byte sync){
 	#pragma omp parallel for
 #endif
 		for (i=0;i<win->childn;i++){
-			libaroma_control_draw(win->childs[i], 0);
+			libaroma_control_draw(win->childs[i]);
 		}
 	}
 	if (sync){
@@ -1732,7 +1732,7 @@ byte _libaroma_window_sidebar_ui_thread(LIBAROMA_WINDOWP win) {
 			LIBAROMA_CONTROLP c=win->childs[i];
 			if (c->handler->thread!=NULL){
 				if (c->handler->thread(c)){
-					if(libaroma_control_draw(c,0)){
+					if(libaroma_control_draw(c)){
 						need_sync=1;
 					}
 				}

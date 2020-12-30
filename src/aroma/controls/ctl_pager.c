@@ -167,7 +167,7 @@ byte _libaroma_ctl_pager_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 #endif
 		for (i=0;i<win->childn;i++){
 			/* draw no sync */
-			libaroma_control_draw(win->childs[i], 0);
+			libaroma_control_draw(win->childs[i]);
 		}
 	}
 	if (sync){
@@ -507,7 +507,7 @@ byte _libaroma_ctl_pager_thread(LIBAROMA_CONTROLP ctl) {
 					LIBAROMA_CONTROLP c=me->win->childs[i];
 					if (c->handler->thread!=NULL){
 						if (c->handler->thread(c)){
-							if (libaroma_control_draw(c,0)){
+							if (libaroma_control_draw(c)){
 								is_draw=1;
 							}
 						}

@@ -72,7 +72,11 @@ struct _LIBAROMA_CONTROL{
 	void* tag;
 	
 	/* callbacks */
-	LIBAROMA_CONTROL_HANDLERP handler;
+	LIBAROMA_CONTROL_HANDLERP handler;	
+	
+	/* compositing properties */
+	LIBAROMA_CANVASP cv;
+	word alpha;
 };
 
 /*
@@ -112,8 +116,11 @@ byte libaroma_control_isvisible(LIBAROMA_CONTROLP ctl);
  * Descriptions: draw control
  */
 byte libaroma_control_draw(
-	LIBAROMA_CONTROLP ctl, byte sync
+	LIBAROMA_CONTROLP ctl
 );
+
+void libaroma_control_calculate_newsize(
+		LIBAROMA_CONTROLP ctl, int oldwinw, int oldwinh, int winw, int winh);
 
 /*
  * Function		: libaroma_control_free

@@ -87,9 +87,13 @@ struct _LIBAROMA_WM{
 	LIBAROMA_STACKP queue;
 	
 	byte client_started;
+	
+	LIBAROMA_STACKP windows;
 	LIBAROMA_WINDOWP active_window;
 	LIBAROMA_CANVASP workspace_bg;
 };
+
+void libaroma_window_composer_resize(LIBAROMA_WINDOWP win, int x, int y, int w, int h);
 
 /*
  * Structure	 : _LIBAROMA_WM_THEME
@@ -126,11 +130,11 @@ void libaroma_wm_updatesync(int x, int y, int w, int h, byte all);
 void libaroma_wm_resetsync();
 
 /*
- * Function		: libaroma_wm_compose
+ * Function		: libaroma_wm_msgcompose
  * Return Value: LIBAROMA_MSGP
  * Descriptions: compose window message
  */
-LIBAROMA_MSGP libaroma_wm_compose(
+LIBAROMA_MSGP libaroma_wm_msgcompose(
 		LIBAROMA_MSGP msg,
 		byte m,
 		voidp data,

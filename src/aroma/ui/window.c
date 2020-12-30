@@ -142,14 +142,12 @@ int libaroma_window_measure_calculate(
 	return cv;
 } /* End of libaroma_window_measure_calculate */
 
-
-
 /*
  * Function		: libaroma_window_measure_size
  * Return Value: byte
  * Descriptions: measure window size
  */
-byte libaroma_window_measure_size(LIBAROMA_WINDOWP win){
+byte libaroma_window_measure_size(LIBAROMA_WINDOWP win/*, byte composer_resize*/){
 	if (win){
 		if (win->parent!=NULL){
 			ALOGW("window_resize cannot be used for child window");
@@ -191,47 +189,66 @@ byte libaroma_window_measure_size(LIBAROMA_WINDOWP win){
 		}
 		_libaroma_window_measure_save(win,NULL);
 		LIBAROMA_MSG _msg;
-		libaroma_window_process_event(win,libaroma_wm_compose(
+		libaroma_window_process_event(win,libaroma_wm_msgcompose(
 			&_msg, LIBAROMA_MSG_WIN_MEASURED, NULL, 0, 0)
 		);
+		/*if (composer_resize)*/
+			libaroma_window_composer_resize(win, win->x, win->y, win->w, win->h);
 		return 1;
 	}
 	return 0;
 } /* End of libaroma_window_measure */
 
 /*
- * Function		: _libaroma_window_ui_thread
+ * Function		: _libaroma_window_composer_thread
  * Return Value: byte
- * Descriptions: window ui thread
+ * Descriptions: window compositing thread (draw items into window)
  */
-byte _libaroma_window_ui_thread(LIBAROMA_WINDOWP win) {
+byte _libaroma_window_composer(LIBAROMA_WINDOWP win) {
 	int i;
-	byte need_sync = 0;
-	if (win->active==1){
+	//byte need_sync = 0;
+	//if (win->active==1){
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
 #endif
-		for (i=0;i<win->childn;i++){
+		for (i=0;i<win->childn;i++){ //draw all controls inside window
 			LIBAROMA_CONTROLP c=win->childs[i];
 			if (c->handler->thread!=NULL){
 				if (c->handler->thread(c)){
-					if (libaroma_control_draw(c,0)){
-						libaroma_wm_updatesync(
+					if (libaroma_control_draw(c)){
+						/*libaroma_wm_updatesync(
 							c->x+win->x,
 							c->y+win->y,
 							c->w,
 							c->h,
 							0
 						);
-						need_sync=1;
+						need_sync=1;*/
 					}
 				}
 			}
 		}
-	}
-	return need_sync;
-} /* End of _libaroma_window_ui_thread */
+	//}
+	//libaroma_draw(libaroma_fb()->canvas, win->dc, win->x, win->y, 1);
+	return 1;// need_sync;
+} /* End of _libaroma_window_composer_thread */
 
+void libaroma_window_set_zorder(LIBAROMA_WINDOWP win, int pos){
+	if (!win) return;
+	if(pos<0) pos=0;
+	printf("Setting new window Z %d!\n", pos);
+	LIBAROMA_STACK_ITEMP old=libaroma_stack_at(libaroma_wm()->windows, win->z);	
+	if (old==NULL) {
+		printf("Window not in stack (that's weird)\n");
+		return;
+	}
+	printf("Deleting old item...\n");
+	libaroma_stack_del(libaroma_wm()->windows, win->z);
+	printf("Adding new item...\n");
+	libaroma_stack_add_at(libaroma_wm()->windows, pos, (voidp) win, sizeof(LIBAROMA_WINDOWP));
+	win->z=pos;
+	printf("Reorder suceeded\n");
+}
 /*
  * Function		: libaroma_window
  * Return Value: LIBAROMA_WINDOWP
@@ -254,14 +271,18 @@ LIBAROMA_WINDOWP libaroma_window(
 	else{
 		win->theme_bg[0]=0;
 	}
+	win->alpha=0xFF;
 	win->rx = x;
 	win->ry = y;
 	win->rw = w;
 	win->rh = h;
 	win->onpool=1;
 	win->prev_screen = libaroma_fb_snapshoot_canvas();
-	win->ui_thread = _libaroma_window_ui_thread;
-	libaroma_window_measure_size(win);
+	win->z=0;
+	libaroma_stack_add_at(libaroma_wm()->windows, win->z, (voidp) win, sizeof(LIBAROMA_WINDOWP));
+	win->ui_thread = _libaroma_window_composer;
+	libaroma_window_measure_size(win/*, 1*/);
+	//libaroma_wm()->wincount++;
 	return win;
 } /* End of libaroma_window */
 
@@ -287,8 +308,12 @@ byte libaroma_window_free(
 		
 		LIBAROMA_MSG _msg;
 		libaroma_window_process_event(win,
-			libaroma_wm_compose(&_msg, LIBAROMA_MSG_WIN_INACTIVE, NULL, 0, 0));
+			libaroma_wm_msgcompose(&_msg, LIBAROMA_MSG_WIN_INACTIVE, NULL, 0, 0));
 	}
+	
+	/* remove it from window list */
+	libaroma_stack_delete(libaroma_wm()->windows, win->z);
+	//libaroma_wm()->wincount--;
 	
 	if (win->handler!=NULL){
 		if (win->handler->prefree!=NULL){
@@ -408,7 +433,7 @@ byte _libaroma_window_recalculate(LIBAROMA_WINDOWP win){
  * Return Value: byte
  * Descriptions: window is ready
  */
-byte _libaroma_window_ready(LIBAROMA_WINDOWP win){
+byte _libaroma_window_ready(LIBAROMA_WINDOWP win/*, byte composer_resize*/){
 	__CHECK_WM(0);
 	if (win==NULL){
 		ALOGW("window_resize win is NULL");
@@ -443,6 +468,8 @@ byte _libaroma_window_ready(LIBAROMA_WINDOWP win){
 	win->y = y;
 	win->w = win->dc->w;
 	win->h = win->dc->h;
+	/*if (composer_resize)*/
+		libaroma_window_composer_resize(win, x, y, w, h);
 	_libaroma_window_measure_save(win,NULL);
 	_libaroma_window_recalculate(win);
 	return 1;
@@ -455,8 +482,9 @@ byte _libaroma_window_ready(LIBAROMA_WINDOWP win){
  */
 byte libaroma_window_resize(
 	LIBAROMA_WINDOWP win,
-	int x, int y, int w, int h
+	int x, int y, int w, int h/*, byte composer_resize*/
 ){
+	libaroma_window_composer_resize(win, x, y, w, h);
 	if (!win){
 		return 0;
 	}
@@ -468,8 +496,13 @@ byte libaroma_window_resize(
 	win->ry = y;
 	win->rw = w;
 	win->rh = h;
-	if (libaroma_window_measure_size(win)){
-		return _libaroma_window_ready(win);
+	int i;
+	for (i=0;i<win->childn;i++){
+		libaroma_control_calculate_newsize(win->childs[i], win->w, win->h, w, h);
+	}
+	if (libaroma_window_measure_size(win/*, composer_resize*/)){
+		byte ready=_libaroma_window_ready(win/*, composer_resize*/);
+		return ready;
 	}
 	return 0;
 } /* End of libaroma_window_resize */
@@ -651,7 +684,7 @@ byte libaroma_window_measure(LIBAROMA_WINDOWP win, LIBAROMA_CONTROLP ctl){
 		_libaroma_window_measure_save(NULL,ctl);
 		if (ctl->handler->message){
 			LIBAROMA_MSG _msg;
-			ctl->handler->message(ctl, libaroma_wm_compose(
+			ctl->handler->message(ctl, libaroma_wm_msgcompose(
 				&_msg, LIBAROMA_MSG_WIN_MEASURED, NULL, 0, 0)
 			);
 			return 1;
@@ -825,7 +858,7 @@ byte libaroma_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 #endif
 		for (i=0;i<win->childn;i++){
 			/* draw no sync */
-			libaroma_control_draw(win->childs[i], 0);
+			libaroma_control_draw(win->childs[i]);
 		}
 	
 		/* sync */
@@ -1052,7 +1085,7 @@ byte libaroma_window_anishow(
 		
 		/* send activate */
 		LIBAROMA_MSG _msg;
-		libaroma_window_process_event(win,libaroma_wm_compose(
+		libaroma_window_process_event(win,libaroma_wm_msgcompose(
 			&_msg, LIBAROMA_MSG_WIN_ACTIVE, NULL, 10, 0)
 		);
 	}
@@ -1241,7 +1274,7 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 				win->focused=NULL;
 				win->touched=NULL;
 				if (msg->x!=10){
-					_libaroma_window_ready(win);
+					_libaroma_window_ready(win/*, 0*/);
 				}
 				if ((!win->lock_sync)||(msg->x==10)){
 					if ((!win->active)||(msg->x==10)){
@@ -1260,21 +1293,22 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 		case LIBAROMA_MSG_WIN_RESIZE:
 			{
 				int i;
-				_libaroma_window_ready(win);
+				_libaroma_window_ready(win/*, 0*/);
 				for (i=0;i<win->childn;i++){
-					if (win->childs[i]->handler->message){
-						win->childs[i]->handler->message(win->childs[i], msg);
+					LIBAROMA_CONTROLP ctl=win->childs[i];
+					if (ctl->handler->message){
+						ctl->handler->message(win->childs[i], msg);
 					}
 				}
 			}
 			break;
 		case LIBAROMA_MSG_WIN_INACTIVE:
-			{
+			{/*
 				if (win->active){
-					/* stop thread manager */
+					// stop thread manager 
 					win->active=0;
 					
-					/* send inactive message to child */
+					// send inactive message to child 
 					int i;
 					for (i=0;i<win->childn;i++){
 						if (win->childs[i]->handler->message){
@@ -1283,7 +1317,7 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 					}
 					win->focused=NULL;
 					win->touched=NULL;
-				}
+				}*/
 			}
 			break;
 		case LIBAROMA_MSG_WIN_MEASURED:

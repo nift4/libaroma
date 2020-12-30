@@ -147,6 +147,14 @@ struct _LIBAROMA_WINDOW{
 	int top;
 	int width;
 	int height;
+	/* z order */
+	int z;	
+	
+	/* composer-shown size */
+	int drawx;
+	int drawy;
+	int draww;
+	int drawh;
 	
 	/* states */
 	byte active;
@@ -181,6 +189,8 @@ struct _LIBAROMA_WINDOW{
 	LIBAROMA_WINDOWP parent;
 	LIBAROMA_WINDOW_HANDLERP handler;
 	voidp client_data;
+	
+	byte alpha;
 };
 
 /*
@@ -223,7 +233,7 @@ byte libaroma_window_free(
  */
 byte libaroma_window_resize(
 	LIBAROMA_WINDOWP win,
-	int x, int y, int w, int h
+	int x, int y, int w, int h/*, byte composer_resize*/
 );
 
 /*

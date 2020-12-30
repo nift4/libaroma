@@ -20,6 +20,10 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 	LIBAROMA_CANVASP menu_icon = libaroma_canvas_ex(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT), 0xFF);
 	LIBAROMA_CANVASP home_icon = libaroma_canvas_ex(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT), 0xFF);
 	LIBAROMA_CANVASP back_icon = libaroma_canvas_ex(libaroma_dp(NAVBAR_HEIGHT), libaroma_dp(NAVBAR_HEIGHT), 0xFF);
+		libaroma_canvas_fillcolor(menu_icon, bg_color);
+		libaroma_canvas_fillcolor(home_icon, bg_color);
+		libaroma_canvas_fillcolor(back_icon, bg_color);
+	
 	// let's use 64x64 PNGs in order to get some quality 
 	libaroma_draw_scale_smooth(menu_icon, libaroma_image_uri("res:///icons/menu.png"), 
 									0, 0, menu_icon->w, menu_icon->h, 0, 0, 64, 64); 
@@ -46,7 +50,7 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
 	libaroma_listitem_image(menubtn_list, ID_NAVMENU, menu_icon, 
-								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);
+								NAVBAR_HEIGHT, LIBAROMA_LISTITEM_IMAGE_FREE|LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);
 	LIBAROMA_CONTROLP homebtn_list = libaroma_ctl_list(
 		win, ID_NAVHOME,
 		libaroma_px((win->w/2)-(libaroma_dp(96)/2)), navbar_y, 96, NAVBAR_HEIGHT,
@@ -54,7 +58,7 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
 	libaroma_listitem_image(homebtn_list, ID_NAVHOME, home_icon, 
-								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
+								NAVBAR_HEIGHT, LIBAROMA_LISTITEM_IMAGE_FREE|LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
 	LIBAROMA_CONTROLP backbtn_list = libaroma_ctl_list(
 		win, ID_NAVBACK,
 		libaroma_px(win->w-libaroma_dp(96)), navbar_y, 96, NAVBAR_HEIGHT,
@@ -62,7 +66,7 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 		bg_color,
 		LIBAROMA_CTL_SCROLL_NO_INDICATOR);
 	libaroma_listitem_image(backbtn_list, ID_NAVBACK, back_icon, 
-								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
+								NAVBAR_HEIGHT, LIBAROMA_LISTITEM_IMAGE_FREE|LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
 
 	printf("********DEBUG********\n");
 	printf("Navbar height: %dpx->%ddp\n", NAVBAR_HEIGHT, libaroma_dp(NAVBAR_HEIGHT));
