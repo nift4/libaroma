@@ -35,7 +35,12 @@
 LIBAROMA_ZIP libaroma_zip(
 		const char * filename) {
 	LIBAROMA_ZIP zip = (LIBAROMA_ZIP) malloc(sizeof(ZipArchive));
-	if (mzOpenZipArchive(filename, (ZipArchive *) zip) != 0) {
+	MemMapping map;
+    if (sysMapFile(filename, &map) != 0) {
+        printf("libaroma_zip failed to map package %s\n", filename);
+        return 3;
+    }
+	if (mzOpenZipArchive(map.addr, map.length, (ZipArchive *) zip) != 0) {
 		ALOGW("libaroma_zip mzOpenZipArchive error (%s)", filename);
 		free(zip);
 		return NULL;

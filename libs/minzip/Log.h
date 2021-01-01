@@ -17,10 +17,6 @@
 #include <stdio.h>
 
 // ---------------------------------------------------------------------
-#ifndef NDEBUG
-#define NDEBUG
-#endif
-#define LOG_NDEBUG 1
 
 /*
  * Normally we strip LOGV (VERBOSE messages) from release builds.
@@ -64,7 +60,7 @@
 #define LOGV_IF(cond, ...)   ((void)0)
 #else
 #define LOGV_IF(cond, ...) \
-  ( (CONDITION(cond)) \
+    ( (CONDITION(cond)) \
     ? ((void)LOG(LOG_VERBOSE, LOG_TAG, __VA_ARGS__)) \
     : (void)0 )
 #endif
@@ -82,7 +78,7 @@
 
 #ifndef LOGD_IF
 #define LOGD_IF(cond, ...) \
-  ( (CONDITION(cond)) \
+    ( (CONDITION(cond)) \
     ? ((void)LOG(LOG_DEBUG, LOG_TAG, __VA_ARGS__)) \
     : (void)0 )
 #endif
@@ -96,7 +92,7 @@
 
 #ifndef LOGI_IF
 #define LOGI_IF(cond, ...) \
-  ( (CONDITION(cond)) \
+    ( (CONDITION(cond)) \
     ? ((void)LOG(LOG_INFO, LOG_TAG, __VA_ARGS__)) \
     : (void)0 )
 #endif
@@ -110,7 +106,7 @@
 
 #ifndef LOGW_IF
 #define LOGW_IF(cond, ...) \
-  ( (CONDITION(cond)) \
+    ( (CONDITION(cond)) \
     ? ((void)LOG(LOG_WARN, LOG_TAG, __VA_ARGS__)) \
     : (void)0 )
 #endif
@@ -124,7 +120,7 @@
 
 #ifndef LOGE_IF
 #define LOGE_IF(cond, ...) \
-  ( (CONDITION(cond)) \
+    ( (CONDITION(cond)) \
     ? ((void)LOG(LOG_ERROR, LOG_TAG, __VA_ARGS__)) \
     : (void)0 )
 #endif
@@ -189,7 +185,7 @@
  */
 #ifndef LOG
 #define LOG(priority, tag, ...) \
-  LOG_PRI(ANDROID_##priority, tag, __VA_ARGS__)
+    LOG_PRI(ANDROID_##priority, tag, __VA_ARGS__)
 #endif
 
 /*
@@ -197,7 +193,7 @@
  */
 #ifndef LOG_PRI
 #define LOG_PRI(priority, tag, ...) \
-  printf(tag ": " __VA_ARGS__)
+    printf(tag ": " __VA_ARGS__)
 #endif
 
 /*
@@ -205,7 +201,7 @@
  */
 #ifndef IF_LOG
 #define IF_LOG(priority, tag) \
-  if (1)
+    if (1)
 #endif
 
 #endif // _MINZIP_LOG_H

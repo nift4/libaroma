@@ -48,6 +48,7 @@ echo Compiling Libaroma
   -I../../../libs/freetype/builds ^
   -I../../../libs/freetype/include ^
   -I../../../libs/minzip ^
+  -I../../../libs/selinux/include ^
   -I../../../libs/png ^
   -I../../../libs/jpeg ^
   -I../../../libs/harfbuzz-ng/src ^
@@ -55,5 +56,5 @@ echo Compiling Libaroma
 
 cd ..
 
-echo "Creating target binaries folder (for later compiling)"
+echo Creating target binaries folder (for later compiling)
 mkdir bin

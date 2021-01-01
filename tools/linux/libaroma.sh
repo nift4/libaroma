@@ -49,6 +49,7 @@ $LIBAROMA_GCC -c \
   -I../../../libs/freetype/builds \
   -I../../../libs/freetype/include \
   -I../../../libs/minzip \
+  -I../../../libs/selinux \
   -I../../../libs/png \
   -I../../../libs/jpeg \
   -I../../../libs/harfbuzz-ng/src \

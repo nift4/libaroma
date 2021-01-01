@@ -15,26 +15,30 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* compute the hash of an item with a specific type */
-typedef unsigned int (*HashCompute)(const void * item);
+typedef unsigned int (*HashCompute)(const void* item);
 
 /*
  * Compare a hash entry with a "loose" item after their hash values match.
  * Returns { <0, 0, >0 } depending on ordering of items (same semantics
  * as strcmp()).
  */
-typedef int (*HashCompareFunc)(const void * tableItem, const void * looseItem);
+typedef int (*HashCompareFunc)(const void* tableItem, const void* looseItem);
 
 /*
  * This function will be used to free entries in the table.  This can be
  * NULL if no free is required, free(), or a custom function.
  */
-typedef void (*HashFreeFunc)(void * ptr);
+typedef void (*HashFreeFunc)(void* ptr);
 
 /*
  * Used by mzHashForeach().
  */
-typedef int (*HashForeachFunc)(void * data, void * arg);
+typedef int (*HashForeachFunc)(void* data, void* arg);
 
 /*
  * One entry in the hash table.  "data" values are expected to be (or have
@@ -47,8 +51,8 @@ typedef int (*HashForeachFunc)(void * data, void * arg);
  * When an entry is released, we will call (HashFreeFunc)(entry->data).
  */
 typedef struct HashEntry {
-  unsigned int hashValue;
-  void * data;
+    unsigned int hashValue;
+    void* data;
 } HashEntry;
 
 #define HASH_TOMBSTONE ((void*) 0xcbcacccd)     // invalid ptr value
@@ -59,11 +63,11 @@ typedef struct HashEntry {
  * This structure should be considered opaque.
  */
 typedef struct HashTable {
-  int         tableSize;          /* must be power of 2 */
-  int         numEntries;         /* current #of "live" entries */
-  int         numDeadEntries;     /* current #of tombstone entries */
-  HashEntry * pEntries;           /* array on heap */
-  HashFreeFunc freeFunc;
+    int         tableSize;          /* must be power of 2 */
+    int         numEntries;         /* current #of "live" entries */
+    int         numDeadEntries;     /* current #of tombstone entries */
+    HashEntry*  pEntries;           /* array on heap */
+    HashFreeFunc freeFunc;
 } HashTable;
 
 /*
@@ -74,7 +78,7 @@ typedef struct HashTable {
  *
  * Returns "false" if unable to allocate the table.
  */
-HashTable * mzHashTableCreate(size_t initialSize, HashFreeFunc freeFunc);
+HashTable* mzHashTableCreate(size_t initialSize, HashFreeFunc freeFunc);
 
 /*
  * Compute the capacity needed for a table to hold "size" elements.  Use
@@ -87,25 +91,25 @@ size_t mzHashSize(size_t size);
 /*
  * Clear out a hash table, freeing the contents of any used entries.
  */
-void mzHashTableClear(HashTable * pHashTable);
+void mzHashTableClear(HashTable* pHashTable);
 
 /*
  * Free a hash table.
  */
-void mzHashTableFree(HashTable * pHashTable);
+void mzHashTableFree(HashTable* pHashTable);
 
 /*
  * Get #of entries in hash table.
  */
-INLINE int mzHashTableNumEntries(HashTable * pHashTable) {
-  return pHashTable->numEntries;
+INLINE int mzHashTableNumEntries(HashTable* pHashTable) {
+    return pHashTable->numEntries;
 }
 
 /*
  * Get total size of hash table (for memory usage calculations).
  */
-INLINE int mzHashTableMemUsage(HashTable * pHashTable) {
-  return sizeof(HashTable) + pHashTable->tableSize * sizeof(HashEntry);
+INLINE int mzHashTableMemUsage(HashTable* pHashTable) {
+    return sizeof(HashTable) + pHashTable->tableSize * sizeof(HashEntry);
 }
 
 /*
@@ -117,21 +121,21 @@ INLINE int mzHashTableMemUsage(HashTable * pHashTable) {
  *
  * An "add" operation may cause the entire table to be reallocated.
  */
-void * mzHashTableLookup(HashTable * pHashTable, unsigned int itemHash, void * item,
-                         HashCompareFunc cmpFunc, bool doAdd);
+void* mzHashTableLookup(HashTable* pHashTable, unsigned int itemHash, void* item,
+    HashCompareFunc cmpFunc, bool doAdd);
 
 /*
  * Remove an item from the hash table, given its "data" pointer.  Does not
  * invoke the "free" function; just detaches it from the table.
  */
-bool mzHashTableRemove(HashTable * pHashTable, unsigned int hash, void * item);
+bool mzHashTableRemove(HashTable* pHashTable, unsigned int hash, void* item);
 
 /*
  * Execute "func" on every entry in the hash table.
  *
  * If "func" returns a nonzero value, terminate early and return the value.
  */
-int mzHashForeach(HashTable * pHashTable, HashForeachFunc func, void * arg);
+int mzHashForeach(HashTable* pHashTable, HashForeachFunc func, void* arg);
 
 /*
  * An alternative to mzHashForeach(), using an iterator.
@@ -145,35 +149,31 @@ int mzHashForeach(HashTable * pHashTable, HashForeachFunc func, void * arg);
  *   }
  */
 typedef struct HashIter {
-  void    *   data;
-  HashTable * pHashTable;
-  int         idx;
+    void*       data;
+    HashTable*  pHashTable;
+    int         idx;
 } HashIter;
-INLINE void mzHashIterNext(HashIter * pIter) {
-  int i = pIter->idx + 1;
-  int lim = pIter->pHashTable->tableSize;
-  
-  for ( ; i < lim; i++) {
-    void * data = pIter->pHashTable->pEntries[i].data;
-    
-    if (data != NULL && data != HASH_TOMBSTONE) {
-      break;
+INLINE void mzHashIterNext(HashIter* pIter) {
+    int i = pIter->idx +1;
+    int lim = pIter->pHashTable->tableSize;
+    for ( ; i < lim; i++) {
+        void* data = pIter->pHashTable->pEntries[i].data;
+        if (data != NULL && data != HASH_TOMBSTONE)
+            break;
     }
-  }
-  
-  pIter->idx = i;
+    pIter->idx = i;
 }
-INLINE void mzHashIterBegin(HashTable * pHashTable, HashIter * pIter) {
-  pIter->pHashTable = pHashTable;
-  pIter->idx = -1;
-  mzHashIterNext(pIter);
+INLINE void mzHashIterBegin(HashTable* pHashTable, HashIter* pIter) {
+    pIter->pHashTable = pHashTable;
+    pIter->idx = -1;
+    mzHashIterNext(pIter);
 }
-INLINE bool mzHashIterDone(HashIter * pIter) {
-  return (pIter->idx >= pIter->pHashTable->tableSize);
+INLINE bool mzHashIterDone(HashIter* pIter) {
+    return (pIter->idx >= pIter->pHashTable->tableSize);
 }
-INLINE void * mzHashIterData(HashIter * pIter) {
-  assert(pIter->idx >= 0 && pIter->idx < pIter->pHashTable->tableSize);
-  return pIter->pHashTable->pEntries[pIter->idx].data;
+INLINE void* mzHashIterData(HashIter* pIter) {
+    assert(pIter->idx >= 0 && pIter->idx < pIter->pHashTable->tableSize);
+    return pIter->pHashTable->pEntries[pIter->idx].data;
 }
 
 
@@ -183,8 +183,12 @@ INLINE void * mzHashIterData(HashIter * pIter) {
  *
  * The caller should lock the table beforehand.
  */
-typedef unsigned int (*HashCalcFunc)(const void * item);
-void mzHashTableProbeCount(HashTable * pHashTable, HashCalcFunc calcFunc,
-                           HashCompareFunc cmpFunc);
+typedef unsigned int (*HashCalcFunc)(const void* item);
+void mzHashTableProbeCount(HashTable* pHashTable, HashCalcFunc calcFunc,
+    HashCompareFunc cmpFunc);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /*_MINZIP_HASH*/

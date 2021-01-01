@@ -7,7 +7,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
  * OF ANY KIND, either express or implied.
- *
+ * 
  * To Do:
  * - Add varargs style interface for safe_<op>()
  * - Add support for safe conversion
@@ -62,7 +62,7 @@
 typedef enum { SAFE_IOP_TYPE_S32 = 1,
                SAFE_IOP_TYPE_U32,
                SAFE_IOP_TYPE_DEFAULT = SAFE_IOP_TYPE_S32,
-             } safe_type_t;
+               } safe_type_t;
 
 #define SAFE_IOP_TYPE_PREFIXES "us"
 
@@ -85,9 +85,9 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 #define OPAQUE_SAFE_IOP_PREFIX_MACRO_type_enforce(__A, __B) \
   ((((__sio(m)(smin)(__A) <= ((typeof(__A))0)) && \
      (__sio(m)(smin)(__B) <= ((typeof(__B))0))) || \
-    (((__sio(m)(smin)(__A) > ((typeof(__A))0))) && \
+   (((__sio(m)(smin)(__A) > ((typeof(__A))0))) && \
      (__sio(m)(smin)(__B) > ((typeof(__B))0)))) && \
-   (sizeof(typeof(__A)) == sizeof(typeof(__B))))
+   (sizeof(typeof(__A)) == sizeof(typeof(__B)))) 
 
 
 /* We use a non-void wrapper for assert(). This allows us to factor it away on
@@ -104,12 +104,12 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 /* Primary interface macros */
 /* type checking is compiled out if NDEBUG supplied. */
 #define safe_add(_ptr, __a, __b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     typeof(__a) __sio(var)(_a) = (__a); \
     typeof(__b) __sio(var)(_b) = (__b); \
     typeof(_ptr) __sio(var)(p) = (_ptr); \
     if (__sio(m)(assert)(__sio(m)(type_enforce)(__sio(var)(_a), \
-                         __sio(var)(_b)))) { \
+                                                __sio(var)(_b)))) { \
       if (__sio(m)(smin)(__sio(var)(_a)) <= ((typeof(__sio(var)(_a)))0)) { \
         __sio(var)(ok) = safe_sadd(__sio(var)(p), \
                                    __sio(var)(_a), \
@@ -123,42 +123,42 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_add3(_ptr, _A, _B, _C) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_add((_ptr), __sio(var)(r), __sio(var)(c))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_add((_ptr), __sio(var)(r), __sio(var)(c))); })
 
 #define safe_add4(_ptr, _A, _B, _C, _D) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_add((_ptr), __sio(var)(r), (__sio(var)(d)))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_add((_ptr), __sio(var)(r), (__sio(var)(d)))); })
 
 #define safe_add5(_ptr, _A, _B, _C, _D, _E) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_E) __sio(var)(e) = (_E); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
-     safe_add((_ptr), __sio(var)(r), __sio(var)(e))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_E) __sio(var)(e) = (_E); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_add(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_add(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
+   safe_add((_ptr), __sio(var)(r), __sio(var)(e))); })
 
 #define safe_sub(_ptr, __a, __b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     typeof(__a) __sio(var)(_a) = (__a); \
     typeof(__b) __sio(var)(_b) = (__b); \
     typeof(_ptr) __sio(var)(p) = (_ptr); \
     if (__sio(m)(assert)(__sio(m)(type_enforce)(__sio(var)(_a), \
-                         __sio(var)(_b)))) { \
+                                                __sio(var)(_b)))) { \
       if (__sio(m)(umax)(__sio(var)(_a)) <= ((typeof(__sio(var)(_a)))0)) { \
         __sio(var)(ok) = safe_ssub(__sio(var)(p), \
                                    __sio(var)(_a), \
@@ -173,44 +173,44 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 
 /* These are sequentially performed */
 #define safe_sub3(_ptr, _A, _B, _C) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_sub((_ptr), __sio(var)(r), __sio(var)(c))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_sub((_ptr), __sio(var)(r), __sio(var)(c))); })
 
 #define safe_sub4(_ptr, _A, _B, _C, _D) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_sub((_ptr), __sio(var)(r), (__sio(var)(d)))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_sub((_ptr), __sio(var)(r), (__sio(var)(d)))); })
 
 #define safe_sub5(_ptr, _A, _B, _C, _D, _E) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_E) __sio(var)(e) = (_E); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
-     safe_sub((_ptr), __sio(var)(r), __sio(var)(e))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_E) __sio(var)(e) = (_E); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_sub(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+    safe_sub(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
+    safe_sub((_ptr), __sio(var)(r), __sio(var)(e))); })
 
 
-
+ 
 #define safe_mul(_ptr, __a, __b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     typeof(__a) __sio(var)(_a) = (__a); \
     typeof(__b) __sio(var)(_b) = (__b); \
     typeof(_ptr) __sio(var)(p) = (_ptr); \
     if (__sio(m)(assert)(__sio(m)(type_enforce)(__sio(var)(_a), \
-                         __sio(var)(_b)))) { \
+                                                __sio(var)(_b)))) { \
       if (__sio(m)(umax)(__sio(var)(_a)) <= ((typeof(__sio(var)(_a)))0)) { \
         __sio(var)(ok) = safe_smul(__sio(var)(p), \
                                    __sio(var)(_a), \
@@ -224,42 +224,42 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_mul3(_ptr, _A, _B, _C) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mul((_ptr), __sio(var)(r), __sio(var)(c))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_mul((_ptr), __sio(var)(r), __sio(var)(c))); })
 
 #define safe_mul4(_ptr, _A, _B, _C, _D) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_mul((_ptr), __sio(var)(r), (__sio(var)(d)))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_mul((_ptr), __sio(var)(r), (__sio(var)(d)))); })
 
 #define safe_mul5(_ptr, _A, _B, _C, _D, _E) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_E) __sio(var)(e) = (_E); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
-     safe_mul((_ptr), __sio(var)(r), __sio(var)(e))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_E) __sio(var)(e) = (_E); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_mul(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_mul(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
+   safe_mul((_ptr), __sio(var)(r), __sio(var)(e))); })
 
 #define safe_div(_ptr, __a, __b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     typeof(__a) __sio(var)(_a) = (__a); \
     typeof(__b) __sio(var)(_b) = (__b); \
     typeof(_ptr) __sio(var)(p) = (_ptr); \
     if (__sio(m)(assert)(__sio(m)(type_enforce)(__sio(var)(_a), \
-                         __sio(var)(_b)))) { \
+                                                __sio(var)(_b)))) { \
       if (__sio(m)(umax)(__sio(var)(_a)) <= ((typeof(__sio(var)(_a)))0)) { \
         __sio(var)(ok) = safe_sdiv(__sio(var)(p), \
                                    __sio(var)(_a), \
@@ -273,42 +273,42 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_div3(_ptr, _A, _B, _C) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_div((_ptr), __sio(var)(r), __sio(var)(c))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_div((_ptr), __sio(var)(r), __sio(var)(c))); })
 
 #define safe_div4(_ptr, _A, _B, _C, _D) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_div((_ptr), __sio(var)(r), (__sio(var)(d)))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_div((_ptr), __sio(var)(r), (__sio(var)(d)))); })
 
 #define safe_div5(_ptr, _A, _B, _C, _D, _E) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_E) __sio(var)(e) = (_E); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
-     safe_div((_ptr), __sio(var)(r), __sio(var)(e))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_E) __sio(var)(e) = (_E); \
+   typeof(_A) __sio(var)(r) = 0; \
+  (safe_div(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+   safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+   safe_div(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
+   safe_div((_ptr), __sio(var)(r), __sio(var)(e))); })
 
 #define safe_mod(_ptr, __a, __b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     typeof(__a) __sio(var)(_a) = (__a); \
     typeof(__b) __sio(var)(_b) = (__b); \
     typeof(_ptr) __sio(var)(p) = (_ptr); \
     if (__sio(m)(assert)(__sio(m)(type_enforce)(__sio(var)(_a), \
-                         __sio(var)(_b)))) { \
+                                                __sio(var)(_b)))) { \
       if (__sio(m)(umax)(__sio(var)(_a)) <= ((typeof(__sio(var)(_a)))0)) { \
         __sio(var)(ok) = safe_smod(__sio(var)(p), \
                                    __sio(var)(_a), \
@@ -322,39 +322,39 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_mod3(_ptr, _A, _B, _C) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mod((_ptr), __sio(var)(r), __sio(var)(c))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_mod((_ptr), __sio(var)(r), __sio(var)(c))); })
 
 #define safe_mod4(_ptr, _A, _B, _C, _D) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C); \
-    typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_mod((_ptr), __sio(var)(r), (__sio(var)(d)))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C); \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+    safe_mod((_ptr), __sio(var)(r), (__sio(var)(d)))); })
 
 #define safe_mod5(_ptr, _A, _B, _C, _D, _E) \
-  ({ typeof(_A) __sio(var)(a) = (_A); \
-    typeof(_B) __sio(var)(b) = (_B); \
-    typeof(_C) __sio(var)(c) = (_C), \
-                               typeof(_D) __sio(var)(d) = (_D); \
-    typeof(_E) __sio(var)(e) = (_E); \
-    typeof(_A) __sio(var)(r) = 0; \
-    (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
-     safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
-     safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
-     safe_mod((_ptr), __sio(var)(r), __sio(var)(e))); })
+({ typeof(_A) __sio(var)(a) = (_A); \
+   typeof(_B) __sio(var)(b) = (_B); \
+   typeof(_C) __sio(var)(c) = (_C), \
+   typeof(_D) __sio(var)(d) = (_D); \
+   typeof(_E) __sio(var)(e) = (_E); \
+   typeof(_A) __sio(var)(r) = 0; \
+   (safe_mod(&(__sio(var)(r)), __sio(var)(a), __sio(var)(b)) && \
+    safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(c)) && \
+    safe_mod(&(__sio(var)(r)), __sio(var)(r), __sio(var)(d)) && \
+    safe_mod((_ptr), __sio(var)(r), __sio(var)(e))); })
 
 /*** Safe integer operation implementation macros ***/
 
 #define safe_uadd(_ptr, _a, _b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     if ((typeof(_a))(_b) <= (typeof(_a))(__sio(m)(umax)(_a) - (_a))) { \
       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) + (_b); } \
       __sio(var)(ok) = 1; \
@@ -362,38 +362,38 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 
 #define safe_sadd(_ptr, _a, _b) \
   ({ int __sio(var)(ok) = 1; \
-    if (((_b) > (typeof(_a))0) && ((_a) > (typeof(_a))0)) { /*>0*/ \
-      if ((_a) > (typeof(_a))(__sio(m)(smax)(_a) - (_b))) __sio(var)(ok) = 0; \
-    } else if (!((_b) > (typeof(_a))0) && !((_a) > (typeof(_a))0)) { /*<0*/ \
-      if ((_a) < (typeof(_a))(__sio(m)(smin)(_a) - (_b))) __sio(var)(ok) = 0; \
-    } \
-    if (__sio(var)(ok) && (_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) + (_b); } \
-    __sio(var)(ok); })
+     if (((_b) > (typeof(_a))0) && ((_a) > (typeof(_a))0)) { /*>0*/ \
+       if ((_a) > (typeof(_a))(__sio(m)(smax)(_a) - (_b))) __sio(var)(ok) = 0; \
+     } else if (!((_b) > (typeof(_a))0) && !((_a) > (typeof(_a))0)) { /*<0*/ \
+       if ((_a) < (typeof(_a))(__sio(m)(smin)(_a) - (_b))) __sio(var)(ok) = 0; \
+     } \
+     if (__sio(var)(ok) && (_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) + (_b); } \
+     __sio(var)(ok); })
 
 #define safe_usub(_ptr, _a, _b) \
   ({ int __sio(var)(ok) = 0; \
-    if ((_a) >= (_b)) { \
-      if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) - (_b); } \
-      __sio(var)(ok) = 1; \
-    } \
-    __sio(var)(ok); })
+     if ((_a) >= (_b)) { \
+       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) - (_b); } \
+       __sio(var)(ok) = 1; \
+     } \
+     __sio(var)(ok); }) 
 
 #define safe_ssub(_ptr, _a, _b) \
   ({ int __sio(var)(ok) = 0; \
-    if (!((_b) <= 0 && (_a) > (__sio(m)(smax)(_a) + (_b))) && \
-        !((_b) > 0 && (_a) < (__sio(m)(smin)(_a) + (_b)))) { \
-      __sio(var)(ok) = 1; \
-      if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) - (_b); } \
-    } \
-    __sio(var)(ok); })
+     if (!((_b) <= 0 && (_a) > (__sio(m)(smax)(_a) + (_b))) && \
+         !((_b) > 0 && (_a) < (__sio(m)(smin)(_a) + (_b)))) { \
+         __sio(var)(ok) = 1; \
+         if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) - (_b); } \
+     } \
+     __sio(var)(ok); }) 
 
 #define safe_umul(_ptr, _a, _b) \
   ({ int __sio(var)(ok) = 0; \
-    if (!(_b) || (_a) <= (__sio(m)(umax)(_a) / (_b))) { \
-      __sio(var)(ok) = 1; \
-      if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) * (_b); } \
-    } \
-    __sio(var)(ok); })
+     if (!(_b) || (_a) <= (__sio(m)(umax)(_a) / (_b))) { \
+       __sio(var)(ok) = 1; \
+       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) * (_b); } \
+     } \
+     __sio(var)(ok); }) 
 
 #define safe_smul(_ptr, _a, _b) \
   ({ int __sio(var)(ok) = 1; \
@@ -412,7 +412,7 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     else { /* a is non-positive */ \
       if ((_b) > 0) { /* a is non-positive, b is positive */ \
         if ((_a) < (__sio(m)(smin)(_a) / (_b))) { \
-          __sio(var)(ok) = 0; \
+        __sio(var)(ok) = 0; \
         } \
       } /* end if a is non-positive, b is positive */ \
       else { /* a and b are non-positive */ \
@@ -422,11 +422,11 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
       } /* end if a and b are non-positive */ \
     } /* end if a is non-positive */ \
     if (__sio(var)(ok) && (_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) * (_b); } \
-    __sio(var)(ok); })
+    __sio(var)(ok); }) 
 
 /* div-by-zero is the only thing addressed */
 #define safe_udiv(_ptr, _a, _b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     if ((_b) != 0) { \
       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) / (_b); } \
       __sio(var)(ok) = 1; \
@@ -435,7 +435,7 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 
 /* Addreses div by zero and smin -1 */
 #define safe_sdiv(_ptr, _a, _b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     if ((_b) != 0 && \
         (((_a) != __sio(m)(smin)(_a)) || ((_b) != (typeof(_b))-1))) { \
       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) / (_b); } \
@@ -444,7 +444,7 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_umod(_ptr, _a, _b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     if ((_b) != 0) { \
       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) % (_b); } \
       __sio(var)(ok) = 1; \
@@ -452,7 +452,7 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
     __sio(var)(ok); })
 
 #define safe_smod(_ptr, _a, _b) \
-  ({ int __sio(var)(ok) = 0; \
+ ({ int __sio(var)(ok) = 0; \
     if ((_b) != 0 && \
         (((_a) != __sio(m)(smin)(_a)) || ((_b) != (typeof(_b))-1))) { \
       if ((_ptr)) { *((typeof(_a)*)(_ptr)) = (_a) % (_b); } \
@@ -562,15 +562,15 @@ typedef enum { SAFE_IOP_TYPE_S32 = 1,
 
 
 #ifndef SAFE_IOP_NO_64
-MAKE_UADD(u, 64, u_int64_t, SAFE_UINT64_MAX)
+  MAKE_UADD(u, 64, u_int64_t, SAFE_UINT64_MAX)
 #endif
-MAKE_UADD(, szt, size_t, SIZE_MAX)
+MAKE_UADD(,szt, size_t, SIZE_MAX)
 MAKE_UADD(u, 32, u_int32_t, UINT_MAX)
 MAKE_UADD(u, 16, u_int16_t, USHRT_MAX)
 MAKE_UADD(u,  8, u_int8_t, UCHAR_MAX)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_SADD(s, 64, int64_t, SAFE_INT64_MAX)
+  MAKE_SADD(s, 64, int64_t, SAFE_INT64_MAX)
 #endif
 MAKE_SADD(s, szt, ssize_t, SSIZE_MAX)
 MAKE_SADD(s, 32, int32_t, INT_MAX)
@@ -578,7 +578,7 @@ MAKE_SADD(s, 16, int16_t, SHRT_MAX)
 MAKE_SADD(s,  8, int8_t, SCHAR_MAX)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_USUB(u, 64, u_int64_t)
+  MAKE_USUB(u, 64, u_int64_t)
 #endif
 MAKE_USUB(, szt, size_t)
 MAKE_USUB(u, 32, u_int32_t)
@@ -586,7 +586,7 @@ MAKE_USUB(u, 16, u_int16_t)
 MAKE_USUB(u, 8, u_int8_t)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_SSUB(s, 64, int64_t, SAFE_INT64_MIN, SAFE_INT64_MAX)
+  MAKE_SSUB(s, 64, int64_t, SAFE_INT64_MIN, SAFE_INT64_MAX)
 #endif
 MAKE_SSUB(s, szt, ssize_t, SSIZE_MIN, SSIZE_MAX)
 MAKE_SSUB(s, 32, int32_t, INT_MIN, INT_MAX)
@@ -595,7 +595,7 @@ MAKE_SSUB(s,  8, int8_t, SCHAR_MIN, SCHAR_MAX)
 
 
 #ifndef SAFE_IOP_NO_64
-MAKE_UMUL(u, 64, u_int64_t, SAFE_UINT64_MAX)
+  MAKE_UMUL(u, 64, u_int64_t, SAFE_UINT64_MAX)
 #endif
 MAKE_UMUL(, szt, size_t, SIZE_MAX)
 MAKE_UMUL(u, 32, u_int32_t, UINT_MAX)
@@ -603,7 +603,7 @@ MAKE_UMUL(u, 16, u_int16_t, USHRT_MAX)
 MAKE_UMUL(u, 8, u_int8_t,  UCHAR_MAX)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_SMUL(s, 64, int64_t, SAFE_INT64_MAX, SAFE_INT64_MIN)
+  MAKE_SMUL(s, 64, int64_t, SAFE_INT64_MAX, SAFE_INT64_MIN)
 #endif
 MAKE_SMUL(s, szt, ssize_t, SSIZE_MAX, SSIZE_MIN)
 MAKE_SMUL(s, 32, int32_t, INT_MAX, INT_MIN)
@@ -612,7 +612,7 @@ MAKE_SMUL(s,  8, int8_t,  SCHAR_MAX, SCHAR_MIN)
 
 
 #ifndef SAFE_IOP_NO_64
-MAKE_UDIV(u, 64, u_int64_t)
+  MAKE_UDIV(u, 64, u_int64_t)
 #endif
 MAKE_UDIV(, szt, size_t)
 MAKE_UDIV(u, 32, u_int32_t)
@@ -620,7 +620,7 @@ MAKE_UDIV(u, 16, u_int16_t)
 MAKE_UDIV(u,  8, u_int8_t)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_SDIV(s, 64, int64_t, SAFE_INT64_MIN)
+  MAKE_SDIV(s, 64, int64_t, SAFE_INT64_MIN)
 #endif
 MAKE_SDIV(s, szt, ssize_t, SSIZE_MIN)
 MAKE_SDIV(s, 32, int32_t, INT_MIN)
@@ -629,7 +629,7 @@ MAKE_SDIV(s,  8, int8_t,  SCHAR_MIN)
 
 
 #ifndef SAFE_IOP_NO_64
-MAKE_UMOD(u, 64, u_int64_t)
+  MAKE_UMOD(u, 64, u_int64_t)
 #endif
 MAKE_UMOD(, szt, size_t)
 MAKE_UMOD(u, 32, u_int32_t)
@@ -637,7 +637,7 @@ MAKE_UMOD(u, 16, u_int16_t)
 MAKE_UMOD(u,  8, u_int8_t)
 
 #ifndef SAFE_IOP_NO_64
-MAKE_SMOD(s, 64, int64_t, SAFE_INT64_MIN)
+  MAKE_SMOD(s, 64, int64_t, SAFE_INT64_MIN)
 #endif
 MAKE_SMOD(s, szt, ssize_t, SSIZE_MIN)
 MAKE_SMOD(s, 32, int32_t, INT_MIN)
@@ -681,7 +681,7 @@ MAKE_SMOD(s, 8, int8_t,  SCHAR_MIN)
  * - - -- subtraction
  * - + -- addition
  * - % -- modulo (remainder)
- *
+ * 
  * Whitespace will be ignored.
  *
  * Args:
@@ -693,7 +693,7 @@ MAKE_SMOD(s, 8, int8_t,  SCHAR_MIN)
  * - Returns 0 on failure leaving the contents of value *unknown*
  */
 
-int safe_iopf(void * result, const char * const fmt, ...);
+int safe_iopf(void *result, const char *const fmt, ...);
 
 
 #endif  /* _SAFE_IOP_H */
