@@ -13,7 +13,7 @@ int NAVBAR_HEIGHT=30;
 */
 void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 
-	printf("Creating navbar!\n");
+	//printf("Creating navbar!\n");
 
 	if (!bg_color) bg_color=RGB(000000);
 	
@@ -64,10 +64,11 @@ void navbar_draw_ex(LIBAROMA_WINDOWP win, word bg_color, word accent){
 	libaroma_listitem_image(backbtn_list, ID_NAVBACK, back_icon, 
 								NAVBAR_HEIGHT, LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH, -1);	
 
-	printf("********DEBUG********\n");
+	/*printf("********DEBUG********\n");
 	printf("Navbar height: %dpx->%ddp\n", NAVBAR_HEIGHT, libaroma_dp(NAVBAR_HEIGHT));
 	printf("Menulist size: %dx%d at %d, %d\n", menubtn_list->w, menubtn_list->h, menubtn_list->x, menubtn_list->y);
 	printf("Homelist size: %dx%d at %d, %d\n", homebtn_list->w, homebtn_list->h, homebtn_list->x, homebtn_list->y);
 	printf("Backlist size: %dx%d at %d, %d\n", backbtn_list->w, backbtn_list->h, backbtn_list->x, backbtn_list->y);
 	printf("*********************\n");
+	*/
 }
