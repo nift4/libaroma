@@ -229,7 +229,7 @@ static bool parseZipArchive(ZipArchive* pArchive)
     numEntries = get2LE(ptr + ENDSUB);
     cdOffset = get4LE(ptr + ENDOFF);
 
-    LOGVV("numEntries=%d cdOffset=%d\n", numEntries, cdOffset);
+    //LOGVV("numEntries=%d cdOffset=%d\n", numEntries, cdOffset);
     if (numEntries == 0 || cdOffset >= pArchive->length) {
         LOGW("Invalid entries=%d offset=%d (len=%zd)\n",
             numEntries, cdOffset, pArchive->length);
@@ -557,7 +557,7 @@ static bool processDeflatedEntry(const ZipArchive *pArchive,
             (zerr == Z_STREAM_END && zstream.avail_out != sizeof(procBuf)))
         {
             long procSize = zstream.next_out - procBuf;
-            LOGVV("+++ processing %d bytes\n", (int) procSize);
+            //LOGVV("+++ processing %d bytes\n", (int) procSize);
             bool ret = processFunction(procBuf, procSize, cookie);
             if (!ret) {
                 LOGW("Process function elected to fail (in inflate)\n");
