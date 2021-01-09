@@ -76,7 +76,7 @@ byte libaroma_draw_ex2(
 		dst = libaroma_fb()->canvas;
 	}
 	if ((dx >= dst->w) || (dy >= dst->h)) {
-		ALOGW("libaroma_draw_ex1 dx/dy bigger that destination size");
+		printf("libaroma_draw_ex1 dx/dy %d/%d bigger that destination size %d/%d\n", dx, dy, dst->w, dst->h);
 		return 0;
 	}
 	if (opacity==0) {

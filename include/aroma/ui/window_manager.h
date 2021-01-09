@@ -69,6 +69,7 @@ struct _LIBAROMA_WM{
 	LIBAROMA_WMCB_MESSAGE_HANDLER message_handler;
 	LIBAROMA_WMCB_RESET_HANDLER reset_handler;
 	LIBAROMA_WMCB_UI_THREAD ui_thread;
+	LIBAROMA_WMCB_UI_THREAD post_render_thread;
 
 	/* canvas location */
 	int x;
