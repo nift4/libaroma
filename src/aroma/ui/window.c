@@ -200,11 +200,12 @@ byte libaroma_window_measure_size(LIBAROMA_WINDOWP win/*, byte composer_resize*/
 } /* End of libaroma_window_measure */
 
 /*
- * Function		: _libaroma_window_composer_thread
+ * Function		: _libaroma_window_composer
  * Return Value: byte
  * Descriptions: window compositing thread (draw items into window)
  */
 byte _libaroma_window_composer(LIBAROMA_WINDOWP win) {
+	libaroma_draw(win->dc, win->bg, 0, 0, 0);
 	int i;
 	//byte need_sync = 0;
 	//if (win->active==1){
@@ -216,6 +217,7 @@ byte _libaroma_window_composer(LIBAROMA_WINDOWP win) {
 			if (c->handler->thread!=NULL){
 				if (c->handler->thread(c)){
 					if (libaroma_control_draw(c)){
+						libaroma_draw(win->dc, c->cv, c->x, c->y, 0);
 						/*libaroma_wm_updatesync(
 							c->x+win->x,
 							c->y+win->y,
@@ -384,7 +386,8 @@ byte _libaroma_window_updatebg(LIBAROMA_WINDOWP win){
 			/* not need recreate background */
 			return 1;
 		}
-		libaroma_canvas_free(win->bg);
+		//ALOGI("update_bg: Releasing old background canvas");
+		//libaroma_canvas_free(win->bg);
 	}
 	win->bg = libaroma_canvas(w,h);
 	
@@ -453,8 +456,9 @@ byte _libaroma_window_ready(LIBAROMA_WINDOWP win/*, byte composer_resize*/){
 	}
 	/* set position */
 	if (win->dc!=NULL){
-		libaroma_canvas_free(win->dc);
-		win->dc=NULL;
+		ALOGI("window_ready: Resizing old dc canvas!!");
+		//libaroma_canvas_free(win->dc);
+		//win->dc=NULL;
 	}
 	win->dc= libaroma_wm_canvas(x, y, w, h);
 	if (win->dc==NULL){
@@ -492,14 +496,14 @@ byte libaroma_window_resize(
 		ALOGW("window_resize cannot be used for child window");
 		return 0;
 	}
-	win->rx = x;
-	win->ry = y;
-	win->rw = w;
-	win->rh = h;
 	int i;
 	for (i=0;i<win->childn;i++){
 		libaroma_control_calculate_newsize(win->childs[i], win->w, win->h, w, h);
 	}
+	win->rx = x;
+	win->ry = y;
+	win->rw = w;
+	win->rh = h;
 	if (libaroma_window_measure_size(win/*, composer_resize*/)){
 		byte ready=_libaroma_window_ready(win/*, composer_resize*/);
 		return ready;
@@ -1341,6 +1345,8 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 			break;
 		case LIBAROMA_MSG_TOUCH:
 			{
+				msg->x-=win->x;
+				msg->y-=win->y;
 				/* touch handler */
 				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
 					win->touched = NULL;

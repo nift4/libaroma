@@ -455,7 +455,7 @@ byte libaroma_wm_set_reset_handler(
 /*
  * Function		: libaroma_wm_set_ui_thread
  * Return Value: byte
- * Descriptions: set theme reset handler
+ * Descriptions: set ui thread
  */
 byte libaroma_wm_set_ui_thread(
 		LIBAROMA_WMCB_UI_THREAD callback){
@@ -480,6 +480,21 @@ byte libaroma_wm_set_ui_thread(
 	libaroma_mutex_unlock(_libaroma_wm_ui_mutex);
 	return 1;
 } /* End of libaroma_wm_set_ui_thread */
+
+/*
+ * Function		: libaroma_wm_set_ui_thread
+ * Return Value: byte
+ * Descriptions: set post render thread to alter final items draw
+ */
+byte libaroma_wm_set_post_render_thread(
+		LIBAROMA_WMCB_UI_THREAD callback){
+	if (_libaroma_wm==NULL){
+		ALOGW("window manager uninitialized");
+		return 0;
+	}
+	_libaroma_wm->post_render_thread=callback;
+	return 1;
+}
 
 /*
  * Function		: libaroma_wm_sync
@@ -646,15 +661,16 @@ byte _libaroma_wm_compose_windows(){
 	//byte sync=0;
 	LIBAROMA_WINDOWP win=_libaroma_wm->active_window;
 	//for (i=0; i<_libaroma_wm->windows->n; i++){
-	if (win!=NULL/* && _libaroma_wm->active_window==_libaroma_wm->windows[i]*/){
-		if (win->ui_thread!=NULL){
-			//if (){
-			win->ui_thread(win);
-				//sync=1;
-			//}
+		if (win!=NULL/* && _libaroma_wm->active_window==_libaroma_wm->windows[i]*/){
+			if (win->ui_thread!=NULL){
+				//if (){
+				win->ui_thread(win);
+					//sync=1;
+				//}
+			}
 		}
-	}
-	//libaroma_canvas_blank(libaroma_fb()->canvas, 0xFF);
+	//}
+	libaroma_canvas_blank(libaroma_fb()->canvas, 0xFF);
 	//printf("Drawing window alpha\n");
 	libaroma_canvas_fillalpha(win->dc, win->drawx, win->drawy, win->draww, win->drawh, win->alpha);
 	//printf("Drawing window into framebuffer\n");
@@ -694,6 +710,8 @@ static void * _libaroma_wm_ui_thread(void * cookie) {
 				//continue;
 			//}
 		}
+		if (_libaroma_wm->post_render_thread!=NULL)
+			_libaroma_wm->post_render_thread();
 		libaroma_sleep(15);
 	}
 	ALOGV("wm ui thread ended");

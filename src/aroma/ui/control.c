@@ -26,6 +26,11 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+/* used in ctl_calculate_newsize */
+#define LIBAROMA_CTL_ANCHOR_LEFT	0x1
+#define LIBAROMA_CTL_ANCHOR_RIGHT	0x2
+#define LIBAROMA_CTL_ANCHOR_TOP		0x4
+#define LIBAROMA_CTL_ANCHOR_BOTTOM	0x8
 /*
  * Function		: libaroma_control_new
  * Return Value: LIBAROMA_CONTROLP
@@ -73,12 +78,27 @@ void libaroma_control_calculate_newsize(
 		LIBAROMA_CONTROLP ctl, int oldwinw, int oldwinh, int winw, int winh){
 	if (ctl==NULL) return;
 	if (winw<1 || winh<1) return;
+	if (oldwinw == winw && oldwinh == winh){
+		printf("Old and new sizes are the same, not resizing!\n");
+		return;
+	}
 	printf("Calculating new control size!\n");
-	float wratio=winw/oldwinw;
-	float hratio=winh/oldwinh;
-	printf("Width change ratio: %4.1f\nHeight change ratio: %4.1f\n", wratio, hratio);
-	int newx=oldwinw*wratio;
-	int newy=oldwinh*hratio;
+	printf("Original properties: \n"
+			"  x %d, y %d\n"
+			"  width %d, height %d\n"
+			"Old window size: \n"
+			"  width %d, height %d\n"
+			"New window size: \n"
+			"  width %d, height %d\n", 
+			ctl->x, ctl->y, ctl->w, ctl->h, 
+			oldwinw, oldwinh, winw, winh);
+	float wratio=(float)winw/oldwinw;
+	float hratio=(float)winh/oldwinh;
+	printf("Width change ratio: %4.1f\n"
+			"Height change ratio: %4.1f\n",
+			wratio, hratio);
+	int newx=ctl->x*wratio;
+	int newy=ctl->y*hratio;
 	printf("NewX: %d, NewY: %d\n", newx, newy);
 	int neww=ctl->w*wratio;
 	int newh=ctl->h*hratio;
@@ -267,7 +287,7 @@ LIBAROMA_CANVASP libaroma_control_draw_begin(
 		win->dc,
 		ctl->x, ctl->y, ctl->w, ctl->h
 	);*/
-	libaroma_canvas_blank(ctl->cv, 0x00);
+	libaroma_canvas_blank(ctl->cv, 0xFF);
 	return ctl->cv;
 } /* End of libaroma_control_draw_begin */
 
@@ -295,12 +315,13 @@ byte libaroma_control_draw(
 	LIBAROMA_CONTROLP ctl
 ){
 	//LIBAROMA_CANVASP c = libaroma_control_draw_begin(ctl);
+	
 	if (ctl->cv!=NULL){
+		libaroma_canvas_blank(ctl->cv, 0xFF);
 		if (ctl->handler->draw!=NULL){
 			ctl->handler->draw(ctl,ctl->cv);
 		}
 		//libaroma_control_draw_end(ctl, c, sync);
-		libaroma_draw(ctl->window->dc, ctl->cv, ctl->x, ctl->y, 1);
 		return 1;
 	}
 	return 0;
