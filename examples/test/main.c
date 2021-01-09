@@ -48,7 +48,7 @@ void init_libaroma(){
   libaroma_start();
   
   /* clean display */
-  libaroma_canvas_blank(libaroma_fb()->canvas);
+  libaroma_canvas_blank(libaroma_fb()->canvas, NULL);
   libaroma_sync();
   
   /* load font - id=0 */
