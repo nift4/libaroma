@@ -21,6 +21,7 @@ echo Compiling %1
     ../../../examples/%1/main.c ^
   ^
   -I../../../include ^
+  -I../../../libs/selinux/include ^
   -I../../../src %LIBAROMA_CINCLUDES% ^
   -o ../bin/%1 ^
   ^
