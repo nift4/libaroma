@@ -6,7 +6,7 @@ $LIBAROMA_GPP -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -Wl,-s -Werror \
+  -fPIC -DPIC -Wl,-s \
  \
   -DHB_NO_MT -DHAVE_OT -DHAVE_UCDN -DHAVE_FREETYPE \
   ../../../libs/harfbuzz-ng/src/hb-blob.cc \

@@ -15,7 +15,7 @@ $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -Wl,-s -Wall -Wextra -Wshadow -Werror -Wno-unused-parameter \
+  -fPIC -DPIC -Wl,-s -Wextra -Wshadow -Wno-unused-parameter \
  \
   $LIBAROMA_CFLAGS \
  \
@@ -49,7 +49,7 @@ $LIBAROMA_GCC -c \
   -I../../../libs/freetype/builds \
   -I../../../libs/freetype/include \
   -I../../../libs/minzip \
-  -I../../../libs/selinux \
+  -I../../../libs/selinux/include \
   -I../../../libs/png \
   -I../../../libs/jpeg \
   -I../../../libs/harfbuzz-ng/src \

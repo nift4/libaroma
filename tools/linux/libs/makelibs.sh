@@ -16,5 +16,5 @@ mkdir -p ../obj
 ./makelibs_minzip.sh
 ./makelibs_png.sh
 ./makelibs_squirrel.sh
-./makelibs_jpeg.sh
+# ./makelibs_jpeg.sh
 cd $olddir
