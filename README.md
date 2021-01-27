@@ -18,7 +18,7 @@ A summary of changes:
 ## How to compile (Windows)
 There are a lot of scripts for building libaroma on tools/win32, but you first need a toolchain. I use gcc-linaro-arm-linux-gnueabihf-4.7-2013.01-20130125_win32 from the launchpad's linaro archive (https://launchpad.net/linaro-toolchain-binaries/).
 After that, the correct way to compile everything is this:
-- go to tools/win32, edit envsetup.bat with the correct paths (you can just edit LBIAROMA_GCC and LIBAROMA_GPP variables), save and run it.
+- go to tools/win32, edit envsetup.bat with the correct paths (you can just edit LIBAROMA_GCC and LIBAROMA_GPP variables), save and run it.
 - Open a new CMD window (needed to make the envsetup work), and go to the tools/win32/libs then run makelibs.bat
 - After that, go back (tools/win32) and run build_libaroma.bat
 - You should have libaroma compiled and ready to build a test app! 
