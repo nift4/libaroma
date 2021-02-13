@@ -25,6 +25,9 @@
 #define __libaroma_stream_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: _libaroma_stream_uri_cb
  * Type				: LIBAROMA_STREAM_URI_CB
@@ -96,7 +99,7 @@ LIBAROMA_STREAMP libaroma_stream_file(
 		ALOGI("libaroma_stream_file (%s) not found", path);
 		return NULL;
 	}
-	
+
 	/* Allocating Memory */
 	bytep mem = malloc(filesize);
 	FILE * f = fopen(path, "rb");
@@ -104,7 +107,7 @@ LIBAROMA_STREAMP libaroma_stream_file(
 		ALOGW("libaroma_stream_file fopen error (%s)", path);
 		goto error;
 	}
-	
+
 	if (((int) fread(mem, 1, filesize, f)) != filesize) {
 		ALOGW("libaroma_stream_file fread error (%s)", path);
 		fclose(f);
@@ -149,14 +152,14 @@ LIBAROMA_STREAMP libaroma_stream_shmem(
 		snprintf(nm, LIBAROMA_STREAM_URI_LENGTH,
 			"%s", memname);
 	}
-	
+
 	/* open */
 	int fd = shm_open(nm, O_RDWR, 0666);
 	if (fd < 0) {
 		ALOGW("libaroma_stream_shmem shm_open failed (%s)",memname);
 		return 0;
 	}
-	
+
 	/* read shmem stat */
 	int filesize = libaroma_filesize_fd(fd);
 	if (filesize < 0) {
@@ -170,7 +173,7 @@ LIBAROMA_STREAMP libaroma_stream_shmem(
 													 PROT_READ, MAP_SHARED, fd, 0);
 	/* close fd */
 	close(fd);
-	
+
 	if (mem == MAP_FAILED) {
 		ALOGW("libaroma_stream_shmem unable to mmap (%s)", nm);
 		return 0;
@@ -414,7 +417,7 @@ LIBAROMA_SHMEMP libaroma_shmem(
 		snprintf(nm, LIBAROMA_STREAM_URI_LENGTH,
 			"%s", name);
 	}
-	
+
 	/* Open Shared Memory */
 	int fd;
 	if (sz < 1) {
@@ -498,4 +501,7 @@ byte libaroma_shmem_close(
 #endif
 } /* End of libaroma_shmem_close */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_stream_c__ */

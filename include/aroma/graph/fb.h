@@ -65,30 +65,30 @@ struct _LIBAROMA_FB{
 	int sz;						 /* width x height */
 	byte double_buffer; /* is double buffer driver */
 	voidp internal;		 /* driver internal data */
-	
+
 	/* callbacks */
 	void (*release)(LIBAROMA_FBP);
 	byte (*snapshoot)(LIBAROMA_FBP, wordp);
 	byte (*config)(LIBAROMA_FBP, const char *, const char *, dword);
-	
+
 	/* post callbacks */
 	byte (*start_post)(LIBAROMA_FBP);
 	byte (*post)(LIBAROMA_FBP, wordp __restrict,
 		int, int, int, int, int, int, int, int);
 	byte (*end_post)(LIBAROMA_FBP);
-	
+
 	/* Optional - DPI */
 	int dpi;
 	byte bigscreen;
-	
+
 	/* post flag */
 	byte onpost;
-	
+
 	/* AROMA CORE Runtime Data */
 	LIBAROMA_CANVASP canvas;
 	byte internal_canvas;
 };
-	
+
 /*
  * Function		: libaroma_fb
  * Return Value: LIBAROMA_FBP

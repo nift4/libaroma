@@ -24,11 +24,14 @@
 #ifndef __libaroma_linux_hid_pointer_driver_c__
 #define __libaroma_linux_hid_pointer_driver_c__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * UNIVERSAL DEVICE - TRANSLATOR FOR POINTER DEVICE
  *	 Prefix : LINUXHIDRV_
  */
- 
+
 static int LINUXHIDRV_pointer_current_x=0;
 static int LINUXHIDRV_pointer_current_y=0;
 static byte LINUXHIDRV_pointer_initialized=0;
@@ -69,7 +72,7 @@ static inline void LINUXHIDRV_pointer_set_y(LIBAROMA_HIDP me,int y){
 		LINUXHIDRV_pointer_current_y=ny;
 	}
 }
- 
+
 /*
  * function : translate raw pointer data
  */
@@ -77,7 +80,7 @@ byte LINUXHIDRV_translate_pointer(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
 														 LIBAROMA_HID_EVENTP dest_ev, struct input_event * ev) {
 	/* dump raw events */
 	ALOGRT("RAW KEY: T=%i, C=%i, V=%i", ev->type, ev->code, ev->value);
-	
+
 	/* EV_REL */
 	if (ev->type==EV_REL) {
 		byte send_msg=0;
@@ -115,7 +118,7 @@ byte LINUXHIDRV_translate_pointer(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
 			/* send fb config */
 			libaroma_fb_config("pointer",NULL,
 				MAKEDWORD(LINUXHIDRV_pointer_current_x,LINUXHIDRV_pointer_current_y));
-			
+
 			/* send as touch message */
 			if (LINUXHIDRV_pointer_leftmouse_down){
 				dest_ev->type	 = LIBAROMA_HID_EV_TYPE_TOUCH;
@@ -145,8 +148,12 @@ byte LINUXHIDRV_translate_pointer(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
 			return LINUXHIDRV_translate_keyboard(me, dev, dest_ev, ev);
 		}
 	}
-	
+
 	/* don't process it */
 	return LIBAROMA_HID_EV_RET_NONE;
 }
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_hid_pointer_driver_c__ */

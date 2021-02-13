@@ -25,6 +25,9 @@
 #define __libaroma_blt_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef __engine_have_libaroma_btl16
 void libaroma_btl16(int n, wordp dst, const dwordp src) {
@@ -44,5 +47,8 @@ void libaroma_btl32(int n, dwordp dst, const wordp src) {
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_blt_c__ */
 

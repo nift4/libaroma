@@ -19,6 +19,9 @@
 #include "config.h"
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* Private subobject */
 
 typedef struct {
@@ -675,3 +678,7 @@ jinit_color_deconverter (j_decompress_ptr cinfo)
   else
     cinfo->output_components = cinfo->out_color_components;
 }
+
+#ifdef __cplusplus
+}
+#endif

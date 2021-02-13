@@ -25,6 +25,9 @@
 #define __libaroma_color_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 word libaroma_rgb_from_string(const char * c) {
 	if (c[0] != '#') {
@@ -75,7 +78,7 @@ word libaroma_color_hsv(int h, int s, int v){
 	float sat = ((float) s)/100.0;
 	float lum = ((float) v)/100.0;
 	float hh, p, q, t, ff;
-	
+
 	if(sat<=0.0){
 		byte lv = MIN(MAX((int) round(lum*255),0),255);
 		return libaroma_rgb(lv,lv,lv);
@@ -109,7 +112,7 @@ word libaroma_color_hsv(int h, int s, int v){
 				o_g = lum;
 				o_b = t;
 				break;
-	
+
 		case 3:
 				o_r = p;
 				o_g = q;
@@ -176,14 +179,14 @@ int libaroma_color_hue(word color, int * saturation, int * luminance){
 dword libaroma_rgb_to32(word rgb) {
 #ifdef LIBAROMA_CONFIG_USE_HICOLOR_BIT
 	return libaroma_rgb32(
-		libaroma_color_hi_r(libaroma_color_r(rgb)), 
-		libaroma_color_hi_g(libaroma_color_g(rgb)), 
+		libaroma_color_hi_r(libaroma_color_r(rgb)),
+		libaroma_color_hi_g(libaroma_color_g(rgb)),
 		libaroma_color_hi_b(libaroma_color_b(rgb))
 	);
 #else
 return libaroma_rgb32(
-		libaroma_color_r(rgb), 
-		libaroma_color_g(rgb), 
+		libaroma_color_r(rgb),
+		libaroma_color_g(rgb),
 		libaroma_color_b(rgb)
 	);
 #endif
@@ -200,8 +203,8 @@ dword libaroma_rgb_to_rgba(word rgb, byte alpha) {
 	);
 #else
 return libaroma_rgba(
-		libaroma_color_r(rgb), 
-		libaroma_color_g(rgb), 
+		libaroma_color_r(rgb),
+		libaroma_color_g(rgb),
 		libaroma_color_b(rgb),
 		alpha
 	);
@@ -320,5 +323,8 @@ void libaroma_color_24to16(wordp dst, bytep src, int n) {
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_color_c__ */

@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* HANDLER */
 dword _libaroma_ctl_label_msg(LIBAROMA_CONTROLP, LIBAROMA_MSGP);
 void _libaroma_ctl_label_draw (LIBAROMA_CONTROLP, LIBAROMA_CANVASP);
@@ -38,7 +41,7 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_label_handler={
 	destroy:_libaroma_ctl_label_destroy,
 	thread:_libaroma_ctl_label_thread
 };
-	
+
 /*
  * Structure	 : __LIBAROMA_CTL_LABEL
  * Typedef		 : _LIBAROMA_CTL_LABEL, * _LIBAROMA_CTL_LABELP
@@ -77,7 +80,7 @@ byte _libaroma_ctl_label_thread(LIBAROMA_CONTROLP ctl) {
 
 void _libaroma_ctl_label_destroy(LIBAROMA_CONTROLP ctl){
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_label_handler, _LIBAROMA_CTL_LABELP, 
+		_libaroma_ctl_label_handler, _LIBAROMA_CTL_LABELP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	if (me->text){
@@ -91,9 +94,9 @@ void _libaroma_ctl_label_destroy(LIBAROMA_CONTROLP ctl){
 void _libaroma_ctl_label_draw(
 		LIBAROMA_CONTROLP ctl, LIBAROMA_CANVASP c){
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_label_handler, _LIBAROMA_CTL_LABELP, 
+		_libaroma_ctl_label_handler, _LIBAROMA_CTL_LABELP,
 	);
-	
+
 	if (me->usebg){
 		libaroma_draw_rect(c,0,0,c->w,c->h,me->bgcolor,0xff);
 	}
@@ -140,7 +143,7 @@ dword _libaroma_ctl_label_msg(LIBAROMA_CONTROLP ctl, LIBAROMA_MSGP msg){
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_label_handler, _LIBAROMA_CTL_LABELP, 0
 	);
-	
+
 	switch(msg->msg){
 		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
@@ -367,7 +370,7 @@ LIBAROMA_CONTROLP libaroma_ctl_label_valign(
 			&_libaroma_ctl_label_handler,
 			win
 		);
-	
+
 	if (!ctl){
 		if (me->text){
 			free(me->text);
@@ -377,5 +380,8 @@ LIBAROMA_CONTROLP libaroma_ctl_label_valign(
 	}
 	return ctl;
 }
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_ctl_label_c__ */

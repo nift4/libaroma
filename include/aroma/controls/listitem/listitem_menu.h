@@ -35,6 +35,16 @@
 #define LIBAROMA_LISTITEM_MENU_SMALL				0x1000
 
 /*
+ * Function		: libaroma_listitem_menu_settext
+ * Return Value: void
+ * Descriptions: set menu item text
+ */
+void libaroma_listitem_menu_settext(
+		LIBAROMA_CTL_LIST_ITEMP item,
+		char *text,
+		byte set_extra);
+
+/*
  * Function		: libaroma_listitem_menu
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions: create menu item

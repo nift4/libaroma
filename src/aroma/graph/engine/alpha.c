@@ -25,6 +25,9 @@
 #define __libaroma_alpha_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 word libaroma_alpha(word dcl, word scl, byte l) {
 	if (scl == dcl) {
 		return scl;
@@ -39,11 +42,11 @@ word libaroma_alpha(word dcl, word scl, byte l) {
 	word fa = 256 - na;
 	return
 		(word) (
-			(((libaroma_color_r(dcl) * fa) + 
+			(((libaroma_color_r(dcl) * fa) +
 				(libaroma_color_r(scl) * na)) >> 11 << 11) |
-			(((libaroma_color_g(dcl) * fa) + 
+			(((libaroma_color_g(dcl) * fa) +
 				(libaroma_color_g(scl) * na)) >> 10 << 5) |
-			(((libaroma_color_b(dcl) * fa) + 
+			(((libaroma_color_b(dcl) * fa) +
 				(libaroma_color_b(scl) * na)) >> 11)
 		);
 }
@@ -61,11 +64,11 @@ dword libaroma_alpha32(word dcl, word scl, byte l) {
 	word fa = 256 - na;
 	return
 		(dword) (
-			(((libaroma_color_r(dcl) * fa) + 
+			(((libaroma_color_r(dcl) * fa) +
 				(libaroma_color_r(scl) * na)) >> 8 << 16) |
-			(((libaroma_color_g(dcl) * fa) + 
+			(((libaroma_color_g(dcl) * fa) +
 				(libaroma_color_g(scl) * na)) >> 8 << 8) |
-			(((libaroma_color_b(dcl) * fa) + 
+			(((libaroma_color_b(dcl) * fa) +
 				(libaroma_color_b(scl) * na)) >> 8) |
 			(0xff << 24)
 		);
@@ -85,11 +88,11 @@ word libaroma_alpha_multi(word dcl, word scl, byte lr, byte lg, byte lb) {
 	word	rb = 256 - lb;
 	return
 		(word) (
-			(((libaroma_color_r(dcl) * rr) + 
+			(((libaroma_color_r(dcl) * rr) +
 				(libaroma_color_r(scl) * lr)) >> 11 << 11) |
-			(((libaroma_color_g(dcl) * rg) + 
+			(((libaroma_color_g(dcl) * rg) +
 				(libaroma_color_g(scl) * lg)) >> 10 << 5) |
-			(((libaroma_color_b(dcl) * rb) + 
+			(((libaroma_color_b(dcl) * rb) +
 				(libaroma_color_b(scl) * lb)) >> 11)
 		);
 }
@@ -154,7 +157,7 @@ void libaroma_alpha_px_line(int _Y, int n, wordp dst,
 		wordp bottom, wordp top, bytep alpha) {
 	int i;
 	for (i = 0; i < n; i++) {
-		dst[i] = libaroma_dither(i, _Y, 
+		dst[i] = libaroma_dither(i, _Y,
 			libaroma_alpha32(bottom[i], top[i], alpha[i]));
 	}
 }
@@ -205,6 +208,9 @@ void libaroma_alpha_multi_line(int n, wordp dst, wordp bottom,
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_alpha_c__ */
 

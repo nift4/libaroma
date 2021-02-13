@@ -33,7 +33,7 @@ typedef my_color_deconverter * my_cconvert_ptr;
 #ifdef ANDROID_RGB
 
 /* Declarations for ordered dithering.
- * 
+ *
  * We use 4x4 ordered dither array packed into 32 bits. This array is
  * sufficent for dithering RGB_888 to RGB_565.
  */
@@ -83,6 +83,9 @@ static const INT32 dither_matrix[4] = {
 #define ONE_HALF	((INT32) 1 << (SCALEBITS-1))
 #define FIX(x)		((INT32) ((x) * (1L<<SCALEBITS) + 0.5))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Initialize tables for YCC->RGB colorspace conversion.
@@ -246,7 +249,7 @@ ycc_rgb_565_convert (j_decompress_ptr cinfo,
     inptr2 = input_buf[2][input_row];
     input_row++;
     outptr = *output_buf++;
-    
+
     if (PACK_NEED_ALIGNMENT(outptr)) {
         y  = GETJSAMPLE(*inptr0++);
         cb = GETJSAMPLE(*inptr1++);
@@ -870,7 +873,7 @@ jinit_color_deconverter (j_decompress_ptr cinfo)
     }
     break;
 #endif
-    
+
   case JCS_CMYK:
     cinfo->out_color_components = 4;
     if (cinfo->jpeg_color_space == JCS_YCCK) {
@@ -897,3 +900,7 @@ jinit_color_deconverter (j_decompress_ptr cinfo)
   else
     cinfo->output_components = cinfo->out_color_components;
 }
+
+#ifdef __cplusplus
+}
+#endif

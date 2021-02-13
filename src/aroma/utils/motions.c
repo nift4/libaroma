@@ -25,6 +25,9 @@
 #define __libaroma_motions_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /******************************************************************************
  * Interpolator																															 *
  ******************************************************************************/
@@ -104,7 +107,7 @@ float libaroma_motion_accelerate(float t) {
 /******************************************************************************
  * Fling Motions																															*
  ******************************************************************************/
- 
+
 /*
  * Function		: libaroma_fling_down
  * Return Value: void
@@ -364,4 +367,7 @@ byte libaroma_ripple_calculation(
 	return 0;
 } /* End of libaroma_ripple_calculation */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_motions_c__ */

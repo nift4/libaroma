@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 static LIBAROMA_COLORSET __libaroma_fallback_colorset={
 	primary:0,
 	primary_text:0,
@@ -63,8 +66,8 @@ byte libaroma_colorset(LIBAROMA_COLORSETP colorset, byte type){
 	colorset->control_primary_text=RGB(212121);
 	colorset->control_secondary_text=RGB(727272);
 	colorset->divider=RGB(B6B6B6);
-	
-	
+
+
 	colorset->dialog_bg=RGB(FFFFFF);
 	colorset->dialog_primary_text=RGB(212121);
 	colorset->dialog_secondary_text=RGB(727272);
@@ -100,4 +103,7 @@ LIBAROMA_COLORSETP libaroma_colorget(
 	return &libaroma_wm()->colorset;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_color_manager_c__ */

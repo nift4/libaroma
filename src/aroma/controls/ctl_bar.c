@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define _LIBAROMA_CTL_BAR_CHANGE_TITLE					0x1
 #define _LIBAROMA_CTL_BAR_CHANGE_COLOR					0x2
 #define _LIBAROMA_CTL_BAR_CHANGE_TOOLS					0x4
@@ -58,18 +61,18 @@ struct __LIBAROMA_CTL_BAR{
 	word bgcolor;
 	word selcolor;
 	word itemcolor;
-	
+
 	/* positions */
 	int text_gap;
 	int title_x;
 	int title_w;
 	int tools_x;
 	byte force_draw;
-	
+
 	long change_start;
 	float change_state;
 	byte change_flags;
-	
+
 	LIBAROMA_CANVASP tdc;
 	LIBAROMA_CANVASP dc;
 	LIBAROMA_CANVASP icon;
@@ -77,13 +80,13 @@ struct __LIBAROMA_CTL_BAR{
 	byte icon_ismask;
 	word menu_id;
 	byte title_touchable;
-	
+
 	/* touch state */
 	byte touched_switch;
 	byte touched_state;
 	int touch_bound_x;
 	int touch_bound_w;
-	
+
 	LIBAROMA_RIPPLE ripple;
 	LIBAROMA_CTL_BAR_TOOLSP tools;
 	LIBAROMA_MUTEX mutex;
@@ -178,7 +181,7 @@ byte libaroma_ctl_bar_tools_set(
 	if ((index>=tools->n)||(index<0)){
 		return 0;
 	}
-	
+
 	byte prevchecked = (tools->tools[index].icon_flags&
 		LIBAROMA_CTL_BAR_TOOL_SWITCH_CHECKED)?1:0;
 	_libaroma_ctl_bar_tools_item_free(&tools->tools[index]);
@@ -246,7 +249,7 @@ byte _libaroma_ctl_bar_draw_switch(
 				byte checked=(t->icon_flags&LIBAROMA_CTL_BAR_TOOL_SWITCH_CHECKED)?1:0;
 				int xpos = (i * libaroma_dp(48)) + me->tools_x + libaroma_dp(24);
 				int ypos = cv->h>>1;
-				
+
 				if (erasebg){
 					libaroma_draw_rect(
 						cv,
@@ -255,8 +258,8 @@ byte _libaroma_ctl_bar_draw_switch(
 						me->bgcolor, 0xff
 					);
 				}
-				
-				byte is_dark = libaroma_color_isdark(me->bgcolor); 
+
+				byte is_dark = libaroma_color_isdark(me->bgcolor);
 				word mcolor = is_dark?0xffff:0;
 				word scolor = is_dark?0:0xffff;
 				word h_color_rest	 = libaroma_alpha(me->bgcolor,mcolor,
@@ -280,29 +283,29 @@ byte _libaroma_ctl_bar_draw_switch(
 				int h_draw_x			= base_x + round(base_w*selrelstate);
 				int h_draw_y			= ypos-(h_sz>>1);
 				int rsz = libaroma_dp(1);
-				
+
 				/* tracker */
 				libaroma_gradient_ex1(cv,
 					xpos-(b_width>>1), ypos-(b_height>>1),
 					b_width, b_height, bc, bc, (b_height>>1),0x1111,
 					0xff,0xff, 0
 				);
-				
+
 				if (draw_handle){
 					int vhsz=h_sz+libaroma_dp(16);
 					libaroma_gradient_ex1(cv,
 						h_draw_x-libaroma_dp(8),
 						h_draw_y-libaroma_dp(8),
-						vhsz, 
-						vhsz, 
+						vhsz,
+						vhsz,
 						me->selcolor,me->selcolor,
-						(vhsz>>1),0x1111, 
+						(vhsz>>1),0x1111,
 						(0x35*draw_handle)>>8,
 						(0x35*draw_handle)>>8,
 						0
 					);
 				}
-				
+
 				/* shadow */
 				LIBAROMA_CANVASP bmask = libaroma_canvas_ex(h_sz,h_sz,1);
 				libaroma_canvas_setcolor(bmask,0,0);
@@ -311,13 +314,13 @@ byte _libaroma_ctl_bar_draw_switch(
 				libaroma_canvas_free(bmask);
 				libaroma_draw_opacity(cv,scv,h_draw_x-rsz,h_draw_y,3,0x60);
 				libaroma_canvas_free(scv);
-				
+
 				/* handle */
 				libaroma_gradient_ex1(cv,
 					h_draw_x, h_draw_y, h_sz, h_sz, hc,hc,
 					(h_sz>>1),0x1111, 0xff,0xff, 0
 				);
-				
+
 				/* overlay icon */
 				if (t->icon){
 					int ico_sz = libaroma_dp(16);
@@ -328,7 +331,7 @@ byte _libaroma_ctl_bar_draw_switch(
 							ic, me->tools->tools[i].icon,
 							0, 0, ico_sz, ico_sz,
 							0, 0,
-							me->tools->tools[i].icon->w, 
+							me->tools->tools[i].icon->w,
 							me->tools->tools[i].icon->h
 						);
 						libaroma_draw_mask(
@@ -353,11 +356,11 @@ byte _libaroma_ctl_bar_draw_switch(
 void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 	_LIBAROMA_CTL_BARP me = (_LIBAROMA_CTL_BARP) ctl->internal;
 	libaroma_mutex_lock(me->mutex);
-	
+
 	int i;
 	me->change_state=0;
 	me->change_start=0;
-	
+
 	byte isactive=0;
 	if (ctl->window){
 		if (ctl->window->active){
@@ -367,18 +370,18 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 	if ((isactive)&&(me->dc)){
 		me->change_start=libaroma_tick();
 	}
-	
+
 	if (me->tdc){
 		libaroma_canvas_free(me->tdc);
 		me->tdc=NULL;
 	}
-	
+
 	me->tdc = libaroma_canvas(
 		ctl->w, ctl->h
 	);
 	me->itemcolor = libaroma_color_isdark(me->bgcolor)?0xffff:0;
 	libaroma_canvas_setcolor(me->tdc, me->bgcolor, 0xff);
-	
+
 	me->title_x = libaroma_dp(16);
 	if ((me->icon)||(me->icon_flags)){
 		if (me->icon){
@@ -426,7 +429,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 		}
 		me->title_x = libaroma_dp(me->text_gap);
 	}
-	
+
 	int tools_w=0;
 	int tools_r=libaroma_dp(4);
 	if (me->menu_id){
@@ -464,11 +467,11 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 	if (me->tools!=NULL){
 		tools_w = me->tools->n * libaroma_dp(48);
 	}
-	
+
 	/* title width */
 	me->title_w = ctl->w - (me->title_x+tools_w+tools_r+libaroma_dp(2));
 	me->tools_x = ctl->w - (tools_r+tools_w);
-	
+
 	/* draw tools */
 	if (me->tools!=NULL){
 		int icosz = libaroma_dp(24);
@@ -494,7 +497,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 							ic, me->tools->tools[i].icon,
 							0, 0, icosz, icosz,
 							0, 0,
-							me->tools->tools[i].icon->w, 
+							me->tools->tools[i].icon->w,
 							me->tools->tools[i].icon->h
 						);
 					}
@@ -521,7 +524,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 			}
 		}
 	}
-	
+
 	LIBAROMA_TEXT textp = NULL;
 	LIBAROMA_TEXT textps= NULL;
 	/* prepare title */
@@ -555,7 +558,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 			100
 		);
 	}
-	
+
 	int textp_h = 0;
 	int texts_h = 0;
 	if (textp){
@@ -566,7 +569,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 		texts_h+= libaroma_text_height(textps);
 	}
 	int start_text_y = (ctl->h>>1)-((texts_h>>1)+libaroma_dp(2));
-	
+
 	if (textp){
 		libaroma_text_draw_color(
 			me->tdc,textp,
@@ -585,8 +588,8 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 		);
 		libaroma_text_free(textps);
 	}
-	
-	
+
+
 	if ((!isactive)||(me->dc==NULL)){
 		if (me->dc!=NULL){
 			libaroma_canvas_free(me->dc);
@@ -629,7 +632,7 @@ void _libaroma_ctl_bar_draw(
 		LIBAROMA_CANVASP c){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP, 
+		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	me->force_draw=0;
@@ -643,13 +646,13 @@ void _libaroma_ctl_bar_draw(
 		}
 	}
 	if (me->dc){
-		
+
 		if ((me->change_state<1)&&(me->change_state>0)&&(me->tdc)){
 			float xstate = libaroma_cubic_bezier_swiftout(me->change_state);
 			libaroma_draw(c, me->dc, 0, 0, 0);
 			int h = (c->h * xstate);
 			int y = (c->h>>1) - (h>>1);
-				
+
 			if (me->change_flags&_LIBAROMA_CTL_BAR_CHANGE_COLOR){
 				/* find switch */
 				if (me->tools!=NULL){
@@ -793,7 +796,7 @@ void _libaroma_ctl_bar_draw(
 					libaroma_canvas_free(me->dc);
 					me->dc=me->tdc;
 					me->tdc=NULL;
-					
+
 					/* drawer or arrow */
 					if ((!me->icon)&&(me->icon_flags)) {
 						if ((me->icon_flags==LIBAROMA_CTL_BAR_ICON_ARROW)||
@@ -819,7 +822,7 @@ void _libaroma_ctl_bar_draw(
 							);
 						}
 					}
-					
+
 					/* find switch */
 					if (me->tools!=NULL){
 						int i;
@@ -841,7 +844,7 @@ void _libaroma_ctl_bar_draw(
 			}
 			libaroma_draw(c, me->dc, 0, 0, 0);
 		}
-		
+
 		if (me->touched_state){
 			if (me->touched_switch){
 				if ((libaroma_ripple_current(&me->ripple,touch_state)>0)&&
@@ -920,8 +923,8 @@ void _libaroma_ctl_bar_draw(
 							}
 						}
 						if (rdc){
-							libaroma_draw_mask_circle(c, rdc, 
-								me->touch_bound_x+x, y, 
+							libaroma_draw_mask_circle(c, rdc,
+								me->touch_bound_x+x, y,
 								me->touch_bound_x+x-copy_l, y, size, 0xff);
 							libaroma_canvas_free(rdc);
 						}
@@ -947,7 +950,7 @@ byte _libaroma_ctl_bar_thread(LIBAROMA_CONTROLP ctl) {
 		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP, 0
 	);
 	byte is_draw = me->force_draw;
-	
+
 	/* changed */
 	if (me->change_start>0){
 		float nowstate=libaroma_control_state(me->change_start, 200);
@@ -960,7 +963,7 @@ byte _libaroma_ctl_bar_thread(LIBAROMA_CONTROLP ctl) {
 			me->change_state=nowstate;
 		}
 	}
-	
+
 	byte res = libaroma_ripple_thread(&me->ripple, 0);
 	if (res){
 		if (res&LIBAROMA_RIPPLE_REDRAW){
@@ -1002,7 +1005,7 @@ void _libaroma_ctl_bar_destroy(
 		LIBAROMA_CONTROLP ctl){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP, 
+		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	if (me->dc!=NULL){
@@ -1036,7 +1039,7 @@ dword _libaroma_ctl_bar_msg(
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP, 0
 	);
-	
+
 	switch(msg->msg){
 		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
@@ -1129,7 +1132,7 @@ dword _libaroma_ctl_bar_msg(
 								}
 							}
 						}
-						
+
 						/* send window message */
 						if (me->touched_state<10){
 							libaroma_window_post_command(
@@ -1184,7 +1187,7 @@ LIBAROMA_CONTROLP libaroma_ctl_bar(
 		ALOGW("libaroma_ctl_bar alloc button memory failed");
 		return NULL;
 	}
-	
+
 	/* set internal data */
 	libaroma_mutex_init(me->mutex);
 	if (title){
@@ -1194,7 +1197,7 @@ LIBAROMA_CONTROLP libaroma_ctl_bar(
 	me->bgcolor = bgcolor;
 	win->appbar_bg = bgcolor;
 	me->selcolor = selcolor;
-	
+
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
 		libaroma_control_new(
@@ -1426,7 +1429,7 @@ byte libaroma_ctl_bar_set_icon(LIBAROMA_CONTROLP ctl,
 	me->icon=NULL;
 	byte prev_icon_flags = me->icon_flags;
 	me->icon_flags=0;
-	
+
 	if (icon){
 		int icosz=libaroma_dp(24);
 		me->icon = libaroma_canvas_ex(
@@ -1474,4 +1477,7 @@ byte libaroma_ctl_bar_set_icon(LIBAROMA_CONTROLP ctl,
 	return 1;
 } /* End of libaroma_ctl_bar_set_icon */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_ctl_bar_c__ */

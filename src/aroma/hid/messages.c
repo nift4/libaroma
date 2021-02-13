@@ -25,6 +25,9 @@
 #define __libaroma_messages_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Structure	 : _LIBAROMA_MSGQUEUE
  * Typedef		 : LIBAROMA_MSGQUEUE, * LIBAROMA_MSGQUEUEP
@@ -127,9 +130,9 @@ byte libaroma_msg_init() {
 		ALOGE("message instance already initialized");
 		return 0;
 	}
-	
+
 	libaroma_cond_init(&_libaroma_msgqueue_cond, &_libaroma_msgqueue_mutex);
-	
+
 	/* Allocating Instance */
 	_libaroma_msgqueue = (LIBAROMA_MSGQUEUEP) calloc(sizeof(LIBAROMA_MSGQUEUE),1);
 	/* Init Queue Data */
@@ -228,7 +231,7 @@ void libaroma_msg_release() {
 	/* Free Instance */
 	free(_libaroma_msgqueue);
 	_libaroma_msgqueue = NULL;
-	
+
 	libaroma_cond_free(&_libaroma_msgqueue_cond, &_libaroma_msgqueue_mutex);
 } /* End of libaroma_msg_release */
 
@@ -363,6 +366,9 @@ byte libaroma_msg(
 	return ret;
 } /* End of libaroma_msg */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_messages_c__ */
 

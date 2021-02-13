@@ -24,6 +24,9 @@
 #ifndef __libaroma_linux_hid_touch_driver_c__
 #define __libaroma_linux_hid_touch_driver_c__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * UNIVERSAL DEVICE - TRANSLATOR FOR TOUCH DEVICE
  *	 Prefix : LINUXHIDRV_
@@ -112,15 +115,15 @@ static byte LINUXHIDRV_calibrate(
 		(p->xi.maximum - p->xi.minimum);
 	*y = (p->y - p->yi.minimum) * (fb_height - 1) /
 		(p->yi.maximum - p->yi.minimum);
-	
+
 	return 1;
-	
+
 	/* check result - disabled for capacitive button
 	if (*x >= 0 && *x < fb_width &&
 			*y >= 0 && *y < fb_height) {
 		return 1;
 	}
-	
+
 	return 0;
 	*/
 }
@@ -140,9 +143,9 @@ byte LINUXHIDRV_translate_touch(
 	ALOGRT("RAW TOUCH: T=%i, C=%i, V=%i", ev->type, ev->code, ev->value);
 	static int MT_TRACKING_IS_UNTOUCHED = 0;
 	static int TOUCH_RELEASE_NEXTSYN = 0;
-	
+
 	//printf("rt: %i, %i, %i\n",ev->type, ev->code, ev->value);
-	
+
 	/* process EV_ABS event */
 	if (ev->type==EV_ABS) {
 		switch (ev->code) {
@@ -184,7 +187,7 @@ byte LINUXHIDRV_translate_touch(
 					ev->code = SYN_REPORT;
 				}
 				break;
-				
+
 			case ABS_MT_TOUCH_MAJOR:
 			case ABS_MT_PRESSURE:
 				/* multitouch pressure event */
@@ -195,7 +198,7 @@ byte LINUXHIDRV_translate_touch(
 					dev->p.y = -1;*/
 				}
 				break;
-				
+
 			case ABS_MT_TRACKING_ID:
 				if (ev->value < 0) {
 					/* screen untouched */
@@ -206,13 +209,13 @@ byte LINUXHIDRV_translate_touch(
 					MT_TRACKING_IS_UNTOUCHED = 1;
 				}
 				break;
-				
+
 			default:
 				/* unknown event */
 				goto return_none;
 		}
 	}
-	
+
 	/* process ev_syn event */
 	if (ev->type == EV_SYN) {
 		if (ev->code == SYN_MT_REPORT) {
@@ -225,7 +228,7 @@ byte LINUXHIDRV_translate_touch(
 			ALOGRT("RAW TOUCH STATUS - ev->code != SYN_REPORT");
 			goto return_clear_sync;
 		}
-		
+
 		if (((dev->p.state &
 				(LINUXHIDRV_POS_ST_LASTSYNC | LINUXHIDRV_POS_ST_RLS_NEXT)) &&
 				!MT_TRACKING_IS_UNTOUCHED) ||
@@ -234,7 +237,7 @@ byte LINUXHIDRV_translate_touch(
 			TOUCH_RELEASE_NEXTSYN = 0;
 			dest_ev->x			= dev->p.tx;
 			dest_ev->y			= dev->p.ty;
-			
+
 			/* sometime it reported twice, so check this value */
 			if ((dev->p.tx == -1) || (dev->p.tx == -1)) {
 				/* log raw */
@@ -243,7 +246,7 @@ byte LINUXHIDRV_translate_touch(
 				dev->p.state		&= ~LINUXHIDRV_POS_ST_RLS_NEXT;
 				goto return_clear_sync;
 			}
-			
+
 			/* reset translated coordinate */
 			dev->p.tx			 = -1;
 			dev->p.ty			 = -1;
@@ -251,7 +254,7 @@ byte LINUXHIDRV_translate_touch(
 			dev->p.state		&= ~LINUXHIDRV_POS_ST_DOWNED;
 			/* reset release next */
 			dev->p.state		&= ~LINUXHIDRV_POS_ST_RLS_NEXT;
-			
+
 			/* it was touch up event if not on virtualkey */
 			if (!(dev->p.state & LINUXHIDRV_POS_ST_IS_VKEY)) {
 				/* fill destination event */
@@ -271,7 +274,7 @@ byte LINUXHIDRV_translate_touch(
 				/* check if still touch inside virtual key */
 				int xd = abs(dev->vks[dev->p.vk].x - dest_ev->x);
 				int yd = abs(dev->vks[dev->p.vk].y - dest_ev->y);
-				
+
 				if ((xd < dev->vks[dev->p.vk].w / 2) && (yd < dev->vks[dev->p.vk].h / 2)) {
 					/* it still on virtual key. set as up */
 					key_ev.value = 0;
@@ -284,25 +287,25 @@ byte LINUXHIDRV_translate_touch(
 					ALOGRT("INDR VIRTUALKEY CANCEL : [%i,%i] on %ix%ipx",
 						dev->p.vk, key_ev.code, xd, yd);
 				}
-				
+
 				/* reset virtual key id */
 				dev->p.vk		= -1;
 				/* if on virtual key - send as keyboard event */
 				return LINUXHIDRV_translate_keyboard(me, dev, dest_ev, &key_ev);
 			}
-			
+
 			return LIBAROMA_HID_EV_RET_TOUCH;
 		}
-		
+
 		/* set on EV_SYN */
 		dev->p.state	|= LINUXHIDRV_POS_ST_LASTSYNC;
-		
+
 		/* calibrated x, y */
 		int cx = -1;
 		int cy = -1;
-		
-		
-		/* check if x and y has been synced 
+
+
+		/* check if x and y has been synced
 		if ((dev->p.state & LINUXHIDRV_POS_ST_SYNC_X) &&
 				(dev->p.state & LINUXHIDRV_POS_ST_SYNC_Y)) {
 			if (!LINUXHIDRV_calibrate(me, &dev->p, &cx, &cy)) {
@@ -313,34 +316,34 @@ byte LINUXHIDRV_translate_touch(
 			ALOGRT("RAW TOUCH STATUS - X,Y not Synced");
 			goto return_none;
 		}*/
-		
+
 		LINUXHIDRV_calibrate(me, &dev->p, &cx, &cy);
-		
+
 		/* swap & flip handler */
 		if (mi->touch_swap_xy) {
 			cx ^= cy;
 			cy ^= cx;
 			cx ^= cy;
 		}
-		
+
 		if (mi->touch_flip_x) {
 			cx = me->screen_width - cx;
 		}
-		
+
 		if (mi->touch_flip_y) {
 			cy = me->screen_height - cy;
 		}
-		
+
 		/* if we have nothing useful to report, skip it */
 		if (cx == -1 || cy == -1 || dev->p.x == -1 || dev->p.y == -1) {
 			ALOGRT("RAW TOUCH STATUS - x/y=-1 (x=%i,y=%i)",dev->p.x,dev->p.y);
 			goto return_none;
 		}
-		
+
 		/* reset last sync xy event */
 		dev->p.state		&= ~LINUXHIDRV_POS_ST_SYNC_X;
 		dev->p.state		&= ~LINUXHIDRV_POS_ST_SYNC_Y;
-		
+
 		/* on first touch */
 		if (!(dev->p.state & LINUXHIDRV_POS_ST_DOWNED)) {
 			/* set downed */
@@ -385,7 +388,7 @@ byte LINUXHIDRV_translate_touch(
 				 */
 				dev->p.tx		= cx;
 				dev->p.ty		= cy;
-				
+
 				ALOGRT("RAW TOUCH STATUS - needed for cancel virtual key event");
 				/* don't send any event */
 				goto return_none;
@@ -393,7 +396,7 @@ byte LINUXHIDRV_translate_touch(
 			/* set destination state as move event */
 			dest_ev->state	= LIBAROMA_HID_EV_STATE_MOVE;
 		}
-		
+
 		/* set translated coordinat */
 		dev->p.tx		= cx;
 		dev->p.ty		= cy;
@@ -405,7 +408,7 @@ byte LINUXHIDRV_translate_touch(
 		/* set as touch event */
 		return LIBAROMA_HID_EV_RET_TOUCH;
 	}
-	
+
 return_clear_sync:
 	/* reset last sync event */
 	dev->p.state &= ~LINUXHIDRV_POS_ST_LASTSYNC;
@@ -413,4 +416,7 @@ return_none:
 	return LIBAROMA_HID_EV_RET_NONE;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_hid_touch_driver_c__ */

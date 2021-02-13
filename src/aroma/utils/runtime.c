@@ -20,11 +20,14 @@
  * + This is part of libaroma, an embedded ui toolkit.
  * + 19/01/15 - Author(s): Ahmad Amarullah
  *
- */ 
+ */
 #ifndef __libaroma_runtime_c__
 #define __libaroma_runtime_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef LIBAROMA_CONFIG_NO_RUNTIME
 #ifdef __linux__
 	#include <sys/wait.h>
@@ -43,7 +46,7 @@
 		byte core_online[16];
 		byte core_num;
 	};
-	
+
 	/*
 	 * Variable		: _libaroma_runtime
 	 * Type				: LIBAROMA_RUNTIME
@@ -66,7 +69,7 @@ void libaroma_runtime_activate_cores(int num_cores){
 	_libaroma_runtime.core_num=0;
 	FILE * fp;
 	char path[256];
-	
+
 	for (i=0;i<num_cores;i++){
 		snprintf(path,256,"/sys/devices/system/cpu/cpu%i/online",i);
 		if (!libaroma_file_exists(path)) {
@@ -82,7 +85,7 @@ void libaroma_runtime_activate_cores(int num_cores){
 		else{
 			break;
 		}
-		
+
 		_libaroma_runtime.core_online[i]=is_online;
 		fp = fopen(path, "w+");
 		if(fp){
@@ -91,7 +94,7 @@ void libaroma_runtime_activate_cores(int num_cores){
 		}
 		_libaroma_runtime.core_num++;
 	}
-	
+
 	/* max power */
 	char cmds[1024];
 	for (i=0;i<_libaroma_runtime.core_num;i++){
@@ -175,7 +178,7 @@ void libaroma_runtime_init() {
 	_libaroma_runtime.parent	 = getppid();	/* root */
 	_libaroma_runtime.monitor	= getpid();	 /* monitor */
 	_libaroma_runtime.me			 = fork();		 /* child - fork */
-	
+
 	if (_libaroma_runtime.me == 0) {
 		_libaroma_runtime.me = getpid();
 		ALOGS("RUNTIME: Application @%i",_libaroma_runtime.me);
@@ -189,7 +192,7 @@ void libaroma_runtime_init() {
 		ALOGI("RUNTIME: Halting...");
 		_exit(-1); /* error */
 	}
-	
+
 	ALOGS("RUNTIME: MONITORING(R:%i, M:%i, A:%i)",
 			_libaroma_runtime.parent,
 			_libaroma_runtime.monitor,
@@ -207,4 +210,7 @@ void libaroma_runtime_init() {
 #endif
 } /* End of libaroma_runtime_init */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_runtime_c__ */

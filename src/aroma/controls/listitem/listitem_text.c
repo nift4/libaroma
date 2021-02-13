@@ -28,6 +28,9 @@
 
 #include "../../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* LIST ITEM HANDLER */
 byte _libaroma_listitem_text_message(
@@ -72,7 +75,7 @@ byte _libaroma_listitem_text_message(
 	if (item->handler!=&_libaroma_listitem_text_handler){
 		return 0;
 	}
-	switch (msg){		
+	switch (msg){
 		case LIBAROMA_CTL_LIST_ITEM_MSG_THREAD:
 			{
 				_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
@@ -100,15 +103,15 @@ void _libaroma_listitem_text_draw(
 	if (item->handler!=&_libaroma_listitem_text_handler){
 		return;
 	}
-	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;	
-	
+	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
+
 	if (!(state&LIBAROMA_CTL_LIST_ITEM_DRAW_ADDONS)){
 		int icoh=libaroma_dp(mi->vpad*2);
 		int tx = mi->hpad;//libaroma_dp(16);
 		int tw = cv->w - (tx*2);//libaroma_dp(52);
 		int ty = libaroma_dp(mi->vpad*2);
 		LIBAROMA_TEXT mtextp=NULL;
-		
+
 		/* prepare main text */
 		int txtsh=0;
 		int m_h=0;
@@ -124,15 +127,15 @@ void _libaroma_listitem_text_draw(
 			ty+=m_h;
 			txtsh+=m_h;
 		}
-		
-		
+
+
 		int etremsz=0;
 		/* calculate whole height */
 		ty+=libaroma_dp(mi->vpad*2);
 		int my_h = MAX(icoh,ty);
-		
+
 		int txt_sy=((my_h>>1)-((txtsh>>1)+libaroma_dp(2+etremsz)))+libaroma_dp(2);
-		
+
 		/* draw main text */
 		if (mtextp){
 			//libaroma_text_draw(cv,mtextp,tx,txt_sy
@@ -140,7 +143,7 @@ void _libaroma_listitem_text_draw(
 			txt_sy+=m_h;
 			libaroma_text_free(mtextp);
 		}
-		
+
 		if (my_h!=mi->h){
 			mi->h=my_h;
 			libaroma_ctl_list_item_setheight(
@@ -281,7 +284,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 			libaroma_text_free(mtextp);
 		}
 	}
-	
+
 	h = MAX(h,th)+libaroma_dp(vpad*2);
 	mi->h=h;
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
@@ -314,5 +317,8 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		libaroma_colorget(ctl,NULL)->accent,vpad,hpad,font_id,font_size,flags,updateable,at_index);
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_listitem_text_c__ */
 

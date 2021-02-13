@@ -23,6 +23,9 @@
  */
 #ifndef __libaroma_memory_tracking_c__
 #define __libaroma_memory_tracking_c__
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifdef LIBAROMA_CONFIG_DEBUG_MEMORY
 #if LIBAROMA_CONFIG_DEBUG_MEMORY >=1
 #include <stdio.h>
@@ -85,27 +88,27 @@ void ___mtrack_init_free(int free){
 char ___mtrack_set(void * key, size_t sz, char * filename, long line) {
   /* Find Existing Key */
   ___MTRACKIP item = ___mtrack.first;
-  
+
   while (item != NULL) {
     if (item->key == key) {
       break;
     }
-    
+
     item = item->next;
   }
-  
+
   /* If Exist */
   if (item != NULL) {
     return 0;
   }
-  
+
   /* Set Memory Tresshold */
   ___mtrack.curr_sz += sz;
-  
+
   if (___mtrack.curr_sz > ___mtrack.tresshold) {
     ___mtrack.tresshold = ___mtrack.curr_sz;
   }
-  
+
   /* Allocating New Item */
   item            = malloc(sizeof(___MTRACKI));
   item->key       = key;
@@ -114,7 +117,7 @@ char ___mtrack_set(void * key, size_t sz, char * filename, long line) {
   item->filename  = malloc(strlen(filename) + 1);
   item->next      = NULL;
   strcpy(item->filename, filename);
-  
+
   /* If array is empty */
   if (___mtrack.first == NULL) {
     ___mtrack.first      = item;
@@ -125,7 +128,7 @@ char ___mtrack_set(void * key, size_t sz, char * filename, long line) {
     ___mtrack.last->next = item;
     ___mtrack.last       = item;
   }
-  
+
   return 1;
 }
 
@@ -134,13 +137,13 @@ char ___mtrack_del(void * key) {
   /* Fetch Item */
   ___MTRACKIP item = ___mtrack.first;
   ___MTRACKIP prev = NULL;
-  
+
   /* Find Key */
   while (item != NULL) {
     if (item->key == key) {
       if (prev != NULL) {
         prev->next = item->next;
-        
+
         if (item->next == NULL) {
           ___mtrack.last = prev;
         }
@@ -152,18 +155,18 @@ char ___mtrack_del(void * key) {
         ___mtrack.first  = NULL;
         ___mtrack.last   = NULL;
       }
-      
+
       /* Set Current Used Size */
       ___mtrack.curr_sz -= item->sz;
       free(item->filename);
       free(item);
       return 1;
     }
-    
+
     prev = item;
     item = item->next;
   }
-  
+
   return 0;
 }
 
@@ -171,27 +174,27 @@ char ___mtrack_del(void * key) {
 ___MTRACKIP ___mtrack_get(void * key) {
   /* Fetch Item */
   ___MTRACKIP item = ___mtrack.first;
-  
+
   /* Find Key */
   while (item != NULL) {
     if (item->key == key) {
       return item;
     }
-    
+
     item = item->next;
   }
-  
+
   return NULL;
 }
 
 /* Get Memory Size */
 long ___mtrack_getsz(void * key) {
   ___MTRACKIP item = ___mtrack_get(key);
-  
+
   if (item) {
     return item->sz;
   }
-  
+
   return 0;
 }
 
@@ -205,7 +208,7 @@ void ___mtrack_dump_leak() {
   printf(  "\n___________________________________________________\n\n");
   /* Fetch Item */
   ___MTRACKIP item = ___mtrack.first;
-  
+
   /* Find Key and Dump */
   while (item != NULL) {
     printf("[%08X] %u byte\n  on \"%s\"\n  line %d\n",
@@ -216,19 +219,19 @@ void ___mtrack_dump_leak() {
           );
     item = item->next;
   }
-  
+
   printf("___________________________________________________\n\n");
   /* Free ___mtrack */
   item = ___mtrack.first;
   ___MTRACKIP tmp_item;
-  
+
   while (item != NULL) {
     free(item->filename);
     tmp_item = item;
     item = item->next;
     free(tmp_item);
   }
-  
+
   ___mtrack.first = NULL;
   ___mtrack.last  = NULL;
 }
@@ -239,7 +242,7 @@ void * ___mtrack_realloc(void * x, size_t size, char * filename, long line) {
   if (size < 1) {
     printf("MEM-TRACK[W]: realloc zero size on %s line %d\n", filename, (int) line);
   }
-  
+
   if (x != NULL) {
     if (!___mtrack_del(x)) {
       printf("MEM-TRACK[W]: realloc non-allocated address on %s line %d\n", filename, (int) line);
@@ -248,26 +251,26 @@ void * ___mtrack_realloc(void * x, size_t size, char * filename, long line) {
   else {
     printf("MEM-TRACK[W]: realloc null address on %s line %d\n", filename, (int) line);
   }
-  
+
   void * ret = realloc(x, size);
-  
+
   if (!___mtrack_set(ret, size, filename, line)) {
     printf("MEM-TRACK[W]: realloc: allocated used address on %s line %d\n", filename, (int) line);
   }
-  
+
   libaroma_mutex_unlock(___mtrack.mutex);
   return ret;
 }
 
 void * ___mtrack_malloc(size_t size, char * filename, long line) {
   libaroma_mutex_lock(___mtrack.mutex);
-  
+
   if (size < 1) {
     printf("MEM-TRACK[W]: malloc zero size on %s line %d\n", filename, (int) line);
   }
-  
+
   void * ret = malloc(size);
-  
+
   if (ret) {
     if (!___mtrack_set(ret, size, filename, line)) {
       printf("MEM-TRACK[W]: malloc: allocated used address on %s line %d\n", filename, (int) line);
@@ -276,20 +279,20 @@ void * ___mtrack_malloc(size_t size, char * filename, long line) {
   else{
   	printf("MEM-TRACK[W]: malloc: NULL return on %s line %d\n", filename, (int) line);
   }
-  
+
   libaroma_mutex_unlock(___mtrack.mutex);
   return ret;
 }
 
 void * ___mtrack_calloc(size_t num, size_t size, char * filename, long line) {
   libaroma_mutex_lock(___mtrack.mutex);
-  
+
   if (size < 1) {
     printf("MEM-TRACK[W]: calloc zero size on %s line %d\n", filename, (int) line);
   }
-  
+
   void * ret = calloc(num,size);
-  
+
   if (ret) {
     if (!___mtrack_set(ret, size*num, filename, line)) {
       printf("MEM-TRACK[W]: calloc: allocated used address on %s line %d\n", filename, (int) line);
@@ -298,26 +301,26 @@ void * ___mtrack_calloc(size_t num, size_t size, char * filename, long line) {
   else{
   	printf("MEM-TRACK[W]: calloc: NULL return on %s line %d\n", filename, (int) line);
   }
-  
+
   libaroma_mutex_unlock(___mtrack.mutex);
   return ret;
 }
 
 void ___mtrack_free(void ** x, char * filename, long line) {
   libaroma_mutex_lock(___mtrack.mutex);
-  
+
   if (*x != NULL) {
     if (!___mtrack_del(*x)) {
       printf("MEM-TRACK[W]: free non-allocated address on %s line %d\n", filename, (int) line);
     }
-    
+
     free(*x);
     *x = NULL;
   }
   else {
     printf("MEM-TRACK[W]: free null address on %s line %d\n", filename, (int) line);
   }
-  
+
   libaroma_mutex_unlock(___mtrack.mutex);
 }
 
@@ -326,7 +329,7 @@ char * ___mtrack_strdup(const char * str, char * filename, long line){
   void * ret = (void *) strdup(str);
   if (ret) {
     if (!___mtrack_set(ret, strlen(ret)+1, filename, line)) {
-      printf("MEM-TRACK[W]: strdup: allocated used address on %s line %d\n", 
+      printf("MEM-TRACK[W]: strdup: allocated used address on %s line %d\n",
         filename, (int) line);
     }
   }
@@ -338,4 +341,7 @@ char * ___mtrack_strdup(const char * str, char * filename, long line){
 }
 #endif /* LIBAROMA_CONFIG_DEBUG_MEMORY >=1 */
 #endif /* LIBAROMA_CONFIG_DEBUG_MEMORY */
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_memory_tracking_c__ */

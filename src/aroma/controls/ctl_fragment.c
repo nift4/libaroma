@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*************************** CONTROL HANDLERS *********************************/
 dword _libaroma_ctl_fragment_msg(LIBAROMA_CONTROLP, LIBAROMA_MSGP);
 void _libaroma_ctl_fragment_draw(LIBAROMA_CONTROLP, LIBAROMA_CANVASP);
@@ -86,7 +89,7 @@ struct __LIBAROMA_CTL_FRAGMENT{
 	LIBAROMA_TRANSITION_CB transition_cb;
 	LIBAROMA_RECTP transition_rs;
 	LIBAROMA_RECTP transition_re;
-	
+
 	byte redraw;
 	byte on_direct_canvas;
 	byte need_direct_canvas;
@@ -99,11 +102,11 @@ typedef struct{
 	byte active_state;
 	LIBAROMA_CONTROLP ctl;
 } _LIBAROMA_CTL_FRAGMENT_WIN, * _LIBAROMA_CTL_FRAGMENT_WINP;
-		
+
 /************************** INTERNAL FUNCTIONS ********************************/
 /*
  * Function		: _libaroma_ctl_fragment_get_win_index
- * Return Value: int 
+ * Return Value: int
  * Descriptions: get window index
  */
 inline int _libaroma_ctl_fragment_get_win_index(
@@ -128,7 +131,7 @@ inline int _libaroma_ctl_fragment_get_win_index(
 		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP, error_ret); \
 	int win_index = _libaroma_ctl_fragment_get_win_index(me,win); \
 	if (win_index==-1){ return error_ret; }
-		
+
 /*
  * Function		: _libaroma_ctl_fragment_direct_canvas
  * Return Value: byte
@@ -224,11 +227,11 @@ void _libaroma_ctl_fragment_activate_win(LIBAROMA_WINDOWP win, byte active){
 	if (!active){
 		if (win->active){
 			wind->active_state=0;
-				
+
 			libaroma_wm_compose(
 				&msg, LIBAROMA_MSG_WIN_INACTIVE, NULL, 0, 0
 			);
-		
+
 			win->active=0;
 			int i;
 			#ifdef LIBAROMA_CONFIG_OPENMP
@@ -244,15 +247,15 @@ void _libaroma_ctl_fragment_activate_win(LIBAROMA_WINDOWP win, byte active){
 	else{
 		if (!win->active){
 			wind->active_state=1;
-			
+
 			if (!win->dc){
 				_libaroma_ctl_fragment_measure(win);
 			}
-			
+
 			libaroma_wm_compose(
 				&msg, LIBAROMA_MSG_WIN_ACTIVE, NULL, 0, 0
 			);
-			
+
 			int i;
 			win->active=1;
 			#ifdef LIBAROMA_CONFIG_OPENMP
@@ -385,7 +388,7 @@ void _libaroma_ctl_fragment_draw(
 		LIBAROMA_CONTROLP ctl,
 		LIBAROMA_CANVASP c){
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP, 
+		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	if ((me->win_n<1)||(me->win_pos==-1)) {
@@ -394,7 +397,7 @@ void _libaroma_ctl_fragment_draw(
 		libaroma_mutex_unlock(me->mutex);
 		return;
 	}
-	
+
 	if (!me->redraw){
 		int i;
 		#ifdef LIBAROMA_CONFIG_OPENMP
@@ -460,7 +463,7 @@ void _libaroma_ctl_fragment_draw(
 		}
 	}
 	libaroma_mutex_unlock(me->dmutex);
-	
+
 	/* need revert to direct canvas */
 	if (me->need_direct_canvas){
 		me->need_direct_canvas=0;
@@ -486,7 +489,7 @@ byte _libaroma_ctl_fragment_thread(LIBAROMA_CONTROLP ctl) {
 	if ((me->win_n<1)||(me->win_pos==-1)) {
 		return 0;
 	}
-	
+
 	libaroma_mutex_lock(me->mutex);
 	if (me->win_next_del_id!=-1){
 		libaroma_ctl_fragment_del_window_nomutex(ctl,me->win_next_del_id);
@@ -534,7 +537,7 @@ byte _libaroma_ctl_fragment_thread(LIBAROMA_CONTROLP ctl) {
 					me->need_direct_canvas=1;
 					if (me->transision_delprev){
 						_LIBAROMA_CTL_FRAGMENT_WINP windd=
-							(_LIBAROMA_CTL_FRAGMENT_WINP) 
+							(_LIBAROMA_CTL_FRAGMENT_WINP)
 								me->wins[me->win_pos_out]->client_data;
 						me->win_next_del_id=windd->id;
 					}
@@ -564,7 +567,7 @@ void _libaroma_ctl_fragment_destroy(
 		LIBAROMA_CONTROLP ctl){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP, 
+		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	if (me->win_n>0){
@@ -597,9 +600,9 @@ dword _libaroma_ctl_fragment_msg(
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_fragment_handler, _LIBAROMA_CTL_FRAGMENTP, 0
 	);
-	
+
 	dword ret = 0;
-	
+
 	switch(msg->msg){
 		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
@@ -650,7 +653,7 @@ dword _libaroma_ctl_fragment_msg(
 					return 0;
 				}
 				LIBAROMA_WINDOWP win = me->wins[me->win_pos];
-				
+
 				if (me->win_pos_out!=-1){
 					me->win_cleanup=1;
 					libaroma_mutex_unlock(me->mutex);
@@ -661,13 +664,13 @@ dword _libaroma_ctl_fragment_msg(
 					return 0;
 				}
 				me->win_cleanup=0;
-				
+
 				int x = msg->x;
 				int y = msg->y;
 				libaroma_window_calculate_pos(NULL,ctl,&x,&y);
 				msg->x = x;
 				msg->y = y;
-				
+
 				/* touch handler */
 				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
 					win->touched = NULL;
@@ -712,7 +715,7 @@ LIBAROMA_CONTROLP libaroma_ctl_fragment(
 		ALOGW("pager need direct window attach");
 		return NULL;
 	}
-	
+
 	/* init internal data */
 	_LIBAROMA_CTL_FRAGMENTP me = (_LIBAROMA_CTL_FRAGMENTP)
 			calloc(sizeof(_LIBAROMA_CTL_FRAGMENT),1);
@@ -735,12 +738,12 @@ LIBAROMA_CONTROLP libaroma_ctl_fragment(
 			&_libaroma_ctl_fragment_handler,
 			NULL
 		);
-	
+
 	if (!ctl){
 		free(me);
 		return NULL;
 	}
-	
+
 	libaroma_mutex_init(me->mutex);
 	libaroma_mutex_init(me->dmutex);
 	return libaroma_window_attach(win,ctl);
@@ -761,7 +764,7 @@ LIBAROMA_WINDOWP libaroma_ctl_fragment_new_window(
 			"window first");
 		return NULL;
 	}
-	
+
 	libaroma_mutex_lock(me->mutex);
 	int new_pos = me->win_n;
 	if (me->win_n==0){
@@ -783,7 +786,7 @@ LIBAROMA_WINDOWP libaroma_ctl_fragment_new_window(
 				return NULL;
 			}
 		}
-		
+
 		LIBAROMA_WINDOWP * newins =(LIBAROMA_WINDOWP *) realloc(
 			me->wins, sizeof(LIBAROMA_WINDOWP)*(me->win_n+1));
 		if (newins){
@@ -796,7 +799,7 @@ LIBAROMA_WINDOWP libaroma_ctl_fragment_new_window(
 			return NULL;
 		}
 	}
-	
+
 	me->wins[new_pos] = (LIBAROMA_WINDOWP) calloc(sizeof(LIBAROMA_WINDOW),1);
 	if (!me->wins[new_pos]){
 		ALOGW("libaroma_ctl_fragment_new_window alloc window data failed");
@@ -813,11 +816,11 @@ LIBAROMA_WINDOWP libaroma_ctl_fragment_new_window(
 		libaroma_mutex_unlock(me->mutex);
 		return NULL;
 	}
-	
+
 	LIBAROMA_WINDOWP nwin = me->wins[new_pos];
 	nwin->handler=&_libaroma_ctl_fragment_win_handler;
 	nwin->parent=ctl->window;
-	
+
 	_LIBAROMA_CTL_FRAGMENT_WINP wind = (_LIBAROMA_CTL_FRAGMENT_WINP) calloc(
 		sizeof(_LIBAROMA_CTL_FRAGMENT_WIN), 1);
 	wind->id = id;
@@ -866,7 +869,7 @@ byte libaroma_ctl_fragment_del_window_nomutex(
 	while(me->win_pos_out!=-1){
 		libaroma_sleep(16);
 	}
-	
+
 	int i;
 	int did = -1;
 	LIBAROMA_WINDOWP win=NULL;
@@ -941,7 +944,7 @@ byte libaroma_ctl_fragment_set_active_window(
 	while(me->win_pos_out!=-1){
 		libaroma_sleep(16);
 	}
-	
+
 	byte ret=0;
 	int i;
 	int did = -1;
@@ -966,11 +969,11 @@ byte libaroma_ctl_fragment_set_active_window(
 				me->transition_type=anitype;
 				me->transition_state=0;
 				me->transision_delprev=remove_prev;
-				
+
 				me->transition_cb=transcb;
 				me->transition_rs=rect_start;
 				me->transition_re=rect_end;
-				
+
 				_LIBAROMA_CTL_FRAGMENT_WINP windid =
 				(_LIBAROMA_CTL_FRAGMENT_WINP) me->wins[did]->client_data;
 				windid->active_state=2;
@@ -982,7 +985,7 @@ byte libaroma_ctl_fragment_set_active_window(
 				me->win_pos_out=me->win_pos;
 				me->win_pos=did;
 			}
-			
+
 			ret=1;
 			me->redraw=1;
 		}
@@ -998,6 +1001,9 @@ byte libaroma_ctl_fragment_set_active_window(
 	return ret;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_ctl_fragment_c__ */
 
 

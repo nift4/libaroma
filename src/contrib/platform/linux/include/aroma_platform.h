@@ -27,6 +27,9 @@
 #ifndef __libaroma_platform_h__
 #define __libaroma_platform_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef LIBAROMA_PFLINUX_DUMMY_PTHREAD
 	#include <pthread.h>		/* pthread_ */
 	#include <signal.h>		 /* pthread_kill */
@@ -106,7 +109,7 @@ static inline long libaroma_tick(){
 		#define libaroma_mutex_lock(x) pthread_mutex_lock(&x)
 		#define libaroma_mutex_unlock(x) pthread_mutex_unlock(&x)
 	#endif
-	
+
 	/*
 	 * THREADS
 	 */
@@ -123,7 +126,7 @@ static inline long libaroma_tick(){
 		params.sched_priority = sched_get_priority_max(SCHED_FIFO);
 		pthread_setschedparam(t, SCHED_FIFO, &params);
 	}
-	
+
 	/*
 	 * CONDITION & MUTEX CONDITION - NOT NEED MULTICORE THREADSAFE
 	 */
@@ -135,7 +138,7 @@ static inline long libaroma_tick(){
 	#define libaroma_cond_unlock(m) pthread_mutex_unlock(m)
 	void libaroma_cond_init(LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex);
 	void libaroma_cond_free(LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex);
-	
+
 #else
 	#define LIBAROMA_MUTEX voidp
 	#define libaroma_mutex_init(x)
@@ -169,5 +172,8 @@ int libaroma_filesize(const char * filename);
 int libaroma_filesize_fd(int fd);
 byte libaroma_file_exists(const char * filename);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_platform_h__ */
 

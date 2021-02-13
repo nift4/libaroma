@@ -24,6 +24,9 @@
 #ifndef __libaroma_text_tags_c__
 #define __libaroma_text_tags_c__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: _libaroma_text_parse_tag
  * Return Value: byte
@@ -60,7 +63,7 @@ byte _libaroma_text_parse_tag(
 				case 'q':
 				case '*': {
 						if ((_LIBAROMA_TEXT_FIXED_INDENT & rules) == 0) {
-							byte current_indent = 
+							byte current_indent =
 								_LIBAROMA_TEXTCHUNK_LINE_GETINDENT(chunk->next_state.lflags);
 							if (current_indent < 8) {
 								byte line_flags =
@@ -331,5 +334,8 @@ byte _libaroma_text_parse_tag(
 } /* End of _libaroma_text_parse_tag */
 
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_text_tags_c__ */

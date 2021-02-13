@@ -25,6 +25,9 @@
 #define __libaroma_time_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: _libaroma_timer_active
  * Type				: byte
@@ -61,4 +64,7 @@ void libaroma_extern_sleep(long n){
 	libaroma_sleep(n);
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_time_c__ */

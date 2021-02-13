@@ -27,6 +27,9 @@
 
 #include "../../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* LIST ITEM HANDLER */
 byte _libaroma_listitem_caption_message(
 	LIBAROMA_CONTROLP, LIBAROMA_CTL_LIST_ITEMP,byte,dword,int,int);
@@ -94,11 +97,11 @@ void _libaroma_listitem_caption_draw(
 		return;
 	}
 	_LIBAROMA_LISTITEM_CAPTIONP mi = (_LIBAROMA_LISTITEM_CAPTIONP) item->internal;
-	
+
 	/*byte is_dark=libaroma_color_isdark(bgcolor);*/
 	word textcolor;
-	
-	
+
+
 	if (!(state&LIBAROMA_CTL_LIST_ITEM_DRAW_ADDONS)){
 		int vpad = 6;
 		textcolor= mi->textcolor;
@@ -107,7 +110,7 @@ void _libaroma_listitem_caption_draw(
 		int tx = libaroma_dp(16);
 		int ty = libaroma_dp(vpad*2);
 		LIBAROMA_TEXT mtextp=NULL;
-		
+
 		/* prepare main text */
 		int txtsh=0;
 		int m_h=0;
@@ -126,22 +129,22 @@ void _libaroma_listitem_caption_draw(
 			ty+=m_h;
 			txtsh+=m_h;
 		}
-		
-		
+
+
 		int etremsz=0;
 		/* calculate whole height */
 		ty+=libaroma_dp(vpad*2);
 		int my_h = MAX(icoh,ty);
-		
+
 		int txt_sy=((my_h>>1)-((txtsh>>1)+libaroma_dp(2+etremsz)))+libaroma_dp(2);
-		
+
 		/* draw main text */
 		if (mtextp){
 			libaroma_text_draw(cv,mtextp,tx,txt_sy);
 			txt_sy+=m_h;
 			libaroma_text_free(mtextp);
 		}
-		
+
 		if (my_h!=mi->h){
 			mi->h=my_h;
 			libaroma_ctl_list_item_setheight(
@@ -206,11 +209,11 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_caption_color(
 	int h = 0;
 	mi->textcolor=textcolor;
 	mi->text=(text?strdup(text):NULL);
-	
+
 	/* calculate height */
 	int tw = ctl->w-libaroma_dp(52);
 	int th = libaroma_dp(vpad*2);
-	
+
 	if (tw>0){
 		if (mi->text){
 			LIBAROMA_TEXT mtextp = libaroma_text(
@@ -227,10 +230,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_caption_color(
 			libaroma_text_free(mtextp);
 		}
 	}
-	
+
 	h = MAX(h,th)+libaroma_dp(vpad*2);
 	mi->h=h;
-	
+
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
@@ -259,6 +262,9 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_caption(
 	return libaroma_listitem_caption_color(ctl,id,text,
 		libaroma_colorget(ctl,NULL)->accent,at_index);
 }
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_listitem_caption_c__ */
 

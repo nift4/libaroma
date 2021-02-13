@@ -26,6 +26,9 @@
 #include <zlib.h>
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: _libaroma_language
  * Type				: LIBAROMA_SARRAYP
@@ -156,4 +159,7 @@ void libaroma_lang_cleanup() {
 	libaroma_lang_init();
 } /* End of libaroma_lang_cleanup */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_strings_c__ */

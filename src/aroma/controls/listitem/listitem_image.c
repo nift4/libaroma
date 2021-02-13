@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* LIST ITEM HANDLER */
 byte _libaroma_listitem_image_message(
 	LIBAROMA_CONTROLP, LIBAROMA_CTL_LIST_ITEMP,byte,dword,int,int);
@@ -63,9 +66,9 @@ byte _libaroma_listitem_image_message(
 	if (item->handler!=&_libaroma_listitem_image_handler){
 		return 0;
 	}
-	_LIBAROMA_LISTITEM_IMAGEP mi = 
+	_LIBAROMA_LISTITEM_IMAGEP mi =
 		(_LIBAROMA_LISTITEM_IMAGEP) item->internal;
-	
+
 	switch (msg){
 		case LIBAROMA_CTL_LIST_ITEM_MSG_THREAD:
 			{
@@ -83,7 +86,7 @@ byte _libaroma_listitem_image_message(
 				}
 			}
 			break;
-		
+
 		case LIBAROMA_CTL_LIST_ITEM_MSG_TOUCH_DOWN:
 			{
 				//printf("list image #%i -> down\n",item->id);
@@ -132,10 +135,10 @@ void _libaroma_listitem_image_draw(
 			return;
 		}
 		_LIBAROMA_LISTITEM_IMAGEP mi = (_LIBAROMA_LISTITEM_IMAGEP) item->internal;
-		
+
 		byte is_dark=libaroma_color_isdark(bgcolor);
 		word flags=item->flags;
-		
+
 		if (mi->ready_image){
 			if (flags&LIBAROMA_LISTITEM_IMAGE_PARALAX){
 				if ((mi->ready_image->w!=cv->w)||(mi->ready_image->h!=cv->h*2)){
@@ -150,7 +153,7 @@ void _libaroma_listitem_image_draw(
 				}
 			}
 		}
-		
+
 		if (mi->ready_image==NULL){
 			if (flags&LIBAROMA_LISTITEM_IMAGE_PARALAX){
 				mi->ready_image=libaroma_canvas(cv->w,cv->h*2);
@@ -187,7 +190,7 @@ void _libaroma_listitem_image_draw(
 								0, 0, draw_w, draw_h,
 								0, 0, mi->image->w, mi->image->h
 							);
-							
+
 							libaroma_draw_ex(
 								mi->ready_image,tc,
 								0,0,
@@ -339,7 +342,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_image(
 		flags|=LIBAROMA_LISTITEM_IMAGE_FILL;
 		flags|=LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD;
 	}
-	
+
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl, id, h,
 		flags,
@@ -354,5 +357,8 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_image(
 	return item;
 } /* End of libaroma_listitem_image */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_listitem_image_c__ */

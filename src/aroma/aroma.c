@@ -33,6 +33,11 @@
 	#include <sys/ioctl.h>
 #endif
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* init & release function */
 byte libaroma_hid_init();
 void libaroma_hid_release();
@@ -50,8 +55,10 @@ byte libaroma_lang_init();
 byte libaroma_lang_release();
 byte libaroma_timer_init();
 byte libaroma_timer_release();
+#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 byte libaroma_font_init();
 byte libaroma_font_release();
+#endif
 
 /*
  * Variable		: _libaroma_config
@@ -155,74 +162,75 @@ byte libaroma_start() {
 	);
 	ALOGI("	%s", libaroma_info(LIBAROMA_INFO_COPYRIGHT));
 	ALOGI(" ");
-	
+
 #ifdef LIBAROMA_TTY_KDSETMODE
 	ALOGI("KDSETMODE = KD_GRAPHICS");
 	int tty1 = open("/dev/tty1", O_RDWR);
 	ioctl(tty1, KDSETMODE, KD_GRAPHICS);
 #endif
-	
+
 	/* Init Safe Process Monitoring */
 	if (libaroma_config()->runtime_monitor) {
 		libaroma_runtime_init();
 	}
-	
+
 #ifdef LIBAROMA_CONFIG_DEBUG_MEMORY
 #if LIBAROMA_CONFIG_DEBUG_MEMORY >=1
 	ALOGV("STARTING MEMORY TRACKING");
 	___mtrack_init_free(0);
 #endif
 #endif
-	
+
 	/* Mute Parent */
 	if (libaroma_config()->runtime_monitor == LIBAROMA_START_MUTEPARENT) {
 		libaroma_runtime_mute_parent();
 	}
-	
+
 	ALOGI("===================================================");
-	
+
 	if (libaroma_config()->multicore_init_num>0){
 		/* activate processor/cores */
 		libaroma_runtime_activate_cores(libaroma_config()->multicore_init_num);
 	}
-	
+
 	if (!libaroma_fb_init()) {
 		ALOGE("libaroma_start cannot start framebuffer...");
 		return 0;
 	}
+	#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 	if (!libaroma_font_init()) {
 		ALOGE("libaroma_start cannot start font engine...");
 		return 0;
 	}
-
+	#endif
 	if (!libaroma_hid_init()) {
 		ALOGE("libaroma_start cannot start hid engine...");
 		return 0;
 	}
-	
+
 	if (!libaroma_msg_init()) {
 		ALOGE("libaroma_start cannot start message queue...");
 		return 0;
 	}
-	
+
 	if (!libaroma_lang_init()) {
 		ALOGE("libaroma_start cannot start language engine...");
 		return 0;
 	}
-	
+
 	if (!libaroma_timer_init()) {
 		ALOGE("libaroma_start cannot start timer engine...");
 		return 0;
 	}
-	
+
 	if (!libaroma_wm_init()){
 		ALOGE("libaroma_start cannot start window manager...");
 		return 0;
 	}
-	
+
 	ALOGI("___________________________________________________");
 	ALOGI(" ");
-	
+
 	return 1;
 }
 
@@ -234,7 +242,7 @@ byte libaroma_start() {
 byte libaroma_end() {
 	ALOGI("___________________________________________________");
 	ALOGI(" ");
-	
+
 	/* Release Engines */
 	libaroma_wm_release();
 	libaroma_timer_release();
@@ -244,7 +252,7 @@ byte libaroma_end() {
 	libaroma_font_release();
 	libaroma_fb_release();
 	libaroma_runtime_rollback_cores();
-	
+
 	ALOGI("===================================================");
 #ifdef LIBAROMA_CONFIG_DEBUG_MEMORY
 #if LIBAROMA_CONFIG_DEBUG_MEMORY >=1
@@ -262,6 +270,10 @@ byte libaroma_end() {
 
 	return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_aroma_c__ */
 

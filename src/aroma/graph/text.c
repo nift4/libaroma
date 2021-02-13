@@ -24,7 +24,9 @@
 #ifndef __libaroma_text_c__
 #define __libaroma_text_c__
 #include <aroma_internal.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* headers */
 #include "text/text_header.h"
 
@@ -38,6 +40,8 @@
 #include "text/text_line.c"
 #include "text/text_draw.c"
 #include "text/text_public.c"
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_text_c__ */
 

@@ -25,6 +25,9 @@
 #define __libaroma_commondraw_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Function		: libaroma_draw_limit
@@ -35,7 +38,7 @@ int libaroma_draw_limit(
 		int x, int max) {
 	if (x<0) {
 		return 0;
-	}	
+	}
 	if (x>=max) {
 		return max-1;
 	}
@@ -63,7 +66,7 @@ byte libaroma_draw_ex2(
 	int dx, int dy,
 	int sx, int sy,
 	int sw, int sh,
-	byte draw_flags, 
+	byte draw_flags,
 	byte opacity,
 	byte ismask,
 	word maskcolor
@@ -82,11 +85,11 @@ byte libaroma_draw_ex2(
 	if (opacity==0) {
 		return 1; /* No Need Any Process */
 	}
-	
+
 	byte useAlpha = (draw_flags&LIBAROMA_DRAW_WITH_ALPHA)?1:0;
 	byte noDither = (draw_flags&LIBAROMA_DRAW_NODITHER)?1:0;
 	byte toBlack	= (draw_flags&LIBAROMA_DRAW_TO_BLACK)?1:0;
-	
+
 	/* fix positions */
 	if (sx < 0) {
 		dx += abs(sx);
@@ -98,7 +101,7 @@ byte libaroma_draw_ex2(
 		sh -= abs(sy);
 		sy = 0;
 	}
-	
+
 	/* fix size */
 	if (sw + sx >= src->w) {
 		sw -= (sw + sx) - src->w;
@@ -110,7 +113,7 @@ byte libaroma_draw_ex2(
 		ALOGW("libaroma_draw_ex1 calculated sw/sh < 1");
 		return 0;
 	}
-	
+
 	/* set calculated units */
 	int sr_w = sw;
 	int sr_h = sh;
@@ -118,7 +121,7 @@ byte libaroma_draw_ex2(
 	int sr_y = sy;
 	int ds_x = dx;
 	int ds_y = dy;
-	
+
 	/* fix destination */
 	if (dx < 0) {
 		int ndx = abs(dx);
@@ -139,7 +142,7 @@ byte libaroma_draw_ex2(
 	if (sr_h + dy > dst->h) {
 		sr_h -= (sr_h + dy) - dst->h;
 	}
-	
+
 	/* prepare loop data */
 	int y;
 	int pos_sr_x = sr_x * 2;
@@ -157,7 +160,7 @@ byte libaroma_draw_ex2(
 	if (!useAlpha){
 		ismask=0;
 	}
-	
+
 	if (opacity == 0xff) {
 		if (useAlpha) {
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -167,7 +170,7 @@ byte libaroma_draw_ex2(
 				wordp dst_mem = (wordp) (dst_data+((ds_y + y)*pos_dc_w)+pos_ds_x);
 				if (ismask){
 					libaroma_alpha_mono(
-						sr_w, dst_mem, dst_mem, maskcolor, 
+						sr_w, dst_mem, dst_mem, maskcolor,
 						(bytep) (src->alpha + ((sr_y + y) * src->l) + sr_x)
 					);
 				}
@@ -213,7 +216,7 @@ byte libaroma_draw_ex2(
 				wordp dst_mem = (wordp) (dst_data + ((ds_y + y) * pos_dc_w) + pos_ds_x);
 				if (ismask){
 					libaroma_alpha_mono(
-						sr_w, tmp_dst, dst_mem, maskcolor, 
+						sr_w, tmp_dst, dst_mem, maskcolor,
 						(bytep) (src->alpha + ((sr_y + y) * src->l) + sr_x)
 					);
 					libaroma_alpha_const(
@@ -290,14 +293,14 @@ byte libaroma_draw_rect(
 	if (dst == NULL) {
 		dst = libaroma_fb()->canvas;
 	}
-	
+
 	if (x < 0) {
 		x = 0;
 	}
 	if (y < 0) {
 		y = 0;
 	}
-	
+
 	/* fix position */
 	int x2 = x + w;
 	int y2 = y + h;
@@ -307,14 +310,14 @@ byte libaroma_draw_rect(
 	if (y2 > dst->h) {
 		y2 = dst->h;
 	}
-	
+
 	/* fixed size */
 	w = x2 - x;
 	h = y2 - y;
-	
+
 	/* draw */
 	int dy;
-	
+
 	if (alpha == 0xff) {
 		wordp datapos	 = dst->data + x;
 #ifdef libaroma_memset16
@@ -433,11 +436,11 @@ byte libaroma_draw_line(
 			MIN(0xff,MAX(0, alpha * (1-(a)))) \
 		)) { break; } \
 	}
-	
+
 	if (!dest){
 		dest=libaroma_fb()->canvas;
 	}
-	
+
 	int dx = abs(x1-x0), sx = x0 < x1 ? 1 : -1;
 	int dy = abs(y1-y0), sy = y0 < y1 ? 1 : -1;
 	int err = dx-dy, e2, x2, y2;
@@ -460,8 +463,8 @@ byte libaroma_draw_line(
 			if (x0==x1){
 				break;
 			}
-			e2 = err; err -= dy; x0 += sx; 
-		} 
+			e2 = err; err -= dy; x0 += sx;
+		}
 		if (2*e2 <= dy){
 			for (e2 = dx-e2; e2 < ed*wd && (x1 != x2 || dx < dy); e2 += dy){
 				if ((x2>=0)&&(y0>=0)){
@@ -473,7 +476,7 @@ byte libaroma_draw_line(
 			if (y0==y1){
 				break;
 			}
-			err += dx; y0 += sy; 
+			err += dx; y0 += sy;
 		}
 	}
 #undef __DRAW_PIX
@@ -526,9 +529,9 @@ byte libaroma_draw_subpixel(
  * Descriptions: draw masked circle
  */
 byte libaroma_draw_mask_circle(
-		LIBAROMA_CANVASP dst, 
+		LIBAROMA_CANVASP dst,
 		LIBAROMA_CANVASP src,
-		int dx, int dy, 
+		int dx, int dy,
 		int sx, int sy,
 		int sz,
 		byte alpha){
@@ -593,7 +596,7 @@ byte libaroma_draw_mask_circle(
  * Descriptions: draw filled circle
  */
 byte libaroma_draw_circle(
-		LIBAROMA_CANVASP dst, 
+		LIBAROMA_CANVASP dst,
 		word color,
 		int dx, int dy,
 		int sz,
@@ -664,7 +667,7 @@ byte libaroma_draw_line_width(
 	if ((!is_mask)&&(alpha<1)){
 		return 1;
 	}
-	
+
 	float angle = atan2(y2 - y1, x2 - x1);
 	float t2sina1 = wd / 2 * sin(angle);
 	float t2cosa1 = wd / 2 * cos(angle);
@@ -720,7 +723,7 @@ byte _libaroma_draw_arc_findpoint(
 		);
 	}
 	libaroma_path_add(path, xt, yt);
-	
+
 	if ((abs(xt-xt1)>=2)||(abs(yt-yt1)>=2)) {
 		_libaroma_draw_arc_findpoint(
 			path, dx, dy, radius_w, radius_h,
@@ -771,7 +774,7 @@ byte libaroma_draw_arc(
 		start_angle=end_angle;
 		end_angle=tmp;
 	}
-	
+
 	double start_radian = start_angle* __PI / 180.0;
 	double end_radian	 = end_angle	* __PI / 180.0;
 	float start_x = dx + radius_w*cos(start_radian);
@@ -785,11 +788,11 @@ byte libaroma_draw_arc(
 			start_radian, end_radian
 		);
 	libaroma_path_add(path, end_x, end_y);
-	
+
 	if ((width>0)&&(width<radius_w/2)&&(width<radius_h/2)) {
 		radius_w -= width;
 		radius_h -= width;
-		
+
 		/* roll */
 		start_x = dx + radius_w*cos(end_radian);
 		start_y = dy + radius_h*sin(end_radian);
@@ -802,7 +805,7 @@ byte libaroma_draw_arc(
 			end_radian, start_radian
 		);
 	}
-	
+
 	byte res=libaroma_path_draw(
 		dest,
 		path,
@@ -814,6 +817,9 @@ byte libaroma_draw_arc(
 	return res;
 } /* End of libaroma_draw_arc */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_commondraw_c__ */
 

@@ -25,6 +25,9 @@
 #define __libaroma_filters_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_draw_filter_saturation
  * Return Value: word
@@ -58,7 +61,7 @@ byte libaroma_draw_zshadow(
 	int x, int y, byte zindex){
 	int cast_r, cast_y, amb_r, amb_y;
 	byte cast_a, amb_a;
-	
+
 	if (zindex==1){
 		amb_r	 = 2;
 		amb_y	 = 0;
@@ -95,12 +98,12 @@ byte libaroma_draw_zshadow(
 		/* invalid zindex */
 		return 0;
 	}
-	
+
 	cast_r = libaroma_dp(cast_r);
 	cast_y = libaroma_dp(cast_y);
 	amb_r = libaroma_dp(amb_r);
 	amb_y = libaroma_dp(amb_y);
-	
+
 	/* cast shadow */
 	LIBAROMA_CANVASP cc = libaroma_blur_ex(mask, cast_r, 1, 0);
 	if (cc){
@@ -133,7 +136,7 @@ byte libaroma_draw_zshadow(
 		);
 		libaroma_canvas_free(cc);
 	}
-	
+
 	/* ambient shadow */
 	LIBAROMA_CANVASP ac = libaroma_blur_ex(mask, amb_r, 1, 0);
 	if (ac){
@@ -166,11 +169,13 @@ byte libaroma_draw_zshadow(
 		);
 		libaroma_canvas_free(ac);
 	}
-	
+
 	return 1;
 } /* End of libaroma_draw_zshadow */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_filters_c__ */
 

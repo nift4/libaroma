@@ -24,6 +24,9 @@
 #ifndef __libaroma_svg_c__
 #define __libaroma_svg_c__
 #include <aroma_internal.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef LIBAROMA_CONFIG_NOSVG
 
 /* INCLUDE SVG */
@@ -41,7 +44,7 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 	if (!stream) {
 		return NULL;
 	}
-	
+
 	char * data = libaroma_stream_to_string(stream,0);
 	if (data){
 		NSVGimage *image = NULL;
@@ -56,8 +59,8 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 			ALOGW("libaroma_svg: Could not open SVG image.");
 			goto exit;
 		}
-		
-		
+
+
 		NSVGrasterizer *rast =nsvgCreateRasterizer();
 		if (rast == NULL) {
 			printf("libaroma_svg: Could not init rasterizer.");
@@ -75,14 +78,17 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 		nsvgDelete(image);
 		nsvgDeleteRasterizer(rast);
 	}
-	
+
 exit:
 	if (freeStream) {
 		libaroma_stream_close(stream);
 	}
 	return cv;
 }
-			
+
 #endif /* LIBAROMA_CONFIG_NOSVG */
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_svg_c__ */
 

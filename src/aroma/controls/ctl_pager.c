@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define _LIBAROMA_CTL_PAGER_HOLD_TIMING 300
 #define _LIBAROMA_CTL_PAGER_ANI_TIMING 500
 #define _LIBAROMA_CTL_PAGER_TOUCH_CLIENT_WAIT 120
@@ -71,7 +74,7 @@ static LIBAROMA_WINDOW_HANDLER _libaroma_ctl_pager_win_handler={
 	invalidate:_libaroma_ctl_pager_window_invalidate,
 	sync:_libaroma_ctl_pager_window_sync,
 	message_hooker:NULL,
-		
+
 	control_draw_flush:NULL /*_libaroma_ctl_pager_window_control_draw_flush*/,
 	control_erasebg:NULL /*_libaroma_ctl_pager_window_control_erasebg*/,
 	control_isvisible:_libaroma_ctl_pager_window_control_isvisible,
@@ -89,28 +92,28 @@ struct __LIBAROMA_CTL_PAGER{
 	LIBAROMA_WINDOWP win;
 	int pagen;
 	int page_position;
-	
+
 	long scroll_target_start;
 	int scroll_target_from_x;
 	int scroll_x;
 	int req_scroll_x;
 	int max_scroll_x;
-	
+
 	byte allow_scroll;
 	int touch_x;
 	int touch_y;
 	long client_touch_start;
 	LIBAROMA_MSG pretouched_msg;
 	LIBAROMA_CONTROLP pretouched;
-	
+
 	int scroll_duration;
 	LIBAROMA_FLING fling;
-	
+
 	byte redraw;
 	LIBAROMA_MUTEX mutex;
 	byte on_direct_canvas;
 	byte need_direct_canvas;
-	
+
 	LIBAROMA_CTL_PAGER_CONTROLLERP controller;
 };
 
@@ -308,7 +311,7 @@ byte _libaroma_ctl_pager_window_updatebg(LIBAROMA_WINDOWP win){
 		libaroma_colorget(ctl,NULL)->window_bg,
 		0xff
 	);
-	
+
 	return 1;
 } /* End of _libaroma_ctl_pager_window_sync */
 
@@ -322,9 +325,9 @@ void _libaroma_ctl_pager_draw(
 		LIBAROMA_CANVASP c){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 
+		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP,
 	);
-	
+
 	if (!me->win->active){
 		if (!me->redraw){
 			_libaroma_ctl_pager_window_invalidate(me->win,0);
@@ -342,7 +345,7 @@ void _libaroma_ctl_pager_draw(
 			/* just erase background */
 			libaroma_control_erasebg(ctl,c);
 		}
-		
+
 		/* need revert to direct canvas */
 		if (me->need_direct_canvas){
 			me->need_direct_canvas=0;
@@ -366,7 +369,7 @@ byte _libaroma_ctl_pager_thread(LIBAROMA_CONTROLP ctl) {
 		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 0
 	);
 	byte is_draw = me->redraw;
-	
+
 	if (me->win->active==1){
 		#ifdef LIBAROMA_CONFIG_OPENMP
 		#pragma omp parallel sections
@@ -389,7 +392,7 @@ byte _libaroma_ctl_pager_thread(LIBAROMA_CONTROLP ctl) {
 						}
 					}
 				}
-				
+
 				if (me->req_scroll_x!=-1){
 					/* direct request */
 					if (me->req_scroll_x!=me->scroll_x){
@@ -446,7 +449,7 @@ byte _libaroma_ctl_pager_thread(LIBAROMA_CONTROLP ctl) {
 						MAX(100,me->scroll_duration)
 					);
 					state = libaroma_motion_fluid(state);
-					
+
 					int difxt = dxt * (1.0-state);
 					libaroma_mutex_lock(me->mutex);
 					me->scroll_x = xt-difxt;
@@ -468,15 +471,15 @@ byte _libaroma_ctl_pager_thread(LIBAROMA_CONTROLP ctl) {
 							}
 						}
 					}
-					
-					
+
+
 					if (state>=1.0){
 						libaroma_mutex_lock(me->mutex);
 						me->scroll_x = xt;
 						me->scroll_target_start=0;
 						me->need_direct_canvas=1;
 						libaroma_mutex_unlock(me->mutex);
-						
+
 						/* onscroll finish controller message */
 						if (me->controller){
 							if ((me->controller->pager==ctl)&&(me->controller->controller)) {
@@ -530,15 +533,15 @@ void _libaroma_ctl_pager_destroy(
 		LIBAROMA_CONTROLP ctl){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 
+		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP,
 	);
-	
+
 	if (me->controller){
 		if (me->controller->pager==ctl){
 			me->controller->pager=NULL;
 		}
 	}
-	
+
 	libaroma_window_free(me->win);
 	libaroma_mutex_free(me->mutex);
 	free(me);
@@ -625,7 +628,7 @@ dword _libaroma_ctl_pager_msg(
 				}
 				libaroma_mutex_unlock(me->mutex);
 				_libaroma_ctl_pager_window_updatebg(win);
-				
+
 				/* remeasured all childs */
 				int i;
 				for (i=0;i<win->childn;i++){
@@ -641,7 +644,7 @@ dword _libaroma_ctl_pager_msg(
 				int xt=me->page_position * ctl->w;
 				msg->x = x;
 				msg->y = y;
-				
+
 				/* touch handler */
 				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
 					libaroma_mutex_lock(me->mutex);
@@ -718,11 +721,11 @@ dword _libaroma_ctl_pager_msg(
 									if (me->pretouched){
 										if (me->pretouched->handler->message){
 											msg->x=x+xt;
-											
+
 											me->client_touch_start=0;
 											win->touched=me->pretouched;
 											me->pretouched=NULL;
-											
+
 											/* send down & move message */
 											win->touched->handler->message(
 												win->touched,&me->pretouched_msg);
@@ -795,7 +798,7 @@ dword _libaroma_ctl_pager_msg(
 											me->redraw=1;
 										}
 									}
-									
+
 									me->touch_x=x;
 									libaroma_fling_move(&me->fling, x);
 								}
@@ -939,30 +942,30 @@ int libaroma_ctl_pager_get_pages(LIBAROMA_CONTROLP ctl){
  * Descriptions: set tab controller
  */
 byte libaroma_ctl_pager_set_controller(
-	LIBAROMA_CONTROLP ctl, 
+	LIBAROMA_CONTROLP ctl,
 	LIBAROMA_CTL_PAGER_CONTROLLERP controller){
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 0
 	);
-	
+
 	libaroma_mutex_lock(me->mutex);
-	
+
 	/* cleanup previeous controller */
 	if (me->controller){
 		if (me->controller->pager==ctl){
 			me->controller->pager=NULL;
 		}
 	}
-	
+
 	me->controller = controller;
 	if (controller){
 		if (me->controller->pager!=ctl){
 			me->controller->pager=ctl;
 		}
 	}
-	
+
 	libaroma_mutex_unlock(me->mutex);
-	
+
 	return 1;
 } /* End of libaroma_ctl_pager_set_controller */
 
@@ -982,7 +985,7 @@ LIBAROMA_CONTROLP libaroma_ctl_pager(
 		ALOGW("pager need direct window attach");
 		return NULL;
 	}
-	
+
 	/* init internal data */
 	_LIBAROMA_CTL_PAGERP me = (_LIBAROMA_CTL_PAGERP)
 			calloc(sizeof(_LIBAROMA_CTL_PAGER),1);
@@ -1000,7 +1003,7 @@ LIBAROMA_CONTROLP libaroma_ctl_pager(
 	}
 	me->win->handler=&_libaroma_ctl_pager_win_handler;
 	me->win->parent=win;
-	
+
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
 		libaroma_control_new(
@@ -1011,17 +1014,20 @@ LIBAROMA_CONTROLP libaroma_ctl_pager(
 			&_libaroma_ctl_pager_handler,
 			NULL
 		);
-	
+
 	if (!ctl){
 		free(me->win);
 		free(me);
 		return NULL;
 	}
-	
+
 	me->win->client_data=ctl;
 	libaroma_mutex_init(me->mutex);
 	return libaroma_window_attach(win,ctl);
 } /* End of libaroma_ctl_pager */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_ctl_pager_c__ */

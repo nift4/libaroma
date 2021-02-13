@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: _libaroma_wm
  * Type				: LIBAROMA_WMP
@@ -74,7 +77,7 @@ void _libaroma_wm_default_set(byte set_flags){
 		return;
 	}
 	libaroma_colorset(&_libaroma_wm->colorset, 0);
-	
+
 	if (set_flags&LIBAROMA_WM_FLAG_RESET_COLOR){
 		/*
 		 * primitive colorset - use lollipop
@@ -84,19 +87,19 @@ void _libaroma_wm_default_set(byte set_flags){
 		libaroma_wm_set_color("window_gradient",RGB(37474F));
 		libaroma_wm_set_color("window_text",RGB(ffffff));
 		libaroma_wm_set_color("window_text_shadow",RGB(000000));
-		
+
 		/* actionbar & title */
 		libaroma_wm_set_color("actionbar",RGB(263238));
 		libaroma_wm_set_color("actionbar_gradient",RGB(263238));
 		libaroma_wm_set_color("actionbar_text",RGB(ffffff));
 		libaroma_wm_set_color("actionbar_text_shadow",RGB(000000));
-		
+
 		/* default control */
 		libaroma_wm_set_color("control",RGB(384248));
 		libaroma_wm_set_color("control_gradient",RGB(384248));
 		libaroma_wm_set_color("control_text",RGB(cccccc));
 		libaroma_wm_set_color("control_text_shadow",RGB(000000));
-		
+
 		/* highlight */
 		libaroma_wm_set_color("highlight",RGB(80CBC4));
 		libaroma_wm_set_color("highlight_gradient",RGB(80CBC4));
@@ -316,7 +319,7 @@ void libaroma_wm_syncarea(){
 		libaroma_sync();
 		return;
 	}
-	
+
 	libaroma_mutex_lock(_libaroma_wm_sync_mutex);
 	if (_libaroma_wm->sync_all){
 		libaroma_sync();
@@ -391,7 +394,7 @@ byte libaroma_wm_set_workspace(int x, int y, int w, int h){
 	_libaroma_wm->w = w;
 	_libaroma_wm->h = h;
 	_libaroma_wm_workspace_canvas();
-	
+
 	if (_libaroma_wm->active_window!=NULL){
 		/* send refresh event */
 		LIBAROMA_MSG _msg;
@@ -636,7 +639,7 @@ static void * _libaroma_wm_ui_thread(void * cookie) {
 	byte need_sync = 0;
 	while(_libaroma_wm->client_started){
 		need_sync=0;
-		
+
 		/* run child thread process */
 		if (_libaroma_wm->client_started){
 			libaroma_mutex_lock(_libaroma_wm_ui_mutex);
@@ -682,21 +685,21 @@ byte libaroma_wm_client_start(){
 	if (!_libaroma_wm->client_started){
 		/* start message queue */
 		libaroma_msg_start();
-		
+
 		/* start message thread */
 		_libaroma_wm->client_started = 1;
 		_libaroma_wm->queue = libaroma_stack(NULL);
-		
+
 		libaroma_wm_resetsync();
-		
+
 		/* start message thread */
 		libaroma_thread_create(&_libaroma_wm_message_thread_var,
 			_libaroma_wm_message_thread, NULL);
-		
+
 		/* start ui thread */
 		libaroma_thread_create(&_libaroma_wm_ui_thread_var,
 			_libaroma_wm_ui_thread, NULL);
-		
+
 		/* high priority thread */
 		libaroma_thread_set_hiprio(_libaroma_wm_ui_thread_var);
 		return 1;
@@ -717,19 +720,19 @@ byte libaroma_wm_client_stop(){
 	if (_libaroma_wm->client_started){
 		/* set exit state */
 		_libaroma_wm->client_started = 0;
-		
+
 		/* post exit message */
 		libaroma_msg_post(LIBAROMA_MSG_NONE,0,0,0,0,NULL);
-		
+
 		/* wait message thread */
 		libaroma_thread_join(_libaroma_wm_ui_thread_var);
 		libaroma_thread_join(_libaroma_wm_message_thread_var);
 		_libaroma_wm_message_thread_var=0;
 		_libaroma_wm_ui_thread_var=0;
-		
+
 		/* cleanup queue */
 		libaroma_stack_free(_libaroma_wm->queue);
-		
+
 		/* stop message queue */
 		libaroma_msg_stop();
 		return 1;
@@ -1013,7 +1016,7 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 		ALOGW("window manager uninitialized");
 		return 0;
 	}
-	
+
 	libaroma_mutex_lock(_libaroma_wm_ui_mutex);
 	_libaroma_wm_onprocessing=1;
 	if (_libaroma_wm->active_window==win){
@@ -1021,7 +1024,7 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 		libaroma_mutex_unlock(_libaroma_wm_ui_mutex);
 		return 1;
 	}
-	
+
 	LIBAROMA_MSG _msg;
 	if (_libaroma_wm->active_window!=NULL){
 		/* send inactive event */
@@ -1033,13 +1036,13 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 				&_msg, LIBAROMA_MSG_WIN_INACTIVE, (voidp) win, 0, 0)
 		);
 	}
-	
+
 	_libaroma_wm_workspace_canvas_update();
-	
+
 	if (win!=NULL){
 		/* send active event */
 		libaroma_wm_compose(
-				&_msg, LIBAROMA_MSG_WIN_ACTIVE, 
+				&_msg, LIBAROMA_MSG_WIN_ACTIVE,
 				(voidp) _libaroma_wm->active_window, 0, 0);
 		_libaroma_wm->active_window = win;
 		libaroma_window_process_event(
@@ -1079,6 +1082,9 @@ LIBAROMA_WINDOWP libaroma_wm_get_active_window(){
 	return _libaroma_wm->active_window;
 } /* End of libaroma_wm_get_active_window */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_window_manager_c__ */
 

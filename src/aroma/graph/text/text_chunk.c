@@ -21,6 +21,9 @@
  * + 20/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_chunk_c__
 #define __libaroma_text_chunk_c__
 
@@ -37,15 +40,15 @@ _LIBAROMA_TEXTCHUNKP _libaroma_text_parse(
 	byte font,
 	int max_width,
 	byte linespacing) {
-		
+
 	_LIBAROMA_TEXTCHUNKP chunk =
 		(_LIBAROMA_TEXTCHUNKP) calloc(sizeof(_LIBAROMA_TEXTCHUNK),1);
-	
+
 	/* linespacing */
 	if (linespacing < 100) {
 		linespacing = 120;
 	}
-	
+
 	/* state */
 	chunk->curr_state.flags = pflags;
 	chunk->curr_state.font = font;
@@ -58,7 +61,7 @@ _LIBAROMA_TEXTCHUNKP _libaroma_text_parse(
 		&chunk->curr_state,
 		sizeof(_LIBAROMA_TEXTCHUNK_STATE)
 	);
-	
+
 	/* data */
 	chunk->text = _libaroma_text_parse_strdup(txt);
 	chunk->rules = rules;
@@ -117,7 +120,7 @@ byte _libaroma_text_parse_next(
 	/* prepare buffer and return flags */
 	buf[0] = 0;
 	byte result_flag = _LIBAROMA_TEXTCHUNK_RETURN_OK;
-	
+
 	/* Check if any image_data that unreleased yet - to make sure */
 	if (chunk->curr_state.img_data != NULL) {
 		/* It's stupid if it didn't released by function
@@ -126,7 +129,7 @@ byte _libaroma_text_parse_next(
 		free(chunk->curr_state.img_data);
 		chunk->curr_state.img_data = NULL;
 	}
-	
+
 	/* prepare next chunk state */
 	memcpy(
 		&chunk->curr_state,
@@ -136,11 +139,11 @@ byte _libaroma_text_parse_next(
 	/* reset next chunk state line flags */
 	_LIBAROMA_TEXTCHUNK_LINE_SETFLAGS(chunk->next_state.lflags, 0);
 	chunk->next_state.img_data = NULL;
-	
+
 	/* check current state (for img & hr tags) */
 	byte curr_lflags = _LIBAROMA_TEXTCHUNK_LINE_GETFLAGS(
 		chunk->curr_state.lflags);
-	
+
 	if (
 			(curr_lflags & _LIBAROMA_TEXTCHUNK_LINE_IMAGE)||
 			(curr_lflags & _LIBAROMA_TEXTCHUNK_LINE_HORIZLINE)) {
@@ -161,12 +164,12 @@ byte _libaroma_text_parse_next(
 	if (len < 1) {
 		return _LIBAROMA_TEXTCHUNK_RETURN_EOF;
 	}
-	
+
 	/* local variables */
 	char * cur = chunk->text;
 	char	 chr = *cur;
 	int	bufn	= 0;
-	
+
 	/* characters loop */
 	while (chr) {
 		/* seek to next character ? */
@@ -236,7 +239,7 @@ byte _libaroma_text_parse_next(
 						result_flag |= _LIBAROMA_TEXTCHUNK_RETURN_NEWLINE;
 					}
 					else {
-						result_flag |= 
+						result_flag |=
 							(
 								(chr == ' ')?
 									_LIBAROMA_TEXTCHUNK_RETURN_SPACE:
@@ -245,7 +248,7 @@ byte _libaroma_text_parse_next(
 					}
 					_libaroma_text_change_current(chunk, cur + 1);
 					buf[bufn] = 0;
-					result_flag |= 
+					result_flag |=
 						((bufn > 0)?_LIBAROMA_TEXTCHUNK_RETURN_HAVEBUF:0);
 					return result_flag;
 				}
@@ -272,7 +275,7 @@ byte _libaroma_text_parse_next(
 		}
 		chr = *cur;
 	}
-	
+
 	/* is end of string */
 	if (bufn > 0) {
 		/*result_flag |= _LIBAROMA_TEXTCHUNK_RETURN_EOF;*/
@@ -286,3 +289,7 @@ byte _libaroma_text_parse_next(
 } /* End of _libaroma_text_parse_next */
 
 #endif /* __libaroma_text_chunk_c__ */
+
+#ifdef __cplusplus
+}
+#endif

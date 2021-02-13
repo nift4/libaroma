@@ -25,6 +25,9 @@
 #define __libaroma_dither_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: libaroma_dither_tresshold_r
  * Type				: byte[]
@@ -112,15 +115,15 @@ word libaroma_dither_mono_rgb(int x, int y, byte sr, byte sg, byte sb) {
 	return libaroma_rgb(r, g, b);
 }
 word libaroma_dither_mono(int x, int y, dword col) {
-	return libaroma_dither_mono_rgb(x, y, 
-		libaroma_color_r32(col), 
-		libaroma_color_g32(col), 
+	return libaroma_dither_mono_rgb(x, y,
+		libaroma_color_r32(col),
+		libaroma_color_g32(col),
 		libaroma_color_b32(col));
 }
 word libaroma_dither(int x, int y, dword col) {
-	return libaroma_dither_rgb(x, y, 
-		libaroma_color_r32(col), 
-		libaroma_color_g32(col), 
+	return libaroma_dither_rgb(x, y,
+		libaroma_color_r32(col),
+		libaroma_color_g32(col),
 		libaroma_color_b32(col));
 }
 
@@ -156,5 +159,8 @@ void libaroma_dither_24to16(int y, int n, wordp dst, bytep src) {
 }
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_dither_c__ */
 

@@ -25,6 +25,9 @@
 #define __libaroma_gradient_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 bytep _libaroma_gradient_corner(
 		int r) {
@@ -111,9 +114,9 @@ byte libaroma_gradient_ex1(
 	if (dst == NULL) {
 		dst = libaroma_fb()->canvas;
 	}
-	
+
 	byte noDither = (flags&LIBAROMA_DRAW_NODITHER)?1:0;
-		
+
 	/* fix position */
 	int x2 = x + w;
 	int y2 = y + h;
@@ -130,7 +133,7 @@ byte libaroma_gradient_ex1(
 		y = 0;
 	}
 	byte samecolor = (startColor==endColor)?1:0;
-	
+
 	/* alpha handling */
 	byte useAlpha			 = 1;
 	byte useCanvasAlpha = 0;
@@ -149,7 +152,7 @@ byte libaroma_gradient_ex1(
 		useAlpha = 0;
 		useCanvasAlpha = 0;
 	}
-	
+
 	/* prepare */
 	w = x2 - x;
 	h = y2 - y;
@@ -168,7 +171,7 @@ byte libaroma_gradient_ex1(
 		roundCorners[3]	= ((roundFlag & 0x0001) == 0x0001) ? 1 : 0;
 		roundData = _libaroma_gradient_corner(roundSize);
 	}
-	
+
 	/* draw */
 	int _Y;
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -219,7 +222,7 @@ byte libaroma_gradient_ex1(
 					drawRound = 1;
 				}
 				if (roundCorners[1]) {
-					memcpy(roundTmp + roundSize, 
+					memcpy(roundTmp + roundSize,
 						line_mem + w - roundSize, roundSize * 2);
 					drawRound = 1;
 				}
@@ -230,13 +233,13 @@ byte libaroma_gradient_ex1(
 					drawRound = 1;
 				}
 				if (roundCorners[3]) {
-					memcpy(roundTmp + roundSize, 
+					memcpy(roundTmp + roundSize,
 						line_mem + w - roundSize, roundSize * 2);
 					drawRound = 1;
 				}
 			}
 		}
-		
+
 		/* Draw Now */
 		if (useAlpha) {
 			byte cA = startAlpha;
@@ -288,14 +291,14 @@ byte libaroma_gradient_ex1(
 					libaroma_color_set(line_mem, libaroma_rgb(cR, cG, cB), w);
 				}
 				else{
-					libaroma_dither_line_const(_Y, w, 
+					libaroma_dither_line_const(_Y, w,
 						line_mem, libaroma_rgb32(cR, cG, cB));
 				}
 			}
 			else{
 				libaroma_color_set(line_mem, startColor, w);
 			}
-			
+
 			if (useCanvasAlpha) {
 				byte cA = startAlpha;
 				if (startAlpha!=endAlpha){
@@ -355,6 +358,9 @@ byte libaroma_gradient_ex1(
 	return 1;
 } /* End of libaroma_gradient_ex1 */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_gradient_c__ */
 

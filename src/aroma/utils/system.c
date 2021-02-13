@@ -25,6 +25,9 @@
 #define __libaroma_system_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_getprop
  * Return Value: char *
@@ -79,4 +82,7 @@ done:
 	return result;
 } /* End of libaroma_getprop */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_system_c__ */

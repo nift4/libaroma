@@ -25,6 +25,9 @@
 #define __libaroma_path_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Function		: libaroma_path
@@ -116,7 +119,7 @@ void libaroma_path_curve_calc(
 	float uu = u*u;
 	float uuu = uu * u;
 	float ttt = tt * t;
-	
+
 	/* calculating */
 	*x = uuu * x0;
 	*x += 3 * uu * t * x1;
@@ -149,13 +152,13 @@ byte _libaroma_path_curve_findpoint(
 	float thalf = t0 + ((t1 - t0) / 2);
 	float xt, yt;
 	libaroma_path_curve_calc(thalf, &xt, &yt,x0,y0,x1,y1,x2,y2,x3,y3);
-	
+
 	if ((abs(xt-xt0)>=2)||(abs(yt-yt0)>=2)) {
 		_libaroma_path_curve_findpoint(
 			path,t0,thalf,x0,y0,x1,y1,x2,y2,x3,y3,xt0,yt0,xt,yt);
 	}
 	libaroma_path_add(path, xt, yt);
-	
+
 	if ((abs(xt-xt1)>=2)||(abs(yt-yt1)>=2)) {
 		_libaroma_path_curve_findpoint(
 			path,thalf,t1,x0,y0,x1,y1,x2,y2,x3,y3,xt,yt,xt1,yt1);
@@ -234,14 +237,14 @@ byte libaroma_path_draw(
 	if ((!is_mask)&&(alpha<1)){
 		return 1;
 	}
-	
+
 	if (aliasing<=0){
 		aliasing=1;
 	}
 	if (aliasing>1){
 		aliasing=1;
 	}
-	
+
 	/* fill */
 	if (path->n>1){
 		int	miny	 = MAX(0,floor(path->min.y));
@@ -257,7 +260,7 @@ byte libaroma_path_draw(
 			alphaaa=255*aliasing;
 		}
 		int py=0;
-		
+
 		/* loop through the rows of the image. */
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
@@ -275,7 +278,7 @@ byte libaroma_path_draw(
 			for (pyn=0;pyn<alias_sz;pyn++){
 				float fy = ((float) py)+(((float) pyn)*aliasing);
 				int i, n=0, j=path->n-1;
-				
+
 				/* find nodes */
 				for (i=0;i<path->n;i++){
 					if (
@@ -288,7 +291,7 @@ byte libaroma_path_draw(
 					}
 					j = i;
 				}
-				
+
 				/* there is nodes */
 				if (n>1){
 					i=0;
@@ -305,7 +308,7 @@ byte libaroma_path_draw(
 							i++;
 						}
 					}
-					
+
 					/* process alpha values */
 					for (i=0;i<n;i+=2){
 						if (nodes[i]>=dwidth){
@@ -325,7 +328,7 @@ byte libaroma_path_draw(
 						if (nodes[i+1]-nodes[i]<1){
 							continue;
 						}
-						
+
 						if (aliasing==1){
 							int linex=(int) floor(nodes[i]);
 							int linew=((int) floor(nodes[i+1]))-linex;
@@ -333,7 +336,7 @@ byte libaroma_path_draw(
 						}
 						else{
 							int px;
-							
+
 							/* left & right aliasing */
 							int linex=floor(nodes[i]);
 							int linerx=floor(nodes[i+1]);
@@ -349,7 +352,7 @@ byte libaroma_path_draw(
 								line[linerx]=
 									MAX(0,((int) line[linerx])-fmod(nodes[i+1],1)*alphaaa);
 							}
-							
+
 							linex++;
 							int linew=linerx-linex;
 							if (linew<1){
@@ -365,7 +368,7 @@ byte libaroma_path_draw(
 									uint16x8_t v255 = vdupq_n_u16(alpha);
 									for (px=0;px<linew-left;px+=8) {
 										uint8x8_t op = vld1_u8(cline+px);
-										vst1_u8(cline+px, 
+										vst1_u8(cline+px,
 											vmovn_u16(vminq_u16(vaddl_u8(op, ro),v255)));
 									}
 								}
@@ -403,10 +406,13 @@ byte libaroma_path_draw(
 			}
 		}
 	}
-	
+
 	return 1;
 } /* End of libaroma_path_draw */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_path_c__ */
 

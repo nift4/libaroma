@@ -41,6 +41,8 @@
 
 typedef struct _LINUXFBDR_INTERNAL LINUXFBDR_INTERNAL;
 typedef struct _LINUXFBDR_INTERNAL * LINUXFBDR_INTERNALP;
+typedef struct _LINUXDRM_INTERNAL LINUXDRM_INTERNAL;
+typedef struct _LINUXDRM_INTERNAL * LINUXDRM_INTERNALP;
 
 /* include qcom header */
 #include "fb_qcom/fb_qcom.h"
@@ -48,7 +50,7 @@ typedef struct _LINUXFBDR_INTERNAL * LINUXFBDR_INTERNALP;
 /*
  * device path
  */
-#define LINUXFBDR_DEVICE							"/dev/graphics/fb0"
+#define LINUXFBDR_DEVICE				"/dev/graphics/fb0"
 #define LINUXFBDR_DEVICE_NON_ANDROID	"/dev/fb0"
 
 /* omap ioctl */
@@ -56,7 +58,7 @@ typedef struct _LINUXFBDR_INTERNAL * LINUXFBDR_INTERNALP;
 #define OMAP_IO(num) _IO('O', num)
 #define OMAPFB_ENABLEVSYNC OMAP_IOW(64, int)
 #define OMAPFB_WAITFORVSYNC OMAP_IO(57)
-						
+
 /*
  * structure : internal framebuffer data
  */
@@ -76,13 +78,35 @@ struct _LINUXFBDR_INTERNAL{
 	byte			double_buffering;					 /* is double buffering? */
 	voidp		 current_buffer;						 /* current buffer to write */
 	voidp		 unswap_buffer;							/* unswapped buffer to write */
-	
+
 	LIBAROMA_MUTEX	mutex;
-	
+
 	int			 last_vsync;
 	byte			is_omap;										/* is omap fb? - vsync */
 	QCOMFB_INTERNALP	qcom;							 /* qcom fb internal data */
-	
+
+	/* pointer */
+	byte pointered;
+	word pointer_x;
+	word pointer_y;
+};
+
+/*
+ * structure : internal drm framebuffer data
+ */
+struct _LINUXDRM_INTERNAL{
+	int			fb_sz;								/* framebuffer memory size */
+	byte		is32;								/* is 32bit framebuffer? */
+	int 		row_bytes;							/* row size in bytes */
+	voidp		buffer;								/* direct buffer */
+	int			stride;								/* stride size */
+	int			line;								/* line size */
+	byte		depth;								/* color depth */
+	byte		pixsz;								/* memory size per pixel */
+	int 		bpp;								/* bits per pixel */
+	byte		rgb_pos[6];							/* framebuffer 32bit rgb position */
+	//LIBAROMA_MUTEX	mutex;
+
 	/* pointer */
 	byte pointered;
 	word pointer_x;

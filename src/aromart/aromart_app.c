@@ -25,6 +25,9 @@
 #define __libaromart_app_c__
 #include "aromart_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* application instance */
 static LARTAPP * _lart_app = NULL;
 
@@ -159,7 +162,7 @@ static void * _lart_app_eventthread(void * cookie) {
 				}
 				break;
 		}
-		
+
 		if (len>0){
 			if (data){
 				free(data);
@@ -168,7 +171,7 @@ static void * _lart_app_eventthread(void * cookie) {
 			len=0;
 		}
 	}
-	
+
 	/* send exit message */
 	lart_hid_post(0,0,0,0,0,LIBAROMA_HID_EV_RET_EXIT);
 	return NULL;
@@ -235,7 +238,7 @@ byte lart_app_command(
 		res_param,
 		res_data,
 		res_data_len
-	); 
+	);
 	_APPUNLOCK();
 	return status;
 }
@@ -271,37 +274,37 @@ pid_t lart_app_create(
 		close(lart()->wfd);
 		lart()->rfd=-1;
 		lart()->wfd=-1;
-		
+
 		/* ready */
 		int app_ret = -1;
 		_lart_app = (LARTAPP *) calloc(sizeof(LARTAPP),1);
 		_lart_app->aid = appid;
 		_lart_app->pid = getpid();
 		_lart_app->dpi = dpi;
-		
+
 		{
 			/* init pipe */
 			char stmp[256];
 			snprintf(stmp,256,LART_NAMED_PIPE_APP_WRITE,appid);
 			_lart_app->wfd=open(stmp,O_WRONLY|O_NOCTTY|O_SYNC);
-			
+
 			snprintf(stmp,256,LART_NAMED_PIPE_APP_READ,appid);
 			_lart_app->rfd=open(stmp,O_RDONLY|O_NOCTTY|O_SYNC);
-			
+
 			snprintf(stmp,256,LART_NAMED_PIPE_APP_EVENT,appid);
 			_lart_app->efd=open(stmp,O_RDONLY|O_NOCTTY|O_SYNC);
-			
+
 			/* init canvases */
 			snprintf(stmp,256,LART_SHMCANVAS_FB,appid);
 			_lart_app->cfb = libaroma_canvas_shmem_open(stmp);
-			
+
 			snprintf(stmp,256,LART_SHMCANVAS_SB,appid);
 			_lart_app->csb = libaroma_canvas_shmem_open(stmp);
-			
+
 			/* set process name */
 			lart_application_set_process_name(NULL);
 		}
-		
+
 		if(
 				_lart_app->cfb&&
 				_lart_app->csb&&
@@ -312,24 +315,24 @@ pid_t lart_app_create(
 			LARTLOGV("INIT NEW APPLICATION (id:%i,pid:%i,program:%s)",
 				_lart_app->aid, _lart_app->pid, program?program:""
 			);
-			
+
 			/* load system & app zips */
 			_lart_app_sys_zip = libaroma_zip(LART_SYSUI_ZIP_PATH);
 			_lart_app_zip		 = NULL;
-			
+
 			/* now init app libaroma */
 			if (lart_libaroma_start()){
 				/* set uri callback */
 				libaroma_stream_set_uri_callback(_lart_app_stream_uri_cb);
-				
+
 				/* load default font */
 				libaroma_font(0,libaroma_stream(LART_APP_MAINFONT_URI));
-			
+
 				/* run application */
 				app_ret = lart_app_run(program, param);
 			}
 			lart_libaroma_end();
-			
+
 			if (_lart_app_sys_zip){
 				libaroma_zip_release(_lart_app_sys_zip);
 				_lart_app_sys_zip=NULL;
@@ -345,10 +348,10 @@ pid_t lart_app_create(
 				_lart_app->aid, _lart_app->pid, program?program:""
 			);
 		}
-		
+
 		/* send exit message */
 		lart_app_command(LART_REQ_CMD_EXIT,0,NULL,0,NULL,NULL,NULL);
-		
+
 		/* close canvases */
 		if (_lart_app->cfb){
 			libaroma_canvas_free(_lart_app->cfb);
@@ -356,7 +359,7 @@ pid_t lart_app_create(
 		if (_lart_app->csb){
 			libaroma_canvas_free(_lart_app->csb);
 		}
-		
+
 		/* close pipes */
 		if (_lart_app->wfd>0){
 			close(_lart_app->wfd);
@@ -367,13 +370,13 @@ pid_t lart_app_create(
 		if (_lart_app->efd>0){
 			close(_lart_app->efd);
 		}
-		
+
 		/* exit log */
 		LARTLOGV(
 			"APPLICATION EXITED (id:%i,pid:%i,path:%s)",
 			_lart_app->aid, _lart_app->pid, program
 		);
-		
+
 		/* free application instance */
 		free(_lart_app);
 		_lart_app=NULL;
@@ -393,13 +396,13 @@ int lart_app_manager(
 	int retval=0;
 	_lart_app_run_cb = run_handler;
 	LARTLOGI("Starting application manager");
-	
+
 	while (running){
 		dword param = 0;
 		voidp data	= NULL;
 		size_t len	= 0;
 		byte status = lart_rrecv(&param, &data, &len);
-		
+
 		switch (status){
 			case LART_ROOT_MSG_CREATE_APP:
 				{
@@ -439,17 +442,20 @@ int lart_app_manager(
 				}
 				break;
 		}
-		
+
 		if (len>0){
 			free(data);
 			data=NULL;
 			len=0;
 		}
 	}
-	
+
 	LARTLOGI("Application manager stopped: %i",retval);
 	sleep(2);
 	return retval;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaromart_app_c__ */

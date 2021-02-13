@@ -10,6 +10,9 @@
  * applications using the library shouldn't need to include this file.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Declarations for both compression & decompression */
 
@@ -430,3 +433,7 @@ struct jvirt_sarray_control { long dummy; };
 struct jvirt_barray_control { long dummy; };
 #endif
 #endif /* INCOMPLETE_TYPES_BROKEN */
+
+#ifdef __cplusplus
+}
+#endif

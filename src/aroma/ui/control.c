@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_control_new
  * Return Value: LIBAROMA_CONTROLP
@@ -57,7 +60,7 @@ LIBAROMA_CONTROLP libaroma_control_new(
 	ret->id = id;
 	ret->handler = handler;
 	ret->internal = internal;
-	
+
 	if (win){
 		return libaroma_window_attach(win,ret);
 	}
@@ -295,7 +298,9 @@ byte libaroma_control_free(
 	return 1;
 } /* End of libaroma_control_free */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_control_c__ */
 

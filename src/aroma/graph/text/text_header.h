@@ -50,6 +50,10 @@
 #include "text_defs.h"
 #include "text_structures.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* UCDN CALLBACK */
 #ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 hb_unicode_funcs_t * hb_ucdn_get_unicode_funcs(void);
@@ -431,5 +435,8 @@ void libaroma_textline_draw(
 		int draw_y,
 		byte fixed_color, word color_force);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_text_header_h__ */

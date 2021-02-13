@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* HANDLER */
 dword _libaroma_ctl_image_msg(LIBAROMA_CONTROLP, LIBAROMA_MSGP);
 void _libaroma_ctl_image_draw (LIBAROMA_CONTROLP, LIBAROMA_CANVASP);
@@ -38,7 +41,7 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_image_handler={
 	destroy:_libaroma_ctl_image_destroy,
 	thread:_libaroma_ctl_image_thread
 };
-	
+
 /*
  * Structure	 : __LIBAROMA_CTL_IMAGE
  * Typedef		 : _LIBAROMA_CTL_IMAGE, * _LIBAROMA_CTL_IMAGEP
@@ -68,7 +71,7 @@ byte _libaroma_ctl_image_thread(LIBAROMA_CONTROLP ctl) {
 
 void _libaroma_ctl_image_destroy(LIBAROMA_CONTROLP ctl){
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP,
 	);
 	libaroma_mutex_lock(me->mutex);
 	if (me->img){
@@ -82,7 +85,7 @@ void _libaroma_ctl_image_destroy(LIBAROMA_CONTROLP ctl){
 void _libaroma_ctl_image_draw(
 		LIBAROMA_CONTROLP ctl, LIBAROMA_CANVASP c){
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP,
 	);
 	libaroma_control_erasebg(ctl,c);
 	if (!me->hidden){
@@ -102,7 +105,7 @@ dword _libaroma_ctl_image_msg(LIBAROMA_CONTROLP ctl, LIBAROMA_MSGP msg){
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
 	);
-	
+
 	switch(msg->msg){
 		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
@@ -212,5 +215,8 @@ LIBAROMA_CONTROLP libaroma_ctl_image(
 	}
 	return out;
 }
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_ctl_image_c__ */

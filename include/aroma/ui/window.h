@@ -69,7 +69,7 @@
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_BOTTOM		10
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_BOTTOM		11
 #define LIBAROMA_WINDOW_CLOSE_ANIMATION_PAGE_BOTTOM		12
-				
+
 /*
  * Special Size & Position
  */
@@ -83,8 +83,8 @@
 #define LIBAROMA_POS_1P4			-7
 #define LIBAROMA_POS_3P4			-8
 
-#define LIBAROMA_NOTIF_PULLDOWN_SLIDE	0x1
-#define LIBAROMA_NOTIF_PULLDOWN_CLEAN	0x2
+#define LIBAROMA_PULLDOWN_SLIDE	0x1
+#define LIBAROMA_PULLDOWN_CLEAN	0x2
 
 /* transition callback */
 typedef void (*LIBAROMA_TRANSITION_CB)(
@@ -106,7 +106,7 @@ typedef struct _LIBAROMA_WINDOW_HANDLER{
 	byte (*message_hooker)(
 		LIBAROMA_WINDOWP, LIBAROMA_MSGP, dwordp
 	);
-	
+
 	/* controls */
 	byte (*control_draw_flush)(
 		LIBAROMA_WINDOWP,LIBAROMA_CONTROLP,LIBAROMA_CANVASP,byte
@@ -129,7 +129,7 @@ typedef struct _LIBAROMA_WINDOW_HANDLER{
  */
 struct _LIBAROMA_WINDOW{
 	LIBAROMA_COLORSETP colorset;
-	
+
 	/* px measured */
 	int ax;
 	int ay;
@@ -147,36 +147,36 @@ struct _LIBAROMA_WINDOW{
 	int top;
 	int width;
 	int height;
-	
+
 	/* states */
 	byte active;
 	byte lock_sync;
 	byte closed;
-	
+
 	/* pool toggle */
 	byte onpool;
-	
+
 	/* appbar color */
 	word appbar_bg;
-	
+
 	/* graphs */
 	char theme_bg[256];
 	LIBAROMA_CANVASP dc;
 	LIBAROMA_CANVASP bg;
 	LIBAROMA_CANVASP prev_screen;
-	
+
 	/* childs */
 	int childn;
 	LIBAROMA_CONTROLP * childs;
 	LIBAROMA_CONTROLP focused;
 	LIBAROMA_CONTROLP touched;
-	
+
 	/* thread manager */
 	byte (*ui_thread)(LIBAROMA_WINDOWP);
-	
+
 	/* update background */
 	void (*onupdatebg)(LIBAROMA_WINDOWP,LIBAROMA_CANVASP);
-	
+
 	/* client window */
 	LIBAROMA_WINDOWP parent;
 	LIBAROMA_WINDOW_HANDLERP handler;
@@ -330,33 +330,33 @@ byte libaroma_window_layer_init(LIBAROMA_WINDOWP win);
  */
 byte libaroma_window_layer_release(LIBAROMA_WINDOWP win);
 
-/*********************NOTIFPULLDOWN*********************/
+/*********************PULLDOWN*********************/
 
 /*
- * Function		: libaroma_window_notifpulldown
+ * Function		: libaroma_window_pulldown
  * Return Value: LIBAROMA_WINDOWP
- * Descriptions: new or get notifpulldown window
+ * Descriptions: new or get pulldown window
  */
-LIBAROMA_WINDOWP libaroma_window_notifpulldown(LIBAROMA_WINDOWP win, int height, byte showtype);
+LIBAROMA_WINDOWP libaroma_window_pulldown(LIBAROMA_WINDOWP win, int height, byte showtype);
 
 /*
- * Function		: libaroma_window_notifpulldown_show
+ * Function		: libaroma_window_pulldown_show
  * Return Value: byte
- * Descriptions: show/hide notifpulldown
+ * Descriptions: show/hide pulldown
  */
-byte libaroma_window_notifpulldown_show(LIBAROMA_WINDOWP win, byte show);
+byte libaroma_window_pulldown_show(LIBAROMA_WINDOWP win, byte show);
 
-/* slide notifpulldown callback */
-typedef void (*LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB)(
+/* slide pulldown callback */
+typedef void (*LIBAROMA_WINDOW_PULLDOWN_SLIDE_CB)(
 	LIBAROMA_WINDOWP,int,int);
 
 /*
- * Function		: libaroma_window_notifpulldown_onslide
+ * Function		: libaroma_window_pulldown_onslide
  * Return Value: byte
- * Descriptions: set notifpulldown slide position callback
+ * Descriptions: set pulldown slide position callback
  */
-byte libaroma_window_sidebar_onslide(
-	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB cb);
+byte libaroma_window_pulldown_onslide(
+	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_PULLDOWN_SLIDE_CB cb);
 
 
 /************************SIDEBAR************************/

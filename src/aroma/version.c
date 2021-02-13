@@ -25,6 +25,9 @@
 #define __libaroma_version_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: _LIBAROMA_VERSION*
  * Type				: char []
@@ -98,31 +101,31 @@ char * libaroma_info(int type) {
 		case LIBAROMA_INFO_VERSION:
 			return _libaroma_version();
 			break;
-			
+
 		case LIBAROMA_INFO_OS:
 			return LIBAROMA_CONFIG_OS;
 			break;
-			
+
 		case LIBAROMA_INFO_AUTHOR:
 			return LIBAROMA_CONFIG_AUTHOR;
 			break;
-			
+
 		case LIBAROMA_INFO_CODENAME:
 			return LIBAROMA_CONFIG_CODENAME;
 			break;
-			
+
 		case LIBAROMA_INFO_BUILD:
 			return LIBAROMA_CONFIG_VERSION_BUILD;
 			break;
-			
+
 		case LIBAROMA_INFO_FULLVER:
 			return _libaroma_version_fullver();
 			break;
-			
+
 		case LIBAROMA_INFO_COPYRIGHT:
 			return
 				"Copyright (c) " LIBAROMA_CONFIG_YEAR " " LIBAROMA_CONFIG_AUTHOR;
-				
+
 		case LIBAROMA_INFO_SIGNATURE:
 			return _libaroma_version_signature();
 			break;
@@ -130,5 +133,8 @@ char * libaroma_info(int type) {
 	return LIBAROMA_CONFIG_NAME;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_version_c__ */
 

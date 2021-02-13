@@ -25,6 +25,9 @@
 #define __libaromart_core_c__
 #include "aromart_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 static LART _lart={0};
 
 /* get aroma runtime instance */
@@ -34,15 +37,15 @@ LART * lart(){
 
 /* init runtime */
 byte lart_init_runtime(){
-	
+
 	system("rm /tmp/.libaromashm*");
 	system("rm /tmp/.aromart*");
-	
+
 	int host_pipes[2];
 	int remote_pipes[2];
 	pipe(host_pipes);
 	pipe(remote_pipes);
-	
+
 	lart()->mpid	= getpid();
 	pid_t pid		 = fork();
 	if (pid==0){
@@ -110,4 +113,7 @@ void lart_set_process_name(char * new_name){
 	}
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaromart_core_c__ */

@@ -24,6 +24,9 @@
 #ifndef __libaroma_canvas_c__
 #define __libaroma_canvas_c__
 #include <aroma_internal.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Structure	 : _LIBAROMA_CANVAS_SHMEM_HEADER
  * Typedef		 : LIBAROMA_CANVAS_SHMEM_HEADER, * LIBAROMA_CANVAS_SHMEM_HEADERP
@@ -68,11 +71,11 @@ void libaroma_canvas_blank(
 	if (c->l == c->w) {
 		/* Aligned Canvas */
 		memset(c->data, 0, c->s*2);
-		
+
 		if (c->alpha != NULL) {
 			memset(c->alpha, 0xff, c->s);
 		}
-		
+
 		if (c->hicolor != NULL) {
 			memset(c->alpha, 0x00, c->s);
 		}
@@ -82,11 +85,11 @@ void libaroma_canvas_blank(
 		int y = 0;
 		for (y = 0; y < c->h; y++) {
 			memset(c->data + (c->l * y), 0, c->w * 2);
-			
+
 			if (c->alpha != NULL) {
 				memset(c->alpha + (c->l * y), 0xff, c->w);
 			}
-			
+
 			if (c->hicolor != NULL) {
 				memset(c->hicolor + (c->l * y), 0xff, c->w);
 			}
@@ -171,20 +174,20 @@ void libaroma_canvas_fillcolor(
  * Description	: set canvas region's alpha data
  */
 void libaroma_canvas_fillalpha(
-		LIBAROMA_CANVASP cv, 
-		int x, int y, int w, int h, 
+		LIBAROMA_CANVASP cv,
+		int x, int y, int w, int h,
 		byte alpha){
 	if (!cv) return;
-	if (!cv->alpha) {		
+	if (!cv->alpha) {
 		cv->alpha = calloc(cv->s, 1);
 	}
 	if (!alpha) alpha=0x00; //clear region by default
-	
+
 	int cury=cv->w*y;
 	int i;
 	for (i=0; i<h; i++){
 		int j;
-		for (j=0; j<w; j++){ 
+		for (j=0; j<w; j++){
 			cv->alpha[cury+x+j]=alpha;
 		}
 		cury+=cv->w;
@@ -214,7 +217,7 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 		size_t head_sz = sizeof(LIBAROMA_CANVAS_SHMEM_HEADER);
 		LIBAROMA_CANVAS_SHMEM_HEADERP csh_head = NULL;
 		bytep mem = NULL;
-		
+
 		/* copy shmem name */
 		if (shmemname[0]=='@'){
 			snprintf(nm, LIBAROMA_STREAM_URI_LENGTH,
@@ -227,7 +230,7 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 
 		/* open shared memory */
 		int fd = shm_open(nm, O_RDWR, 0666);
-		
+
 		if (fd < 0) {
 			/* not exists */
 			if ((w < 1) || (h < 1)) {
@@ -293,7 +296,7 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 			}
 			/* read header */
 			csh_head = (LIBAROMA_CANVAS_SHMEM_HEADERP) mem;
-			
+
 			/* calculate size */
 			wh_sz		 = csh_head->w * csh_head->h;
 			data_sz	 = wh_sz * 2;
@@ -305,20 +308,20 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 				return NULL;
 			}
 		}
-		
+
 		/* allocating canvas */
 		bytep canvas_mem = (bytep) calloc(
 			sizeof(LIBAROMA_CANVAS) + sizeof(LIBAROMA_CANVAS_SHMEM),1
 		);
 		c = (LIBAROMA_CANVASP) canvas_mem;
-		LIBAROMA_CANVAS_SHMEMP csh_mem = 
+		LIBAROMA_CANVAS_SHMEMP csh_mem =
 			(LIBAROMA_CANVAS_SHMEMP) (canvas_mem + sizeof(LIBAROMA_CANVAS));
-		
+
 		/* set shmem canvas data */
 		csh_mem->mmap = mem;
 		csh_mem->sz	 = sz;
 		snprintf(csh_mem->name, LIBAROMA_STREAM_URI_LENGTH, "%s", nm);
-		
+
 		/* set canvas data */
 		c->w = c->l = csh_head->w;
 		c->h			= csh_head->h;
@@ -330,7 +333,7 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 			(csh_head->alpha?(mem+head_sz+data_sz):NULL);
 		c->hicolor	= (bytep)
 			(csh_head->hicolor?(mem+head_sz+data_sz+alpha_sz):NULL);
-		
+
 		/* cleanup if new canvas */
 		if (isnew){
 			if (csh_head->alpha){
@@ -419,58 +422,58 @@ byte libaroma_canvas_area_update(
 		ALOGW("canvas_area_update canvas is null");
 		return 0;
 	}
-	
+
 	/* Set Target Positions */
 	int x2 = x + w;
 	int y2 = y + h;
-	
+
 	/* Fix Positions */
 	if (x2 > parent->w) {
 		x2 = parent->w;
 	}
-	
+
 	if (y2 > parent->h) {
 		y2 = parent->h;
 	}
-	
+
 	if (x < 0) {
 		x = 0;
 	}
-	
+
 	if (y < 0) {
 		y = 0;
 	}
-	
+
 	/* Set Fixed Size */
 	w = x2 - x;
 	h = y2 - y;
-	
+
 	if ((w < 1) || (h < 1)) {
 		ALOGW("canvas_area_update calculated width or height < 1");
 		return 0;
 	}
-	
+
 	c->w			= w;
 	c->h			= h;
 	c->s			= w * h;
 	c->flags	= LIBAROMA_CANVAS_CHILD;
 	c->l			= parent->l;
 	c->data	 = parent->data + (y * parent->l) + x;
-	
+
 	if (parent->alpha != NULL) {
 		c->alpha = parent->alpha + (y * parent->l) + x;
 	}
 	else {
 		c->alpha = NULL;
 	}
-	
+
 	if (parent->hicolor != NULL) {
 		c->hicolor = parent->hicolor + (y * parent->l) + x;
 	}
 	else {
 		c->hicolor = NULL;
 	}
-	
+
 	return 1;
 } /* End of libaroma_canvas_area_update */
 
@@ -560,7 +563,7 @@ void libaroma_canvas_free_ex1(
 	}
 	else if (cv->flags & LIBAROMA_CANVAS_SHARED) {
 #ifdef LIBAROMA_PLATFORM_HAS_SHMEM
-		LIBAROMA_CANVAS_SHMEMP csh_mem = 
+		LIBAROMA_CANVAS_SHMEMP csh_mem =
 			(LIBAROMA_CANVAS_SHMEMP) (((bytep) cv) + sizeof(LIBAROMA_CANVAS));
 		munmap(csh_mem->mmap, csh_mem->sz);
 		ALOGV("CANVAS-FREE-SHM mmap free %ibytes (%s)",
@@ -577,7 +580,7 @@ void libaroma_canvas_free_ex1(
 #endif
 		goto freecanvas;
 	}
-	
+
 	if (cv->data) {
 		free(cv->data);
 	}
@@ -593,5 +596,8 @@ freec:
 	*c = NULL;
 } /* End of libaroma_canvas_free_ex1 */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_canvas_c__ */
 

@@ -24,7 +24,9 @@
 #ifndef __libaroma_artworker_c__
 #define __libaroma_artworker_c__
 #include <aroma_internal.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Variable		: __libaroma_art_arrowdrawer_curves_*
  * Type				: float *
@@ -91,14 +93,14 @@ void _libaroma_art_arrowdrawer_line(
 		y=240-y;
 		y2=240-y2;
 	}
-	
+
 	/* scaling */
 	float scaling = ((float) size) / 240.0;
 	x*=scaling;
 	y*=scaling;
 	x2*=scaling;
 	y2*=scaling;
-	
+
 	/* draw polygonal line */
 	libaroma_draw_line_width(
 		canvas,
@@ -136,7 +138,7 @@ byte libaroma_art_arrowdrawer(
 	if ((!is_mask)&&(alpha<1)){
 		return 1;
 	}
-	
+
 	/* top line */
 	_libaroma_art_arrowdrawer_line(
 		dest,
@@ -144,7 +146,7 @@ byte libaroma_art_arrowdrawer(
 		t, dx, dy, size,
 		from_arrow, color, alpha, is_mask, aliasing
 	);
-	
+
 	/* middle line */
 	_libaroma_art_arrowdrawer_line(
 		dest,
@@ -152,7 +154,7 @@ byte libaroma_art_arrowdrawer(
 		t, dx, dy, size,
 		from_arrow, color, alpha, is_mask, aliasing
 	);
-	
+
 	/* bottom line */
 	_libaroma_art_arrowdrawer_line(
 		dest,
@@ -160,7 +162,7 @@ byte libaroma_art_arrowdrawer(
 		t, dx, dy, size,
 		from_arrow, color, alpha, is_mask, aliasing
 	);
-	
+
 	return 1;
 } /* End of libaroma_art_arrowdrawer */
 
@@ -173,7 +175,7 @@ byte libaroma_art_arrowdrawer(
 LIBAROMA_CANVASP libaroma_art_busy_progress(
 		word basecolor) {
 	int i, j;
-	
+
 	/* calculate size */
 	int dp1	 = libaroma_dp(1);
 	int dp36	= libaroma_dp(36);
@@ -183,7 +185,7 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 	int dp28	= libaroma_dp(28);
 	int dp56	= dp28 * 2;
 	int dp116 = dp144 - dp28;
-	
+
 	/* main + temp canvas */
 	LIBAROMA_CANVASP load	= libaroma_canvas_ex(dp72 * 13, dp72, 1);
 	if (!load){
@@ -200,29 +202,29 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 		libaroma_canvas_free(load);
 		return NULL;
 	}
-	
+
 	/* cleanup */
 	libaroma_canvas_setcolor(load, 0x0000, 0);
-	
+
 	/* frame loop */
 	for (j = 0; j < 13; j++) {
 		/* angle per frame */
 		double added = ((27.69230769230769 * j) / 360);
-		
+
 		/* cleanup load1 */
 		libaroma_canvas_setcolor(load1, 0x0000, 0);
-		
+
 		/* circle draw */
 		for (i = 0; i < 12; i++) {
 			/* position */
 			double angle = 2 * __PI * ((((double) i) / 12.0) + added);
 			int xpos		 = round(dp116 * cos(angle));
 			int ypos		 = round(dp116 * sin(angle));
-			
+
 			/* cleanup load2 */
 			libaroma_canvas_setcolor(load2, 0x0000, 0);
 			int b = 2;
-			
+
 			/* draw */
 			libaroma_gradient_ex(
 				load2,
@@ -237,7 +239,7 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 				MIN(0xff, ((i + 1) * 18) + 39),
 				MIN(0xff, ((i + 1) * 18))
 			);
-			
+
 			/* Stretch Copy to load1 */
 			libaroma_draw_scale_smooth(
 				load1,
@@ -252,7 +254,7 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 				dp56
 			);
 		}
-		
+
 		/* Stretch Copy to load canvas */
 		libaroma_draw_scale_smooth(
 			load,
@@ -267,11 +269,11 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 			dp288
 		);
 	}
-	
+
 	/* free temp canvases */
 	libaroma_canvas_free(load1);
 	libaroma_canvas_free(load2);
-	
+
 	/* return canvas */
 	LIBAROMA_CANVASP load_out =
 		libaroma_canvas_ex(dp36 * 13, dp36, 1);
@@ -280,7 +282,7 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 		return NULL;
 	}
 	libaroma_canvas_setcolor(load_out, 0x0000, 0);
-	
+
 	/* draw */
 	libaroma_draw_scale_smooth(
 		load_out, load,
@@ -290,6 +292,8 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 	libaroma_canvas_free(load);
 	return load_out;
 } /* End of libaroma_art_busy_progress */
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_artworker_c__ */
 

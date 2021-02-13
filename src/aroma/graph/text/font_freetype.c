@@ -21,6 +21,9 @@
  * + 20/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_font_freetype_c__
 #define __libaroma_font_freetype_c__
 
@@ -213,12 +216,12 @@ LIBAROMA_GLYPH libaroma_font_glyph(
 	}
 	/* find in cache */
 	int cache_id = ((c & 0xfffff) | (size << 20));
-	
+
 	_libaroma_font_lock(1);
-	_LIBAROMA_FONT_SLOT_CACHEP tmp_glyph = (_LIBAROMA_FONT_SLOT_CACHEP) 
+	_LIBAROMA_FONT_SLOT_CACHEP tmp_glyph = (_LIBAROMA_FONT_SLOT_CACHEP)
 		libaroma_iarray_get(_libaroma_font_faces[fontid].cache, cache_id);
-	
-	
+
+
 	if (tmp_glyph != NULL) {
 		/* cache is available */
 		// _libaroma_font_faces[fontid].last_cache = tmp_glyph;
@@ -226,19 +229,19 @@ LIBAROMA_GLYPH libaroma_font_glyph(
 		_libaroma_font_lock(0);
 		return (LIBAROMA_GLYPH) tmp_glyph;
 	}
-	
+
 	/* get freetype face */
 	FT_Face face = _libaroma_font_faces[fontid].face;
-	
+
 	if (face == NULL) {
 		ALOGW("libaroma_font_glyph fontid(%i) uninitialized", fontid);
 		_libaroma_font_lock(0);
 		return NULL;
 	}
-	
+
 	/* set requested font size */
 	libaroma_font_set_size(fontid, libaroma_font_size_px(size), 0);
-	
+
 	/* load glyph from freetype face */
 	if (FT_Load_Glyph(face, c, _LIBAROMA_FONT_LOAD_GLYPH_FLAG) == 0) {
 		_LIBAROMA_FONT_SLOT_CACHE slot={0};
@@ -246,7 +249,7 @@ LIBAROMA_GLYPH libaroma_font_glyph(
 		memcpy(&slot.metrics, &face->glyph->metrics, sizeof(FT_Glyph_Metrics));
 		slot.codepoint = c;
 		slot.size = _libaroma_font_faces[fontid].size;
-		
+
 		/* ready to return */
 		libaroma_iarray_set(
 			_libaroma_font_faces[fontid].cache,
@@ -255,19 +258,19 @@ LIBAROMA_GLYPH libaroma_font_glyph(
 			sizeof(_LIBAROMA_FONT_SLOT_CACHE),
 			1
 		);
-		// _libaroma_font_faces[fontid].last_cache 
+		// _libaroma_font_faces[fontid].last_cache
 		tmp_glyph =
 			libaroma_iarray_get(
 				_libaroma_font_faces[fontid].cache,
 				cache_id
 			);
 		_libaroma_font_lock(0);
-		
+
 		// _libaroma_font_faces[fontid].last_slotid = cache_id;
 		return (LIBAROMA_GLYPH) tmp_glyph;
 			// _libaroma_font_faces[fontid].last_cache;
 	}
-	
+
 	_libaroma_font_lock(0);
 	return NULL;
 } /* End of libaroma_font_glyph */
@@ -297,26 +300,26 @@ byte libaroma_font(
 		ALOGW("libaroma_font stream not found");
 		return 0;
 	}
-	
+
 	if (fontid >= _LIBAROMA_FONT_MAX_FACE) {
 		ALOGW("libaroma_font fontid(%i)>=%i",
 			fontid, _LIBAROMA_FONT_MAX_FACE);
 		return 0;
 	}
-	
+
 	/* thread safe */
 	_libaroma_font_lock(1);
-	
+
 	/* load face */
 	FT_Face tmp_face;
-	if (FT_New_Memory_Face(_libaroma_font_instance, 
+	if (FT_New_Memory_Face(_libaroma_font_instance,
 			stream->data,
 			stream->size,
 			0,
 			&tmp_face) == 0) {
 		/* set default face size */
 		int def_size = libaroma_font_size_px(2);
-		
+
 		if (FT_Set_Pixel_Sizes(tmp_face, 0, def_size) == 0) {
 			/* save it */
 			libaroma_font_free(fontid);
@@ -326,15 +329,15 @@ byte libaroma_font(
 			_libaroma_font_faces[fontid].stream = stream;
 			_libaroma_font_faces[fontid].cache	=
 				libaroma_iarray(libaroma_font_freecache_cb);
-			
+
 			/* force ucs2 */
 			libaroma_font_set_ucs2(_libaroma_font_faces[fontid].face);
-			
+
 			/* init harfbuzz */
 #ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 			_libaroma_font_hb_init(fontid);
 #endif
-			
+
 			/* unlock */
 			_libaroma_font_lock(0);
 			ALOGV("font loaded %ibytes (%s)", stream->size, stream->uri);
@@ -444,7 +447,7 @@ byte libaroma_font_glyph_draw(
 	}
 	/* thread safe lock */
 	_libaroma_font_lock(1);
-	
+
 	/* copy & render */
 	FT_Glyph fglyph=NULL;
 	fglyph=NULL;
@@ -465,7 +468,7 @@ byte libaroma_font_glyph_draw(
 		matrix.yy = 0x10000L;
 		FT_Glyph_Transform(fglyph, &matrix, NULL);
 	}
-	
+
 	/* embolden */
 	if (flags & _LIBAROMA_TEXTCHUNK_BOLD) {
 		FT_Outline_Embolden(
@@ -473,7 +476,7 @@ byte libaroma_font_glyph_draw(
 			aglyph->size * 2
 		);
 	}
-	
+
 	/* convert glyph to bitmap glyph */
 	if (FT_Glyph_To_Bitmap(&fglyph, _LIBAROMA_FONT_RENDER_FLAG, 0, 1)!=0){
 		/* release glyph */
@@ -482,21 +485,21 @@ byte libaroma_font_glyph_draw(
 		_libaroma_font_lock(0);
 		return 0;
 	}
-		
+
 	/* as bitmap glyph */
 	FT_BitmapGlyph bit = (FT_BitmapGlyph) fglyph;
-	
+
 	/* prepare locations */
 	/*int yy;*/
 	typeof(bit->bitmap.rows) yy;
 	int xpos = x + bit->left;
 	int xstart = 0;
-	
+
 	if (xpos < 0) {
 		xstart = 0 - xpos;
 		xpos = 0;
 	}
-	
+
 	/* loop */
 #ifndef LIBAROMA_CONFIG_NOFONT_SUBPIXEL
 	int draw_w	= (bit->bitmap.width / 3) - xstart;
@@ -512,17 +515,17 @@ byte libaroma_font_glyph_draw(
 			/* drawing positions */
 			int yglp = (yy - bit->top);
 			int ypos = (y + yglp) * dest->l;
-			
+
 			/* check position */
 			if ((ypos+draw_w>(dest->l*dest->h)) || (ypos<0)) {
 				continue;
 			}
-			
+
 			/* source * destination pointers */
 			int ysrc = yy * bit->bitmap.pitch;
 			bytep src_line	= bit->bitmap.buffer + ysrc + (xstart * 3);
 			wordp dest_line = dest->data + ypos + xpos;
-			
+
 			/* draw line */
 			if (opacity == 0xff) {
 				libaroma_alpha_multi_line(
@@ -578,7 +581,7 @@ byte libaroma_font_glyph_draw(
 			free(tmp_dst);
 		}
 	}
-	
+
 #endif
 	/* release glyph */
 	FT_Done_Glyph(fglyph);
@@ -625,12 +628,12 @@ byte libaroma_font_release() {
 		__libaroma_text_locker_init(1);
 		return 0;
 	}
-	
+
 	/* release harfbuzz callback functions */
 #ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 	_libaroma_font_hb_free_functions();
 #endif
-	
+
 	/* release font face */
 	int i;
 	for (i = 0; i < _LIBAROMA_FONT_MAX_FACE; i++) {
@@ -653,3 +656,7 @@ byte libaroma_font_release() {
 
 
 #endif /* __libaroma_font_freetype_c__ */
+
+#ifdef __cplusplus
+}
+#endif

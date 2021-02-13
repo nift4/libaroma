@@ -25,6 +25,9 @@
 #define __libaroma_listitem_divider_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "../../ui/ui_internal.h"
 
 /* LIST ITEM HANDLER */
@@ -86,7 +89,7 @@ void _libaroma_listitem_divider_draw(
 	if (item->handler!=&_libaroma_listitem_divider_handler){
 		return;
 	}
-	
+
 	word flags=item->flags;
 	byte is_dark=libaroma_color_isdark(bgcolor);
 	word vcolor=is_dark?RGB(555555):RGB(dddddd);
@@ -170,6 +173,9 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_divider(
 	return item;
 } /* End of libaroma_listitem_divider */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_listitem_divider_c__ */
 

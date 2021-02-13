@@ -20,6 +20,10 @@
 
 #include "ucdn.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const hb_script_t ucdn_script_translate[] =
 {
     HB_SCRIPT_COMMON,
@@ -229,3 +233,7 @@ hb_ucdn_get_unicode_funcs (void)
   return const_cast<hb_unicode_funcs_t *> (&_hb_ucdn_unicode_funcs);
 }
 
+
+#ifdef __cplusplus
+}
+#endif

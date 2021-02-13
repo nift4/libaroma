@@ -26,6 +26,9 @@
 
 #include <errno.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: QCOMFB_init
  * Return Value: byte
@@ -36,39 +39,39 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		return 0;
 	}
 	LINUXFBDR_INTERNALP mi = (LINUXFBDR_INTERNALP) me->internal;
-	
+
 	/* check id */
 	byte isqcom=QCOMFB_check_id(mi);
 	if (!isqcom){
 		return 0;
 	}
-	
+
 	/* allocating qcom internal data */
 	mi->qcom = (QCOMFB_INTERNALP) calloc(sizeof(QCOMFB_INTERNAL),1);
 	if (!mi->qcom){
 		ALOGW("QCOMFB_init cannot allocating qcom internal data");
 		return 0;
 	}
-	
+
 	mi->qcom->id = isqcom;
-	
+
 	mi->qcom->dbuf=1;
 	me->double_buffer=1;
 	ALOGV("QCOMFB_init got qcom. #%i - %i", mi->qcom->id, mi->qcom->dbuf);
-	
+
 	/* open ion device */
 	mi->qcom->ionfd = open("/dev/ion", O_RDWR|O_SYNC);
 	if (mi->qcom->ionfd<0) {
 		ALOGV("QCOMFB_init cannot open /dev/ion");
-		
+
 		ALOGV("Error no is : %d\n", errno);
 		ALOGV("Error description is : %s\n",strerror(errno));
-		
+
 		free(mi->qcom);
 		mi->qcom=NULL;
 		return 0;
 	}
-	
+
 	/* calculate size */
 	mi->line	= me->w;
 	if (mi->qcom->id){
@@ -85,11 +88,11 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 			LINUXFBDR_setrgbpos(me,0,8,16);
 		}
 	}
-	
+
 	mi->fb_sz = mi->line * me->h * mi->pixsz * (mi->qcom->dbuf?2:1);
 	mi->stride= (mi->line - me->w) * mi->pixsz;
 	mi->line = mi->line * mi->pixsz;
-	
+
 	ALOGV("QCOMFB_init info (l:%i, s:%i, sz:%i, d:%i, p:%i)",
 		mi->line,
 		mi->stride,
@@ -97,7 +100,7 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		mi->depth,
 		mi->pixsz
 	);
-	
+
 	/* allocation ion data */
 	struct ion_allocation_data ion_alloc;
 	ion_alloc.flags = 0;
@@ -113,7 +116,7 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		mi->qcom=NULL;
 		return 0;
 	}
-	
+
 	/* prepare mmap ion data */
 	struct ion_fd_data ion_data;
 	ion_data.handle = ion_alloc.handle;
@@ -123,10 +126,10 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		QCOMFB_release(me);
 		return 0;
 	}
-	
+
 	/* set memfd */
 	mi->qcom->memfd = ion_data.fd;
-	
+
 	/* mmap */
 	mi->buffer = (voidp)
 		mmap(NULL,mi->fb_sz,PROT_READ|PROT_WRITE,MAP_SHARED,mi->qcom->memfd,0);
@@ -135,10 +138,10 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		QCOMFB_release(me);
 		return 0;
 	}
-	
+
 	/* split display */
 	QCOMFB_split_display(me);
-	
+
 	/* request overlays */
 	mi->qcom->overlay_lid=MSMFB_NEW_REQUEST;
 	mi->qcom->overlay_rid=MSMFB_NEW_REQUEST;
@@ -147,7 +150,7 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 		QCOMFB_release(me);
 		return 0;
 	}
-	
+
 	/* set overlay player */
 	mi->qcom->commit_type = 0;
 	memset(&mi->qcom->overlay, 0, sizeof(struct msmfb_overlay_data));
@@ -155,13 +158,13 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 	mi->qcom->overlay.data.flags = 0;
 	mi->qcom->overlay.data.offset = 0;
 	mi->qcom->overlay.data.memory_id = mi->qcom->memfd;
-	
+
 	/* set commiter data */
 	memset(&mi->qcom->commiter, 0, sizeof(struct mdp_display_commit));
 	mi->qcom->commiter.flags = MDP_DISPLAY_COMMIT_OVERLAY;
 	mi->qcom->commiter.wait_for_finish = 1;
-	
-	/* pos 
+
+	/* pos
 	mi->qcom->commiter.l_roi.x = 0;
 	mi->qcom->commiter.l_roi.y = 0;
 	mi->qcom->commiter.l_roi.w = me->w;
@@ -171,11 +174,11 @@ byte QCOMFB_init(LIBAROMA_FBP me){
 	mi->qcom->commiter.r_roi.w = me->w;
 	mi->qcom->commiter.r_roi.h = me->h;
 	*/
-	
+
 	/* swap buffer & commit now */
 	QCOMFB_flush(me);
-	
-	
+
+
 	/* successed */
 	ALOGI("QCOMFB_init qcom overlay driver successfull (Type:%i)",
 		mi->qcom->id);
@@ -200,10 +203,10 @@ void QCOMFB_release(LIBAROMA_FBP me){
 		if (mi->qcom->overlay_rid!=MSMFB_NEW_REQUEST){
 			ioctl(mi->fb, MSMFB_OVERLAY_UNSET, &mi->qcom->overlay_rid);
 		}
-		
+
 		/* flush close */
 		QCOMFB_flush(me);
-		
+
 		if (mi->buffer){
 			munmap(mi->buffer, mi->fb_sz);
 			mi->buffer=NULL;
@@ -217,7 +220,7 @@ void QCOMFB_release(LIBAROMA_FBP me){
 		if (mi->qcom->ionfd>=0){
 			close(mi->qcom->ionfd);
 		}
-		
+
 		/* free qcom internal data */
 		free(mi->qcom);
 		mi->qcom=NULL;
@@ -282,7 +285,7 @@ void QCOMFB_split_display(LIBAROMA_FBP me){
 		);
 		fclose(fp);
 	}
-	
+
 	/* check split display */
 	if ((me->w>MAX_DISPLAY_DIM)||(mi->qcom->split_right)){
 		mi->qcom->split=1;
@@ -298,7 +301,7 @@ void QCOMFB_split_display(LIBAROMA_FBP me){
 		mi->qcom->split_right=0;
 		mi->qcom->split_left=me->w;
 	}
-	
+
 	/* log */
 	ALOGI("QCOMFB_split_display=%i, left=%i, right=%i",
 		mi->qcom->split,
@@ -495,7 +498,7 @@ byte QCOMFB_post(
 		return 0;
 	}
 	LINUXFBDR_INTERNALP mi = (LINUXFBDR_INTERNALP) me->internal;
-	
+
 	int sstride = (sw - dw) * 2;
 	int dstride = (me->w - dw) * mi->pixsz;
 	wordp copy_src = (wordp) (src + (sw * sy) + sx);
@@ -514,7 +517,7 @@ byte QCOMFB_post(
 			(dwordp) dst_addr,
 			copy_src,
 			dw, dh,
-			dstride, 
+			dstride,
 			sstride,
 			mi->rgb_pos
 		);
@@ -596,10 +599,13 @@ void QCOMFB_flush(LIBAROMA_FBP me){
 			ALOGV("QCOMFB commit type old msm_mdp v44");
 		}
 	}
-	
+
 	if (res){
 		// printf("%i",res); fflush(stdout);
 	}
 } /* End of QCOMFB_flush */
 
-#endif /* __libaroma_linux_fb_qcom_driver_c__ */ 
+#ifdef __cplusplus
+}
+#endif
+#endif /* __libaroma_linux_fb_qcom_driver_c__ */

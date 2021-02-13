@@ -21,6 +21,9 @@
  * + 20/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_defs_h__
 #define __libaroma_text_defs_h__
 
@@ -127,3 +130,7 @@
 #define _LIBAROMA_TEXTCHUNK_STATE_BULLET	0x02
 
 #endif /* __libaroma_text_defs_h__ */
+
+#ifdef __cplusplus
+}
+#endif

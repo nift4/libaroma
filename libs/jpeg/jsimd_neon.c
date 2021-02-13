@@ -30,8 +30,11 @@
 #include "jpeglib.h"
 #include "jdct.h"
 
-
 #if defined(NV_ARM_NEON) && defined(__ARM_HAVE_NEON)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 EXTERN(void) jsimd_ycc_rgba8888_convert_neon
         JPP((JDIMENSION out_width,
@@ -163,6 +166,10 @@ cap_neon_ycc_rgb (void)
 
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

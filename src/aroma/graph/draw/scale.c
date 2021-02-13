@@ -25,6 +25,9 @@
 #define __libaroma_scale_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_draw_scale_nearest
  * Return Value: byte
@@ -232,19 +235,19 @@ byte libaroma_draw_scale_smooth(
 			word res;
 			if (src->hicolor != NULL) {
 				res = libaroma_dither_rgb(x, y,
-				 ((libaroma_color_merge_r(pixel1, src->hicolor[p1]) * hc1 + 
+				 ((libaroma_color_merge_r(pixel1, src->hicolor[p1]) * hc1 +
 						libaroma_color_merge_r(pixel2, src->hicolor[p2]) * hc2) *
-					wc1 + (libaroma_color_merge_r(pixel3, src->hicolor[p3]) * 
+					wc1 + (libaroma_color_merge_r(pixel3, src->hicolor[p3]) *
 						hc1 + libaroma_color_merge_r(pixel4, src->hicolor[p4]) * hc2) *
 						wc2) >> 14,
-				 ((libaroma_color_merge_g(pixel1, src->hicolor[p1]) * hc1 + 
+				 ((libaroma_color_merge_g(pixel1, src->hicolor[p1]) * hc1 +
 						libaroma_color_merge_g(pixel2, src->hicolor[p2]) * hc2) *
-					wc1 + (libaroma_color_merge_g(pixel3, src->hicolor[p3]) * 
+					wc1 + (libaroma_color_merge_g(pixel3, src->hicolor[p3]) *
 						hc1 + libaroma_color_merge_g(pixel4, src->hicolor[p4]) * hc2) *
 						wc2) >> 14,
-				 ((libaroma_color_merge_b(pixel1, src->hicolor[p1]) * hc1 + 
+				 ((libaroma_color_merge_b(pixel1, src->hicolor[p1]) * hc1 +
 						libaroma_color_merge_b(pixel2, src->hicolor[p2]) * hc2) *
-					wc1 + (libaroma_color_merge_b(pixel3, src->hicolor[p3]) * 
+					wc1 + (libaroma_color_merge_b(pixel3, src->hicolor[p3]) *
 						hc1 + libaroma_color_merge_b(pixel4, src->hicolor[p4]) * hc2) *
 						wc2) >> 14
 				);
@@ -327,6 +330,9 @@ byte libaroma_draw_scale(
 				 );
 } /* End of function_name */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_scale_c__ */
 

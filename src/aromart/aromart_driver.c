@@ -25,6 +25,9 @@
 #define __libaromart_driver_c__
 #include "aromart_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* hid event message */
 typedef struct{
 	byte	type;
@@ -159,7 +162,7 @@ byte lart_libaroma_start(){
 	/* set custom initializer */
 	libaroma_fb_set_initializer(lart_fb_init);
 	libaroma_hid_set_initializer(lart_hid_init);
-	
+
 	if (!libaroma_fb_init()) {
 		LARTLOGE("lart_libaroma_start cannot start framebuffer...");
 		return 0;
@@ -200,4 +203,7 @@ void lart_libaroma_end(){
 	libaroma_fb_release();
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaromart_driver_c__ */

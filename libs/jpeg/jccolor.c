@@ -79,6 +79,9 @@ typedef my_color_converter * my_cconvert_ptr;
 #define B_CR_OFF	(7*(MAXJSAMPLE+1))
 #define TABLE_SIZE	(8*(MAXJSAMPLE+1))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * Initialize for RGB->YCC colorspace conversion.
@@ -355,12 +358,12 @@ null_convert (j_compress_ptr cinfo,
         JSAMPROW outptr0 = output_buf[0][output_row];
         JSAMPROW outptr1 = output_buf[1][output_row];
         JSAMPROW outptr2 = output_buf[2][output_row];
-        
+
         int col = num_cols;
         int col4 = col >> 2;
         if (col4 > 0 && ptr_is_quad(inptr) && ptr_is_quad(outptr0) &&
                         ptr_is_quad(outptr1) && ptr_is_quad(outptr2)) {
-            
+
             const UINT32* in = (const UINT32*)inptr;
             UINT32* out0 = (UINT32*)outptr0;
             UINT32* out1 = (UINT32*)outptr1;
@@ -525,3 +528,7 @@ jinit_color_converter (j_compress_ptr cinfo)
     break;
   }
 }
+
+#ifdef __cplusplus
+}
+#endif

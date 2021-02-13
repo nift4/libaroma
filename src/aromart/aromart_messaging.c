@@ -25,6 +25,9 @@
 #define __libaromart_messaging_c__
 #include "aromart_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* message structure */
 typedef struct{
 	byte		status;	 /* respond status */
@@ -107,4 +110,7 @@ byte lart_command(
 	return lart_recv(rfd,res_param,res_data,res_data_len);
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaromart_messaging_c__ */

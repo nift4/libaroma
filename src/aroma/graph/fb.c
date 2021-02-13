@@ -24,7 +24,9 @@
 #ifndef __libaroma_fb_c__
 #define __libaroma_fb_c__
 #include <aroma_internal.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 byte LIBAROMA_FB_INIT_FUNCTION(
 		LIBAROMA_FBP);
 /*
@@ -73,7 +75,7 @@ byte libaroma_fb_init() {
 		ALOGE("libaroma_fb_init framebuffer already initialized");
 		return 0;
 	}
-	
+
 	/* allocating instance memory */
 	ALOGV("libaroma_fb_init allocating framebuffer instance");
 	_libaroma_fb = (LIBAROMA_FBP) calloc(sizeof(LIBAROMA_FB),1);
@@ -81,7 +83,7 @@ byte libaroma_fb_init() {
 		ALOGE("libaroma_fb_init allocating framebuffer instance failed");
 		return 0;
 	}
-	
+
 	if (_libaroma_fb_initializer!=NULL){
 		ALOGV("Init framebuffer driver - runtime");
 		if (_libaroma_fb_initializer(_libaroma_fb) == 0){
@@ -100,7 +102,7 @@ byte libaroma_fb_init() {
 			return 0;
 		}
 	}
-	
+
 	/* check callbacks */
 	if (
 		(_libaroma_fb->release == NULL) ||
@@ -113,7 +115,7 @@ byte libaroma_fb_init() {
 		ALOGE("libaroma_fb_init driver doesn't set the callbacks");
 		return 0;
 	}
-	
+
 	/* check dpi */
 	if ((_libaroma_fb->dpi < 160)||(_libaroma_fb->dpi > 960)) {
 		/* use phone dpi */
@@ -121,16 +123,16 @@ byte libaroma_fb_init() {
 		ALOGW("libaroma_fb_init driver doesn't set dpi. set as : %i dpi",
 			_libaroma_fb->dpi);
 	}
-	
+
 	/* make sure the dpi is valid */
 	if ((_libaroma_fb->dpi < 160)||(_libaroma_fb->dpi > 960)) {
 		_libaroma_fb->dpi = 160;
 	}
-	
+
 	/* check big screen */
 	int dpMinWH = MIN(libaroma_width_dp(), libaroma_height_dp());
-	_libaroma_fb->bigscreen = (dpMinWH >= 600); 
-	
+	_libaroma_fb->bigscreen = (dpMinWH >= 600);
+
 	/* create framebuffer canvas */
 	if ((!_libaroma_fb->internal_canvas)||(!_libaroma_fb->canvas)){
 		_libaroma_fb->internal_canvas=0;
@@ -151,7 +153,7 @@ byte libaroma_fb_init() {
 		_libaroma_fb->dpi,
 		_libaroma_fb->double_buffer?"Double Buffer":"Single Buffer"
 	);
-	
+
 	/* Copy Current Framebuffer Into Display Canvas */
 	if (libaroma_config()->snapshoot_fb){
 		if (_libaroma_fb->snapshoot!=NULL){
@@ -159,7 +161,7 @@ byte libaroma_fb_init() {
 			libaroma_fb_snapshoot();
 		}
 	}
-	
+
 	_libaroma_fb->onpost=0;
 	libaroma_mutex_init(_libaroma_fb_onpost_mutex);
 	return 1;
@@ -223,7 +225,7 @@ byte libaroma_fb_post(
 		ALOGW("libaroma_fb_post start_post not called");
 		return 0;
 	}
-	
+
 	/* check x position */
 	if ((sx>canvas->w)||(sy>canvas->h)||
 			(dx>_libaroma_fb->w)||(dy>_libaroma_fb->h)||
@@ -249,7 +251,7 @@ byte libaroma_fb_post(
 	}
 	return
 		_libaroma_fb->post(
-			_libaroma_fb, 
+			_libaroma_fb,
 			canvas->data,
 			dx, dy, w, h,
 			sx, sy, canvas->l, canvas->h
@@ -268,30 +270,30 @@ byte libaroma_fb_release() {
 		ALOGW("libaroma_fb_release framebuffer uninitialized");
 		return 0;
 	}
-	
+
 	/* Free display canvas */
 	if (!_libaroma_fb->internal_canvas){
 		ALOGV("Releasing Canvas");
 		libaroma_canvas_delete(_libaroma_fb->canvas);
 	}
-	
+
 	/* Release Framebuffer Driver */
 	ALOGV("Releasing Framebuffer Driver");
 	_libaroma_fb->release(_libaroma_fb);
-	
+
 	/* Show Information */
 	ALOGS("Framebuffer Released");
-	
+
 	/* cleanup post event */
 	if (_libaroma_fb->onpost){
 		libaroma_fb_end_post();
 	}
 	_libaroma_fb->onpost=0;
 	libaroma_mutex_free(_libaroma_fb_onpost_mutex);
-	
+
 	/* Free Framebuffer Instance */
 	free(_libaroma_fb);
-	
+
 	/* Set Null */
 	_libaroma_fb = NULL;
 	return 1;
@@ -307,7 +309,7 @@ byte libaroma_fb_sync() {
 		ALOGW("libaroma_fb_sync framebuffer uninitialized");
 		return 0;
 	}
-	
+
 	byte ret=0;
 	if (libaroma_fb_start_post()){
 		if (_libaroma_fb->post(_libaroma_fb, _libaroma_fb->canvas->data,
@@ -338,7 +340,7 @@ byte libaroma_fb_sync_area(
 		/* should copy whole data */
 		return libaroma_fb_sync();
 	}
-	
+
 	if (x < 0) {
 		w -= x;
 		x = 0;
@@ -357,7 +359,7 @@ byte libaroma_fb_sync_area(
 		ALOGV("libaroma_fb_sync_area calculated width/height < 0 (%i,%i)", w, h);
 		return 0;
 	}
-	
+
 	byte ret=0;
 	if (libaroma_fb_start_post()){
 		if (_libaroma_fb->post(_libaroma_fb, _libaroma_fb->canvas->data,
@@ -492,12 +494,12 @@ LIBAROMA_CANVASP libaroma_fb_snapshoot_canvas() {
 		ALOGW("libaroma_fb_snapshoot_canvas framebuffer uninitialized");
 		return 0;
 	}
-	
+
 	if (_libaroma_fb->snapshoot == NULL) {
 		ALOGW("framebuffer driver do not support snapshoot");
 		return 0;
 	}
-	
+
 	/* Create Framebuffer Canvas */
 	LIBAROMA_CANVASP new_canvas = libaroma_canvas(
 		_libaroma_fb->w, _libaroma_fb->h);
@@ -505,7 +507,7 @@ LIBAROMA_CANVASP libaroma_fb_snapshoot_canvas() {
 		ALOGW("libaroma_fb_snapshoot_canvas create canvas failed");
 		return NULL;
 	}
-	
+
 	/* get */
 	if (_libaroma_fb->snapshoot(
 		_libaroma_fb,
@@ -518,6 +520,8 @@ LIBAROMA_CANVASP libaroma_fb_snapshoot_canvas() {
 	return NULL;
 } /* End of libaroma_fb_snapshoot */
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_fb_c__ */
 

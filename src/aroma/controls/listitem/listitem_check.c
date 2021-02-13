@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* LIST ITEM HANDLER */
 byte _libaroma_listitem_check_message(
 	LIBAROMA_CONTROLP, LIBAROMA_CTL_LIST_ITEMP,byte,dword,int,int);
@@ -126,7 +129,7 @@ byte _libaroma_listitem_check_message(
 	if (item->handler!=&_libaroma_listitem_check_handler){
 		return 0;
 	}
-	_LIBAROMA_LISTITEM_CHECKP mi = 
+	_LIBAROMA_LISTITEM_CHECKP mi =
 		(_LIBAROMA_LISTITEM_CHECKP) item->internal;
 	switch (msg){
 		case LIBAROMA_CTL_LIST_ITEM_MSG_THREAD:
@@ -155,7 +158,7 @@ byte _libaroma_listitem_check_message(
 			{
 				mi->onchangeani=0;
 				if (param!=LIBAROMA_CTL_LIST_ITEM_MSGPARAM_HOLDED){
-					//printf("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d\n", 
+					//printf("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d\n",
 					//	  x, y, item->checkx, item->checkwidth);
 					if (item->flags&LIBAROMA_LISTITEM_CHECK_HAS_SUBMENU){
 						if (x >= item->checkx && x<= (item->checkx + item->checkwidth)) {
@@ -169,7 +172,7 @@ byte _libaroma_listitem_check_message(
 						}
 					}
 					else {
-						libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);					
+						libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);
 						libaroma_window_post_command_ex(
 							LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
 							mi->selected, item->id, 0, (voidp) item
@@ -205,16 +208,16 @@ void _libaroma_listitem_check_draw(
 		return;
 	}
 	_LIBAROMA_LISTITEM_CHECKP mi = (_LIBAROMA_LISTITEM_CHECKP) item->internal;
-	
+
 	byte is_dark=libaroma_color_isdark(bgcolor);
 	word textcolor, graycolor;
 	word flags=item->flags;
-	
+
 	if (!(state&LIBAROMA_CTL_LIST_ITEM_DRAW_ADDONS)){
 		int vpad = 8;
 		int seph = (flags&LIBAROMA_LISTITEM_WITH_SEPARATOR)?1:0;
 		byte small_icon = (flags&LIBAROMA_LISTITEM_CHECK_SMALL_ICON)?1:0;
-		
+
 		if (state&LIBAROMA_CTL_LIST_ITEM_DRAW_PUSHED){
 			word selcolor = is_dark?RGB(444444):RGB(bbbbbb);
 			libaroma_draw_rect(
@@ -231,7 +234,7 @@ void _libaroma_listitem_check_draw(
 			textcolor= is_dark?RGB(ffffff):RGB(000000);
 			graycolor= is_dark?RGB(888888):RGB(777777);
 		}
-		
+
 		if ((item->next)&&(flags&LIBAROMA_LISTITEM_WITH_SEPARATOR)){
 			if (!libaroma_listitem_nonitem(item->next)){
 				int sepxp=0;
@@ -249,7 +252,7 @@ void _libaroma_listitem_check_draw(
 				);
 			}
 		}
-		
+
 		int icoh=libaroma_dp(vpad*2+seph);
 		int tw = cv->w-libaroma_dp(
 			(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88
@@ -257,22 +260,22 @@ void _libaroma_listitem_check_draw(
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			item->is_leftcontrol=1;
 		} else { item->is_leftcontrol=0; }
-		
+
 		int tx = libaroma_dp(16);
 		int dpsz=libaroma_dp(small_icon?24:40);
 		if (mi->icon){
 			icoh+=dpsz;
 		}
-		
+
 		if ((mi->icon)||(item->flags&LIBAROMA_LISTITEM_CHECK_INDENT_NOICON)){
 			tw-=libaroma_dp(56);
 			tx+=libaroma_dp(56);
 		}
-		
+
 		int ty = libaroma_dp(vpad*2);
 		LIBAROMA_TEXT mtextp=NULL;
 		LIBAROMA_TEXT etextp=NULL;
-		
+
 		/* prepare main text */
 		int txtsh=0;
 		int m_h=0;
@@ -291,7 +294,7 @@ void _libaroma_listitem_check_draw(
 			ty+=m_h;
 			txtsh+=m_h;
 		}
-		
+
 		/* prepare extra text */
 		int e_h = 0;
 		int etremsz=0;
@@ -311,11 +314,11 @@ void _libaroma_listitem_check_draw(
 			txtsh+=e_h;
 			etremsz=2;
 		}
-		
+
 		/* calculate whole height */
 		ty+=libaroma_dp(vpad*2+seph);
 		int my_h = MAX(icoh,ty);
-		
+
 		/* draw icon */
 		if (mi->icon){
 			if ((flags&LIBAROMA_LISTITEM_CHECK_FREE_ICON)||
@@ -339,23 +342,23 @@ void _libaroma_listitem_check_draw(
 				);
 			}
 		}
-		
+
 		int txt_sy=(my_h>>1)-((txtsh>>1)+libaroma_dp(2+etremsz+seph));
-		
+
 		/* draw main text */
 		if (mtextp){
 			libaroma_text_draw(cv,mtextp,tx,txt_sy);
 			txt_sy+=m_h;
 			libaroma_text_free(mtextp);
 		}
-		
+
 		/* draw extra text */
 		if (etextp){
 			libaroma_text_draw(cv,etextp,tx,txt_sy);
 			libaroma_text_free(etextp);
 		}
-		
-		
+
+
 		if (my_h!=mi->h){
 			mi->h=my_h;
 			libaroma_ctl_list_item_setheight(
@@ -363,7 +366,7 @@ void _libaroma_listitem_check_draw(
 			);
 		}
 	}
-	
+
 	/* addons draw */
 	if (!(state&LIBAROMA_CTL_LIST_ITEM_DRAW_CACHE)){
 		byte is_switch = (flags&LIBAROMA_LISTITEM_CHECK_SWITCH)?1:0;
@@ -389,7 +392,7 @@ void _libaroma_listitem_check_draw(
 				}
 			}
 		}
-		
+
 		int xpos = cv->w - libaroma_dp(36);
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			/* left position */
@@ -401,29 +404,29 @@ void _libaroma_listitem_check_draw(
 			word h_color_active = libaroma_colorget(ctl,NULL)->primary;
 			word b_color_rest	 = RGB(B2B2B2);
 			word b_color_active = libaroma_colorget(ctl,NULL)->primary_light;
-			
+
 			word bc0=mi->selected?b_color_rest:b_color_active;
 			word bc1=mi->selected?b_color_active:b_color_rest;
 			word hc0=mi->selected?h_color_rest:h_color_active;
 			word hc1=mi->selected?h_color_active:h_color_rest;
-				
+
 			word bc = libaroma_alpha(bc0,bc1,relstate*0xff);
 			word hc = libaroma_alpha(hc0,hc1,relstate*0xff);
-			
+
 			/* draw background */
 			int b_width	 = libaroma_dp(34);
 			int b_height	= libaroma_dp(14);
-			
+
 			float selrelstate = mi->selected?relstate:1-relstate;
 			int base_x = xpos-(b_width>>1);
 			int h_sz = libaroma_dp(20);
 			int base_w = b_width - h_sz;
-			
+
 			item->checkwidth=b_width;
 			item->checkx=base_x;
 			int h_draw_x = base_x + round(base_w*selrelstate);
 			int h_draw_y = ypos-(h_sz>>1);
-			
+
 			libaroma_gradient_ex1(cv,
 				xpos-(b_width>>1),
 				ypos-(b_height>>1),
@@ -434,9 +437,9 @@ void _libaroma_listitem_check_draw(
 				0xff,0xff,
 				0
 			);
-			
+
 			int rsz = libaroma_dp(1);
-			
+
 			/* shadow */
 			byte new_shadow = 1;
 			if (item->state!=NULL){
@@ -456,7 +459,7 @@ void _libaroma_listitem_check_draw(
 				libaroma_gradient(bmask,0,0,h_sz,h_sz,0,0,h_sz>>1,0x1111);
 				LIBAROMA_CANVASP scv = libaroma_blur_ex(bmask,rsz,1,0);
 				libaroma_canvas_free(bmask);
-				
+
 				libaroma_draw_opacity(cv,scv,h_draw_x-rsz,h_draw_y,3,0x30);
 				if (item->state!=NULL){
 					/* will automatically freed by list control */
@@ -466,7 +469,7 @@ void _libaroma_listitem_check_draw(
 					libaroma_canvas_free(scv);
 				}
 			}
-			
+
 			/* handle */
 			libaroma_gradient_ex1(cv,
 				h_draw_x,
@@ -502,7 +505,7 @@ void _libaroma_listitem_check_draw(
 				if (new_cache){
 					checkcache = libaroma_canvas_ex(rsz,rsz,1);
 					memset(checkcache->alpha,0,rsz*rsz);
-	
+
 					if (isoption){
 						libaroma_gradient_ex1(checkcache,
 							0,0,rsz,rsz,cprimary,cprimary,rsz>>1,0x1111,
@@ -522,7 +525,7 @@ void _libaroma_listitem_check_draw(
 						libaroma_gradient_ex1(checkcache,
 							0,0,rsz,rsz,cprimary,cprimary,libaroma_dp(2),0x1111,
 							0xff,0xff,2);
-						
+
 						/* tick */
 						LIBAROMA_PATHP path=libaroma_path(12*rsz>>6, 27*rsz>>6);
 						libaroma_path_add(path, 25*rsz>>6, 40*rsz>>6);
@@ -540,7 +543,7 @@ void _libaroma_listitem_check_draw(
 					}
 				}
 			}
-			
+
 			if (relstate<1){
 				float rrelstate = 1-relstate;
 				int sel_sz = rsz * (mi->selected?relstate:rrelstate);
@@ -609,15 +612,15 @@ void _libaroma_listitem_check_draw(
 					0
 				);
 			}
-			
+
 			if (new_cache){
 				libaroma_canvas_free(checkcache);
 			}
-			
+
 		}
-		
+
 	}
-	
+
 } /* End of _libaroma_listitem_check_draw */
 
 /*
@@ -712,10 +715,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 	}
 	mi->selected=0;
 	mi->icon=NULL;
-	
+
 	int vpad = 8;
 	int seph = (flags&LIBAROMA_LISTITEM_WITH_SEPARATOR)?1:0;
-	
+
 	if (!icon){
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			flags|=LIBAROMA_LISTITEM_CHECK_INDENT_NOICON;
@@ -726,7 +729,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 			flags&=~LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL;
 		}
 	}
-	
+
 	/* init icon */
 	int h = 0;
 	if (icon){
@@ -754,7 +757,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 	}
 	mi->main_text=(main_text?strdup(main_text):NULL);
 	mi->extra_text=(extra_text?strdup(extra_text):NULL);
-	
+
 	/* calculate height */
 	/*
 	int th = (mi->main_text?libaroma_font_size_px(4):0)*1.2;
@@ -766,7 +769,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 		tw-=libaroma_dp(56);
 	}
 	int th = libaroma_dp(vpad*2);
-	
+
 	if (tw>0){
 		if (mi->main_text){
 			LIBAROMA_TEXT mtextp = libaroma_text(
@@ -782,7 +785,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 			th+=libaroma_text_height(mtextp);
 			libaroma_text_free(mtextp);
 		}
-		
+
 		/* prepare extra text */
 		if (mi->extra_text){
 			LIBAROMA_TEXT etextp = libaroma_text(
@@ -800,12 +803,12 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 			libaroma_text_free(etextp);
 		}
 	}
-	
-	
-	
+
+
+
 	h = MAX(h,th)+libaroma_dp(vpad*2+seph);
 	mi->h=h;
-	
+
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
@@ -822,5 +825,8 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 	return item;
 } /* End of libaroma_listitem_check */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_listitem_check_c__ */

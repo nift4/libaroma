@@ -21,6 +21,9 @@
  * + 20/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_common_c__
 #define __libaroma_text_common_c__
 
@@ -201,3 +204,7 @@ static byte _libaroma_text_direction(
 } /* End of _libaroma_text_direction */
 
 #endif /* __libaroma_text_common_c__ */
+
+#ifdef __cplusplus
+}
+#endif

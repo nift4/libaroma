@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_dialog_data
  * Return Value: LIBAROMA_DIALOG_DATAP
@@ -48,7 +51,7 @@ void libaroma_dialog_updatebg(LIBAROMA_WINDOWP win, LIBAROMA_CANVASP c){
 	if (!cdata){
 		return;
 	}
-	
+
 	/* draw bg */
 	libaroma_draw(c,cdata->bg,0,0,0);
 	/*
@@ -66,9 +69,9 @@ void libaroma_dialog_updatebg(LIBAROMA_WINDOWP win, LIBAROMA_CANVASP c){
 			0
 		);
 	}
-	
+
 	word bgcolor = libaroma_colorget(NULL, win)->dialog_bg;
-	
+
 	/* draw dialog */
 	libaroma_gradient(c,
 		cdata->x, cdata->y,
@@ -90,7 +93,7 @@ LIBAROMA_WINDOWP libaroma_dialog_window(
 	int min_sz = libaroma_dp(72);
 	int iw=w+libaroma_dp(16);
 	int ih=h+libaroma_dp(16);
-	
+
 	if ((iw<min_sz)||(ih<min_sz)){
 		ALOGW("libaroma_dialog_window: Invalid dialog size");
 		return NULL;
@@ -101,20 +104,20 @@ LIBAROMA_WINDOWP libaroma_dialog_window(
 	if (ih>libaroma_wm()->h){
 		ih=libaroma_wm()->h;
 	}
-	
+
 	LIBAROMA_DIALOG_DATAP cdata = (LIBAROMA_DIALOG_DATAP) calloc(sizeof(LIBAROMA_DIALOG_DATA),1);
 	if (!cdata){
 		ALOGW("libaroma_dialog_window: Cannot init client data");
 		return NULL;
 	}
-	
+
 	/* init values */
 	cdata->w = iw-libaroma_dp(16);
 	cdata->h = ih-libaroma_dp(16);
 	cdata->x = (libaroma_wm()->w>>1) - (cdata->w>>1);
 	cdata->y = (libaroma_fb()->h>>1) - (cdata->h>>1) - libaroma_wm()->y;
 	cdata->flags = flags;
-	
+
 	/* init bg */
 	cdata->bg=libaroma_canvas(libaroma_wm()->w,libaroma_wm()->h);
 	LIBAROMA_CANVASP wmcv=libaroma_wm_canvas(0,0,libaroma_wm()->w,libaroma_wm()->h);
@@ -127,7 +130,7 @@ LIBAROMA_WINDOWP libaroma_dialog_window(
 		// libaroma_draw_rect(cdata->bg,0,0,libaroma_wm()->w,libaroma_wm()->h,0,0x70);
 	}
 	libaroma_canvas_free(wmcv);
-	
+
 	/* create window */
 	LIBAROMA_WINDOWP win = libaroma_window(NULL,0,0,libaroma_wm()->w,libaroma_wm()->h);
 	win->colorset = colorset;
@@ -173,7 +176,7 @@ int libaroma_dialog_confirm(
 			0, 6,
 			LIBAROMA_TEXT_LEFT|
 			LIBAROMA_TEXT_FIXED_INDENT|
-			LIBAROMA_TEXT_NOHR, 
+			LIBAROMA_TEXT_NOHR,
 			100
 		);
 	}
@@ -184,20 +187,20 @@ int libaroma_dialog_confirm(
 			0, 4,
 			LIBAROMA_TEXT_LEFT|
 			LIBAROMA_TEXT_FIXED_INDENT|
-			LIBAROMA_TEXT_NOHR, 
+			LIBAROMA_TEXT_NOHR,
 			120
 		);
 	}
 	int dialog_h = libaroma_dp(120)+title_h+msg_h;
-	
+
 	LIBAROMA_WINDOWP win=libaroma_dialog_window(
-		dialog_w, dialog_h, 
+		dialog_w, dialog_h,
 		flags,
 		colorset
 	);
-	
+
 	LIBAROMA_DIALOG_DATAP cdata = libaroma_dialog_data(win);
-	
+
 	word title_color = libaroma_colorget(NULL, win)->dialog_primary_text;
 	word msg_color = libaroma_colorget(NULL, win)->dialog_secondary_text;
 	word btncolor = libaroma_colorget(NULL, win)->dialog_primary_text;
@@ -206,7 +209,7 @@ int libaroma_dialog_confirm(
 		btncolor = libaroma_colorget(NULL, win)->accent;
 		button_style=LIBAROMA_CTL_BUTTON_COLORED;
 	}
-	
+
 	if (title){
 		libaroma_ctl_label_valign(win,10,title,
 			libaroma_px(cdata->x)+24,
@@ -215,7 +218,7 @@ int libaroma_dialog_confirm(
 			title_color,0,6,
 			LIBAROMA_TEXT_LEFT|
 			LIBAROMA_TEXT_FIXED_INDENT|
-			LIBAROMA_TEXT_NOHR, 
+			LIBAROMA_TEXT_NOHR,
 			100,10
 		);
 	}
@@ -231,32 +234,32 @@ int libaroma_dialog_confirm(
 			120,10
 		);
 	}
-	
+
 	int button_y = libaroma_px(cdata->y+cdata->h)-52;
-	
+
 	if (button1){
 		int button1_w = libaroma_ctl_button_width(button1);
 		int button1_x = libaroma_px(cdata->x+cdata->w-button1_w)-16;
 		libaroma_ctl_button(
 			win,
 			1,
-			button1_x, 
-			button_y, 
+			button1_x,
+			button_y,
 			libaroma_px(button1_w), 36,
 			button1,
 			button_style,
 			btncolor
 		);
-		
+
 		if (button2){
 			int button2_w = libaroma_ctl_button_width(button2);
 			int button2_x = button1_x-libaroma_px(button2_w);
-			
+
 			libaroma_ctl_button(
 				win,
 				2,
-				button2_x, 
-				button_y, 
+				button2_x,
+				button_y,
 				libaroma_px(button2_w), 36,
 				button2,
 				button_style,
@@ -264,18 +267,18 @@ int libaroma_dialog_confirm(
 			);
 		}
 	}
-	
-	
+
+
 	// libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
 	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
-	
+
 	byte onpool=1;
 	LIBAROMA_MSG msg;
 	dword command;
 	byte cmd;
 	word id;
 	int retval=-1;
-	
+
 	do{
 		command=libaroma_window_pool(win,&msg);
 		cmd = LIBAROMA_CMD(command);
@@ -313,7 +316,7 @@ int libaroma_dialog_confirm(
 		}
 	}
 	while(onpool);
-	
+
 	libaroma_dialog_free(win);
 	return retval;
 }
@@ -351,13 +354,13 @@ byte _libaroma_dialog_list_simple_option_cb(
 int libaroma_dialog_list(
 	const char * title,
 	const char * button1,
-	const char * button2, 
-	LIBAROMA_LISTITEM_TEMPLATE templates[], 
-	size_t items_num, 
+	const char * button2,
+	LIBAROMA_LISTITEM_TEMPLATE templates[],
+	size_t items_num,
 	byte returnOnSelect,
 	LIBAROMA_COLORSETP colorset,
 	byte flags){
-	
+
 	int dialog_w = libaroma_wm()->w-libaroma_dp(58);
 	int text_w = dialog_w-libaroma_dp(48);
 	int title_h = 0;
@@ -367,21 +370,21 @@ int libaroma_dialog_list(
 			0, 6,
 			LIBAROMA_TEXT_LEFT|
 			LIBAROMA_TEXT_FIXED_INDENT|
-			LIBAROMA_TEXT_NOHR, 
+			LIBAROMA_TEXT_NOHR,
 			100
 		);
 	}
 	int msg_h = 10;
 	int dialog_h = libaroma_dp(100)+title_h+msg_h;
-	
+
 	LIBAROMA_WINDOWP win=libaroma_dialog_window(
-		dialog_w, dialog_h, 
+		dialog_w, dialog_h,
 		flags,
 		colorset
 	);
-	
+
 	LIBAROMA_DIALOG_DATAP cdata = libaroma_dialog_data(win);
-	
+
 	word title_color = libaroma_colorget(NULL, win)->dialog_primary_text;
 	// word msg_color = libaroma_colorget(NULL, win)->dialog_secondary_text;
 	word btncolor = libaroma_colorget(NULL, win)->dialog_primary_text;
@@ -390,7 +393,7 @@ int libaroma_dialog_list(
 		btncolor = libaroma_colorget(NULL, win)->accent;
 		button_style=LIBAROMA_CTL_BUTTON_COLORED;
 	}
-	
+
 	LIBAROMA_CONTROLP listc=libaroma_ctl_list(
 		win, 1,
 		libaroma_px(cdata->x),
@@ -401,9 +404,9 @@ int libaroma_dialog_list(
 		libaroma_colorget(NULL,win)->control_bg,
 		LIBAROMA_CTL_SCROLL_WITH_VBORDER
 	);
-	
+
 	LIBAROMA_CTL_LIST_ITEMP selitem=NULL;
-	
+
 	size_t i;
 	int last_id = 1;
 	for (i=0; i < items_num; i++){
@@ -416,40 +419,40 @@ int libaroma_dialog_list(
 						listc, templates[i].id, templates[i].selected,
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, 
-						templates[i].flags,	-1);				
+						templates[i].image,
+						templates[i].flags,	-1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_OPTION:
 				 itm=libaroma_listitem_option(
 						listc, templates[i].id, templates[i].selected,
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, 
-						templates[i].flags,	-1);				
+						templates[i].image,
+						templates[i].flags,	-1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_MENU:
 				itm=libaroma_listitem_menu(
-						listc, templates[i].id, 
+						listc, templates[i].id,
 						templates[i].title,
 						templates[i].message,
-						templates[i].image, 
+						templates[i].image,
 						templates[i].flags,	-1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_CAPTION:
 				itm=libaroma_listitem_caption(
-						listc, templates[i].id, 
+						listc, templates[i].id,
 						templates[i].title, -1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_DIVIDER:
 				itm=libaroma_listitem_divider(
-						listc, templates[i].id, 
+						listc, templates[i].id,
 						templates[i].flags, -1);
 				break;
 			case LIBAROMA_LIST_ITEM_KIND_IMAGE:
 				itm=libaroma_listitem_image(
-						listc, templates[i].id, 
-						templates[i].image, 
-						templates[i].imageheight, 
+						listc, templates[i].id,
+						templates[i].image,
+						templates[i].imageheight,
 						templates[i].flags, -1);
 				break;
 		}
@@ -477,7 +480,7 @@ int libaroma_dialog_list(
 	if (msg_h>libaroma_wm()->h-(libaroma_dp(160)+title_h)){
 		msg_h=libaroma_wm()->h-(libaroma_dp(160)+title_h);
 	}
-	
+
 	dialog_h = libaroma_dp(100)+title_h+msg_h;
 	cdata->h = dialog_h;
 	cdata->y = (libaroma_wm()->h>>1) - (cdata->h>>1);
@@ -488,7 +491,7 @@ int libaroma_dialog_list(
 		libaroma_px(cdata->w),
 		libaroma_px(msg_h+5)
 	);
-	
+
 	if (title){
 		libaroma_ctl_label_valign(win,10,title,
 			libaroma_px(cdata->x)+24,
@@ -497,12 +500,12 @@ int libaroma_dialog_list(
 			title_color,0,6,
 			LIBAROMA_TEXT_LEFT|
 			LIBAROMA_TEXT_FIXED_INDENT|
-			LIBAROMA_TEXT_NOHR, 
+			LIBAROMA_TEXT_NOHR,
 			100,10
 		);
 	}
 	int button_y = libaroma_px(cdata->y+cdata->h)-52;
-	
+
 	if (button1){
 		int button1_w = libaroma_ctl_button_width(button1);
 		int button1_x = libaroma_px(cdata->x+cdata->w-button1_w)-16;
@@ -510,15 +513,15 @@ int libaroma_dialog_list(
 		/*LIBAROMA_CONTROLP button1_ctl = */libaroma_ctl_button(
 			win,
 			last_id, //last used ID + 1
-			button1_x, 
-			button_y, 
+			button1_x,
+			button_y,
 			libaroma_px(button1_w), 36,
 			button1,
 			button_style,
 			btncolor
 		);
 		//printf("Created button1 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button1_ctl->id);
-		
+
 		if (button2){
 			int button2_w = libaroma_ctl_button_width(button2);
 			int button2_x = button1_x-libaroma_px(button2_w);
@@ -526,8 +529,8 @@ int libaroma_dialog_list(
 			/*LIBAROMA_CONTROLP button2_ctl = */libaroma_ctl_button(
 				win,
 				last_id,
-				button2_x, 
-				button_y, 
+				button2_x,
+				button_y,
 				libaroma_px(button2_w), 36,
 				button2,
 				button_style,
@@ -536,11 +539,11 @@ int libaroma_dialog_list(
 		//printf("Created button2 with theoretical ID %d and real ID %d (both should be the same)\n", last_id, button2_ctl->id);
 		}
 	}
-	
-	
+
+
 	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE, 400);
 	//libaroma_window_anishow(win,0,0);
-	
+
 	if (selitem){
 		libaroma_ctl_list_scroll_to_item(
 			listc,
@@ -548,14 +551,14 @@ int libaroma_dialog_list(
 			0
 		);
 	}
-	
+
 	byte onpool=1;
 	LIBAROMA_MSG msg;
 	dword command;
 	byte cmd;
 	word id;
 	int retval=-1;
-	
+
 	do{
 		command=libaroma_window_pool(win,&msg);
 		cmd = LIBAROMA_CMD(command);
@@ -591,12 +594,12 @@ int libaroma_dialog_list(
 				else {
 					retval=id;
 				}
-				onpool=0;				
+				onpool=0;
 			}
-			else { 
+			else {
 				retval = msg.key;
 				printf("Dialog returning value: %d\n", retval);
-				if (returnOnSelect) { onpool = 0; }; 
+				if (returnOnSelect) { onpool = 0; };
 			}
 		}
 		else if (msg.msg==LIBAROMA_MSG_TOUCH){
@@ -613,15 +616,18 @@ int libaroma_dialog_list(
 			/*printf("Dialog Command = (CMD: %i, ID: %i, Msg.Key: %i), i: %d\n",
 				LIBAROMA_CMD(command),
 				LIBAROMA_CMD_ID(command),
-				msg.key, 
+				msg.key,
 				  i);*/
 	}
 	while(onpool);
-	
+
 	libaroma_dialog_free(win);
 	return retval;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_dialog_c__ */
 
 

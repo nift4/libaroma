@@ -26,7 +26,9 @@
 #endif
 #ifndef __libaroma_debug_h__
 #define __libaroma_debug_h__
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* Memory Tracking */
 #ifdef LIBAROMA_CONFIG_DEBUG_MEMORY
 #if LIBAROMA_CONFIG_DEBUG_MEMORY >=1
@@ -180,5 +182,7 @@ char * libaroma_debug_tag();
 #define ALOGRT(...)
 #define ALOGRT_IF(x, ...)
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_debug_h__ */

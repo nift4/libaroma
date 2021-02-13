@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* check wm macro */
 #define __CHECK_WM(RETVAL) \
@@ -169,7 +172,7 @@ byte libaroma_window_measure_size(LIBAROMA_WINDOWP win){
 		}
 		win->ax=win->x;
 		win->ay=win->y;
-		
+
 		win->x=libaroma_window_measure_calculate(
 			win->x, win->rx, libaroma_wm()->w, 0, 0
 		);
@@ -182,7 +185,7 @@ byte libaroma_window_measure_size(LIBAROMA_WINDOWP win){
 		win->h=libaroma_window_measure_calculate(
 			win->h, win->rh, libaroma_wm()->h, 1, win->y
 		);
-		
+
 		if (win->w+win->x>libaroma_wm()->w){
 			win->w = libaroma_wm()->w-win->x;
 		}
@@ -247,7 +250,7 @@ LIBAROMA_WINDOWP libaroma_window(
 		ALOGW("libaroma_window alloc window data failed");
 		return NULL;
 	}
-	
+
 	if (bg_theme_name){
 		snprintf(win->theme_bg,256,"%s",bg_theme_name);
 	}
@@ -277,25 +280,25 @@ byte libaroma_window_free(
 	if (win==NULL){
 		return 0;
 	}
-	
+
 	/* inactivate it */
 	if (win->parent==NULL){
 		if (libaroma_wm_get_active_window()==win){
 			/* detach active window from window manager */
 			libaroma_wm_set_active_window(NULL);
 		}
-		
+
 		LIBAROMA_MSG _msg;
 		libaroma_window_process_event(win,
 			libaroma_wm_compose(&_msg, LIBAROMA_MSG_WIN_INACTIVE, NULL, 0, 0));
 	}
-	
+
 	if (win->handler!=NULL){
 		if (win->handler->prefree!=NULL){
 			win->handler->prefree(win);
 		}
 	}
-	
+
 	/* delete childs */
 	int i;
 	if (win->childn>0){
@@ -315,7 +318,7 @@ byte libaroma_window_free(
 		libaroma_canvas_free(win->dc);
 		win->dc=NULL;
 	}
-	
+
 
 	if (win->handler!=NULL){
 		if (win->handler->postfree!=NULL){
@@ -352,7 +355,7 @@ byte _libaroma_window_updatebg(LIBAROMA_WINDOWP win){
 	}
 	int w = win->w;
 	int h = win->h;
-	
+
 	/* draw background */
 	if (win->bg!=NULL){
 		if ((win->bg->w==w)&&(win->bg->h==h)){
@@ -362,14 +365,14 @@ byte _libaroma_window_updatebg(LIBAROMA_WINDOWP win){
 		libaroma_canvas_free(win->bg);
 	}
 	win->bg = libaroma_canvas(w,h);
-	
+
 	/* default canvas color */
 	libaroma_canvas_setcolor(
 		win->bg,
 		libaroma_colorget(NULL,win)->window_bg,
 		0xff
 	);
-	
+
 	/* from theme canvas */
 	if (win->theme_bg[0]!=0){
 		libaroma_wm_draw_theme(
@@ -378,7 +381,7 @@ byte _libaroma_window_updatebg(LIBAROMA_WINDOWP win){
 			NULL
 		);
 	}
-	
+
 	/* from updatebg callback */
 	if (win->onupdatebg!=NULL){
 		win->onupdatebg(win,win->bg);
@@ -622,7 +625,7 @@ byte libaroma_window_measure(LIBAROMA_WINDOWP win, LIBAROMA_CONTROLP ctl){
 			ctl->w = ctl->rw;
 			ctl->h = ctl->rh;
 		}
-		
+
 		ctl->x=libaroma_window_measure_calculate(
 			ctl->x, ctl->rx, win->w, 0, 0
 		);
@@ -635,7 +638,7 @@ byte libaroma_window_measure(LIBAROMA_WINDOWP win, LIBAROMA_CONTROLP ctl){
 		ctl->h=libaroma_window_measure_calculate(
 			ctl->h,ctl->rh, win->h, 1, ctl->y
 		);
-		
+
 		if (ctl->w+ctl->x>win->w){
 			ctl->w = win->w-ctl->x;
 		}
@@ -775,7 +778,7 @@ byte libaroma_window_sync(LIBAROMA_WINDOWP win, int x, int y, int w, int h){
 			ALOGW("window_invalidate dc is null");
 			return 0;
 		}
-		
+
 		/* sync workspace */
 		libaroma_wm_sync(win->x+x,win->y+y,w,h);
 	}
@@ -801,7 +804,7 @@ byte libaroma_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 	if (win->parent!=NULL){
 		return 0;
 	}
-	
+
 	if (!libaroma_window_isactive(win)){
 		ALOGW("window_invalidate win is not active window");
 		return 0;
@@ -810,14 +813,14 @@ byte libaroma_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 		ALOGW("window_invalidate dc is null");
 		return 0;
 	}
-	
+
 	if ((!win->lock_sync)||(sync==10)){
 		/* draw bg */
 		libaroma_draw(
 			win->dc,
 			win->bg,
 			0, 0, 1);
-		
+
 		/* draw childs */
 		int i;
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -827,7 +830,7 @@ byte libaroma_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 			/* draw no sync */
 			libaroma_control_draw(win->childs[i], 0);
 		}
-	
+
 		/* sync */
 		if (sync){
 			libaroma_window_sync(win, 0, 0, win->w, win->h);
@@ -853,34 +856,34 @@ byte libaroma_window_anishow(
 		ALOGW("Child window cannot shown directly...");
 		return 0;
 	}
-	
+
 	/* set initial focus
 		libaroma_window_setfocus(win, NULL);
 	*/
-	
+
 	if ((!animation)||(duration<50)){
 		return libaroma_wm_set_active_window(win);
 	}
-	
+
 	/* lock and retval */
 	byte retval = 0;
 	win->lock_sync = 1;
-	
+
 	if (libaroma_wm_set_active_window(win)){
 		win->active=2;
-		
+
 		/* draw window into temp canvas */
 		LIBAROMA_CANVASP wmc = win->dc;
 		LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h);
 		libaroma_draw(tdc,wmc,0,0,0);
 		win->dc=tdc; /* switch dc */
-		
+
 		LIBAROMA_CANVASP back = libaroma_canvas(wmc->w, wmc->h);
 		libaroma_draw(back,wmc,0,0,0);
-		
+
 		/* invalidate now */
 		libaroma_window_invalidate(win, 10);
-		
+
 		long start = libaroma_tick();
 		int delta = 0;
 		while ((delta=libaroma_tick()-start)<duration){
@@ -907,7 +910,7 @@ byte libaroma_window_anishow(
 						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
 						int y = win->h - (swift_out_state * win->h);
 						int h = win->h - y;
-						
+
 						if (h>0){
 							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_TOP){
 								if (h<win->h){
@@ -1031,25 +1034,25 @@ byte libaroma_window_anishow(
 					break;
 			}
 		}
-		
+
 		retval = 1;
 		libaroma_draw(wmc,win->dc,0,0,0);
-							
+
 		win->dc=wmc; /* switch dc back */
-	
+
 		/* cleanup */
 		libaroma_canvas_free(back);
 		libaroma_canvas_free(tdc);
 	}
-	
+
 	win->lock_sync = 0;
-	
+
 	/* sync view now */
 	if (retval){
 		win->active=1;
 		// libaroma_window_sync(win, 0, 0, win->w, win->h);
 		libaroma_wm_sync(win->x,win->y,win->w,win->h);
-		
+
 		/* send activate */
 		LIBAROMA_MSG _msg;
 		libaroma_window_process_event(win,libaroma_wm_compose(
@@ -1065,18 +1068,18 @@ byte libaroma_window_anishow(
  * Descriptions: close window - animated
  */
 byte libaroma_window_aniclose(
-		LIBAROMA_WINDOWP win, 
-		LIBAROMA_WINDOWP parent, 
-		byte animation, 
+		LIBAROMA_WINDOWP win,
+		LIBAROMA_WINDOWP parent,
+		byte animation,
 		int duration){
-	
+
 	LIBAROMA_CANVASP wmc = win->dc;
 	LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h); //temp canvas holding window image
 	libaroma_draw(tdc,wmc,0,0,0);
 	libaroma_window_invalidate(win, 10);
 	long start = libaroma_tick();
 	int delta = 0;
-		while ((delta=libaroma_tick()-start)<duration){			
+		while ((delta=libaroma_tick()-start)<duration){
 			float state = ((float) delta)/((float) duration);
 			if (state>=1.0){
 				break;
@@ -1089,8 +1092,8 @@ byte libaroma_window_aniclose(
 							//printf("Y: %d\n", y);
 							libaroma_draw(wmc, win->prev_screen, -(libaroma_wm()->x), -(libaroma_wm()->y), 0);
 							libaroma_draw_ex(
-								wmc, 
-								tdc, 
+								wmc,
+								tdc,
 								0, 0, 0, win->h-y, win->w, y,
 								0, 0xff);
 							libaroma_wm_sync(win->x,win->y,win->w,y);
@@ -1099,14 +1102,14 @@ byte libaroma_window_aniclose(
 					break;
 			}
 		}
-	
+
 	libaroma_draw(wmc,win->dc,0,0,0);
 	libaroma_canvas_free(tdc);
-	
+
 	libaroma_wm_sync(win->x,win->y,win->w,win->h);
-	
+
 	libaroma_window_free(win);
-	
+
 	if (parent){
 		libaroma_wm_set_active_window(parent);
 	}
@@ -1183,7 +1186,7 @@ byte _libaroma_window_is_inside(LIBAROMA_CONTROLP ctl, int x, int y) {
  * Descriptions: post direct command
  */
 byte libaroma_window_post_command(dword cmd){
-	return 
+	return
 		libaroma_msg_post(
 			LIBAROMA_MSG_WIN_DIRECTMSG,
 			0,
@@ -1201,7 +1204,7 @@ byte libaroma_window_post_command(dword cmd){
  */
 byte libaroma_window_post_command_ex(dword cmd,
 	byte state, int key, int y, voidp d){
-	return 
+	return
 		libaroma_msg_post(
 			LIBAROMA_MSG_WIN_DIRECTMSG,
 			state,
@@ -1274,7 +1277,7 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 				if (win->active){
 					/* stop thread manager */
 					win->active=0;
-					
+
 					/* send inactive message to child */
 					int i;
 					for (i=0;i<win->childn;i++){
@@ -1325,7 +1328,7 @@ dword libaroma_window_process_event(LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg){
 						if (win->touched->handler->message){
 							ret=win->touched->handler->message(win->touched, msg);
 						}
-					} 
+					}
 				}
 				else if (win->touched!=NULL){
 					if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
@@ -1373,6 +1376,9 @@ dword libaroma_window_pool(
 
 #undef __CHECK_WM
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_window_c__ */
 

@@ -21,6 +21,9 @@
  * + 21/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_draw_c__
 #define __libaroma_text_draw_c__
 
@@ -46,7 +49,7 @@ dword libaroma_text_draw_span(
 		(span_shaped->flags & _LIBAROMA_TEXTCHUNK_UNDERLINE) ||
 		(span_shaped->flags & _LIBAROMA_TEXTCHUNK_STRIKEOUT)
 	)?1:0;
-	
+
 	for (j = 0; j < span_shaped->coln; j++) {
 		LIBAROMA_GLYPH glyph = libaroma_font_glyph(
 			span_shaped->cols[j].id,
@@ -143,7 +146,7 @@ void libaroma_text_draw_bullet(
 				);
 			}
 			break;
-			
+
 		case 2: {
 				/* diamond <> */
 				short i = 0;
@@ -158,7 +161,7 @@ void libaroma_text_draw_bullet(
 						color,
 						0xff
 					);
-					
+
 					if (i < mid - 1) {
 						libaroma_draw_rect(
 							canvas,
@@ -173,7 +176,7 @@ void libaroma_text_draw_bullet(
 				}
 			}
 			break;
-			
+
 		case 3: {
 				/* arrow > */
 				short i = 0;
@@ -202,7 +205,7 @@ void libaroma_text_draw_bullet(
 				}
 			}
 			break;
-			
+
 		case 4: {
 				/* arrow #> */
 				mid = (mid << 2) / 3;
@@ -233,7 +236,7 @@ void libaroma_text_draw_bullet(
 				}
 			}
 			break;
-			
+
 		default: {
 				/* Disc */
 				libaroma_gradient(
@@ -269,7 +272,7 @@ void libaroma_textline_draw(
 	_LIBAROMA_TEXTSPANP span = line->span;
 	dword prev_res_span = 0;
 	int ypos = ((line->lineheight - line->h) >> 1) + line->h;
-	
+
 	while (span) {
 		switch (span->type) {
 			case _LIBAROMA_TEXTSPAN_SHAPE: {
@@ -329,7 +332,7 @@ void libaroma_textline_draw(
 					}
 					else {
 						/*
-						img_y = 
+						img_y =
 							(draw_y + line->y + (line->lineheight>>1)) - (imgspan->h>>1);
 						*/
 						img_y = imgspan->y + draw_y + line->lineheight - imgspan->h;
@@ -356,3 +359,7 @@ void libaroma_textline_draw(
 
 
 #endif /* __libaroma_text_draw_c__ */
+
+#ifdef __cplusplus
+}
+#endif

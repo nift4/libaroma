@@ -24,11 +24,14 @@
 #ifndef __libaroma_linux_hid_keyboard_driver_c__
 #define __libaroma_linux_hid_keyboard_driver_c__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * UNIVERSAL DEVICE - TRANSLATOR FOR KEY DEVICE
  *   Prefix : LINUXHIDRV_
  */
- 
+
 /*
  * function : translate raw keyboard data
  */
@@ -36,7 +39,7 @@ byte LINUXHIDRV_translate_keyboard(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
                              LIBAROMA_HID_EVENTP dest_ev, struct input_event * ev) {
   /* dump raw events */
   ALOGRT("RAW KEY: T=%i, C=%i, V=%i", ev->type, ev->code, ev->value);
-  
+
   if (ev->type == EV_KEY) {
     /* fill destination event */
     dest_ev->type = LIBAROMA_HID_EV_TYPE_KEY;
@@ -53,7 +56,7 @@ byte LINUXHIDRV_translate_keyboard(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
         dest_ev->state = LIBAROMA_HID_EV_STATE_DOWN;
         break;
     }
-    
+
     /* translate key code to aroma-core return code */
     switch (ev->code) {
       /* select key */
@@ -68,27 +71,27 @@ byte LINUXHIDRV_translate_keyboard(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
       case 0xE8:
         return LIBAROMA_HID_EV_RET_SELECT;
         break;
-        
+
       /* menu key */
       case KEY_SEARCH:
       case KEY_MENU:
       case 0xE5:
         return LIBAROMA_HID_EV_RET_MENU;
         break;
-        
+
       /* back key */
       case KEY_BACKSPACE:
       case KEY_BACK:
         return LIBAROMA_HID_EV_RET_BACK;
         break;
-        
+
       /* up key */
       case KEY_UP:
       case KEY_LEFTSHIFT:
       case KEY_LEFT:
         return LIBAROMA_HID_EV_RET_UP;
         break;
-        
+
       /* down key */
       case KEY_DOWN:
       case KEY_CAPSLOCK:
@@ -105,12 +108,15 @@ byte LINUXHIDRV_translate_keyboard(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
         return LIBAROMA_HID_EV_RET_VOLUP;
         break;
     }
-    
+
     /* process as raw key code */
     return LIBAROMA_HID_EV_RET_RAWKEY;
   }
-  
+
   /* don't process it */
   return LIBAROMA_HID_EV_RET_NONE;
 }
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_hid_keyboard_driver_c__ */

@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* HANDLER */
 dword _libaroma_ctl_progress_msg(LIBAROMA_CONTROLP, LIBAROMA_MSGP);
 void _libaroma_ctl_progress_draw (LIBAROMA_CONTROLP, LIBAROMA_CANVASP);
@@ -87,7 +90,7 @@ byte _libaroma_ctl_progress_thread(LIBAROMA_CONTROLP ctl) {
 				me->growtime -= 600;
 				me->currx = me->currx?0:1;
 			}
-			
+
 			float distance = (float)
 				cos((me->growtime/600.0+1)*__PI)/2.0+0.5;
 			if (me->currx) {
@@ -170,7 +173,7 @@ void _libaroma_ctl_progress_destroy(
 		LIBAROMA_CONTROLP ctl){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP,
 	);
 	free(me);
 } /* End of _libaroma_ctl_progress_destroy */
@@ -185,11 +188,11 @@ void _libaroma_ctl_progress_draw(
 		LIBAROMA_CANVASP c){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP,
 	);
-	
+
 	libaroma_control_erasebg(ctl,c);
-	
+
 	if (me->type&LIBAROMA_CTL_PROGRESS_CIRCULAR){
 		int sz = MIN(c->w>>1,c->h>>1);
 		float width = ((float) sz) / 6.0;
@@ -228,7 +231,7 @@ void _libaroma_ctl_progress_draw(
 			libaroma_colorget(ctl,NULL)->control_bg,
 			0xcc
 		);
-		
+
 		if ((me->type&3)==LIBAROMA_CTL_PROGRESS_DETERMINATE){
 			int val_w = (iw * me->curval) / me->max;
 			libaroma_draw_rect(c,
@@ -242,7 +245,7 @@ void _libaroma_ctl_progress_draw(
 			float easein	= libaroma_cubic_bezier_easein(me->state);
 			float easeout = libaroma_cubic_bezier_easeout(me->state);
 			int left, right;
-			
+
 			if ((me->type&3)==LIBAROMA_CTL_PROGRESS_INDETERMINATE){
 				left = dw * easeout;
 				right = dw * easein;
@@ -251,7 +254,7 @@ void _libaroma_ctl_progress_draw(
 				right = dw * (1.0-easeout);
 				left = dw * (1.0-easein);
 			}
-			
+
 			int l1=left;
 			int r1=right;
 			int l2=0;
@@ -292,7 +295,7 @@ void _libaroma_ctl_progress_draw(
 					);
 				}
 			}
-			
+
 			/* update position */
 			me->curval = ((hr1?r1-l1:r2-l2)*me->max)/iw;
 			me->currx = (hr1?l1:l2);
@@ -312,9 +315,9 @@ dword _libaroma_ctl_progress_msg(
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
 	);
-	
+
 	switch(msg->msg){
-		case LIBAROMA_MSG_WIN_ACTIVE: 
+		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
 		case LIBAROMA_MSG_WIN_RESIZE:
 			{
@@ -345,7 +348,7 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 		ALOGW("libaroma_ctl_progress alloc progress memory failed");
 		return NULL;
 	}
-	
+
 	/* set internal data */
 	me->type = type;
 	me->max	= max;
@@ -353,7 +356,7 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 	me->preval=value;
 	me->curval=value;
 	me->state= 1;
-	
+
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
 		libaroma_control_new(
@@ -364,7 +367,7 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 			&_libaroma_ctl_progress_handler,
 			win
 		);
-	
+
 	if (!ctl){
 		free(me);
 	}
@@ -431,4 +434,7 @@ byte libaroma_ctl_progress_max(
 	return 1;
 } /* End of libaroma_ctl_progress_max */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_ctl_progress_c__ */

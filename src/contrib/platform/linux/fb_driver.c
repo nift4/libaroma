@@ -30,6 +30,13 @@
 #include "fb_colorspace/fb_32bit.c" /* 32 bit */
 #include "fb_qcom/fb_qcom.c" /* qcom overlay */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* integrating DRM support */
+#include "aroma_minui.h"
+
 /*
  * Function		: LINUXFBDR_start_post
  * Return Value: byte
@@ -76,7 +83,7 @@ byte LINUXFBDR_config(
 		mi->pointered=1;
 		mi->pointer_x=LOWORD(dval);
 		mi->pointer_y=HIWORD(dval);
-		
+
 		struct fb_cursor cur;
 		cur.enable=1;
 		cur.hot.x=mi->pointer_x;
@@ -87,6 +94,155 @@ byte LINUXFBDR_config(
 	return 0;
 }
 
+
+
+/*
+ * Function		: LINUXDRM_start_post
+ * Return Value: byte
+ * Descriptions: start post
+ */
+byte LINUXDRM_start_post(LIBAROMA_FBP me){
+	return 1;
+}
+
+/*
+ * Function		: LINUXDRM_end_post
+ * Return Value: byte
+ * Descriptions: end post
+ */
+byte LINUXDRM_end_post(LIBAROMA_FBP me){
+	return 1;
+}
+
+/*
+ * Function		: LINUXDRM_post
+ * Return Value: byte
+ * Descriptions: post data
+ */
+byte LINUXDRM_post(
+	LIBAROMA_FBP me, wordp __restrict src,
+	int dx, int dy, int dw, int dh,
+	int sx, int sy, int sw, int sh
+	){
+	if (me == NULL) {
+		return 0;
+	}
+	//void *aroma_surface_data = me->internal;
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
+	int sstride = (sw - dw) * 2;
+	int dstride = mi->stride;
+	dwordp copy_dst =
+		(dwordp) (((bytep) mi->buffer)+(me->w * dy)+(dx * mi->pixsz));
+	wordp copy_src =
+		(wordp) (src + (sw * sy) + sx);
+	if (mi->is32){
+		libaroma_blt_align_to32_pos(
+			copy_dst,
+			copy_src,
+			dw, dh,
+			dstride,
+			sstride,
+			mi->rgb_pos
+		);
+	}
+	else { //using 16bpp
+		libaroma_blt_align16(
+			copy_dst,
+			copy_src,
+			dw, dh,
+			dstride,
+			sstride
+		);
+	}
+	/*ALOGI("Trying to draw to screen! Parameters: \n"
+			"sstride: %d\ndstride: %d (zero is fine)",
+			sstride, dstride);*/
+	aroma_minui_flip();
+	//aroma_minui_fill_red();
+	return 1;
+}
+
+/*
+ * Function		: LINUXDRM_release
+ * Return Value: byte
+ * Descriptions: end post
+ */
+byte LINUXDRM_release(LIBAROMA_FBP me){
+	aroma_minui_exit();
+	return 0;
+}
+
+/*
+ * Function		: LINUXDRM_setrgbpos
+ * Return Value: void
+ * Descriptions: set rgbx position
+ */
+void LINUXDRM_setrgbpos(LIBAROMA_FBP me, byte r, byte g, byte b) {
+	if (me == NULL) {
+		return;
+	}
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
+	/* save color position */
+	mi->rgb_pos[0] = r;
+	mi->rgb_pos[1] = g;
+	mi->rgb_pos[2] = b;
+	mi->rgb_pos[3] = r >> 3;
+	mi->rgb_pos[4] = g >> 3;
+	mi->rgb_pos[5] = b >> 3;
+}
+
+/*
+ * Function		: LINUXDRM_init
+ * Return Value: byte
+ * Descriptions: init framebuffer
+ */
+byte LINUXDRM_init(LIBAROMA_FBP me){
+	if (aroma_minui_init()==1){
+		ALOGE("Cannot start DRM subsystem!!! Exiting...")
+		return 0;
+	}
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) calloc(sizeof(LINUXDRM_INTERNAL), 1);
+	if (mi==NULL) {
+		ALOGE("cannot allocate internal data");
+		return 0;
+	}
+	ALOGI("Trying to get data...");
+	mi->buffer=aroma_minui_get_data();
+	ALOGI("Got data!");
+	mi->row_bytes=aroma_minui_row_bytes();
+	ALOGI("Got row bytes!");
+	mi->pixsz=aroma_minui_pixel_bytes();
+	ALOGI("Got pixel bytes!");
+	mi->bpp=mi->pixsz*8;
+	mi->is32=(mi->bpp==32)?1:0;
+	ALOGI("Got bpp!");
+	mi->stride=mi->row_bytes/mi->bpp;
+	ALOGI("Got stride!");
+	me->internal=(voidp) mi;
+	LINUXDRM_setrgbpos(me, 0, 8, 16); // 8, 8, 8 causes green instead of white at lmi
+	me->w=aroma_minui_get_fb_width();
+	ALOGI("Got width!");
+	me->h=aroma_minui_get_fb_height();
+	ALOGI("Got height!");
+	me->sz = me->w * me->h;
+	ALOGI("DRM Framebuffer info that we obtained:");
+	ALOGI("width: %d", me->w);
+	ALOGI("height: %d", me->h);
+	ALOGI("32 bpp: %s", (mi->is32==1)?"true":"false");
+	ALOGI("row_bytes: %d", mi->row_bytes);
+	ALOGI("pixel_bytes: %d", mi->pixsz);
+	ALOGI("bpp: %d", mi->bpp);
+	ALOGI("stride: %d", mi->stride);
+
+	me->start_post	= &LINUXDRM_start_post;
+	me->end_post	= &LINUXDRM_end_post;
+	me->post		= &LINUXDRM_post;
+	me->release		= &LINUXDRM_release;
+	me->snapshoot	= NULL;
+	ALOGI("Function callbacks set");
+	return 1;
+}
+
 /*
  * Function		: LINUXFBDR_init
  * Return Value: byte
@@ -94,7 +250,7 @@ byte LINUXFBDR_config(
  */
 byte LINUXFBDR_init(LIBAROMA_FBP me) {
 	ALOGV("LINUXFBDR initialized internal data");
-	
+
 	/* allocating internal data */
 	LINUXFBDR_INTERNALP mi = (LINUXFBDR_INTERNALP)
 											calloc(sizeof(LINUXFBDR_INTERNAL),1);
@@ -102,13 +258,13 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 		ALOGE("LINUXFBDR calloc internal data - memory error");
 		return 0;
 	}
-	
+
 	/* set internal address */
 	me->internal = (voidp) mi;
-	
+
 	/* set release callback */
 	me->release = &LINUXFBDR_release;
-	
+
 	/* init mutex & cond */
 	libaroma_mutex_init(mi->mutex);
 
@@ -123,19 +279,19 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 		ALOGE("LINUXFBDR no framebuffer device");
 		goto error; /* exit if error */
 	}
-	
+
 	/* get framebuffer var & fix data */
 	ioctl(mi->fb, FBIOGET_FSCREENINFO, &mi->fix); /* fix info */
 	ioctl(mi->fb, FBIOGET_VSCREENINFO, &mi->var); /* var info */
-	
+
 	/* dump info */
 	LINUXFBDR_dump(mi);
-	
+
 	/* set libaroma framebuffer instance values */
 	me->w				= mi->var.xres;	/* width */
 	me->h				= mi->var.yres;	/* height */
 	me->sz			 = me->w*me->h;	 /* width x height */
-	
+
 	if (QCOMFB_init(me)){
 		/* qcom fb */
 		me->start_post	= &QCOMFB_start_post;
@@ -147,23 +303,23 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 	else{
 		/* it's not qcom */
 		ALOGI("not using qcom framebuffer driver");
-		
+
 		if ((mi->var.bits_per_pixel != 32) && (mi->var.bits_per_pixel != 16)) {
 			/* non 32/16bit colorspace is not supported */
 			ALOGE("LINUXFBDR bits_per_pixel=%i not supported",
 				mi->var.bits_per_pixel);
 			goto error;
 		}
-		
+
 		/* init features - double buffer, vsync */
 		LINUXFBDR_init_features(me);
-		
+
 		/* set internal useful data */
-		mi->line			= mi->fix.line_length;			/* line memory size */
+		mi->line		 = mi->fix.line_length;		 /* line memory size */
 		mi->depth		 = mi->var.bits_per_pixel;	 /* color depth */
-		mi->pixsz		 = mi->depth >> 3;					 /* pixel size per byte */
+		mi->pixsz		 = mi->depth >> 3;			 /* pixel size per byte */
 		mi->fb_sz		 = (mi->var.xres_virtual * mi->var.yres_virtual * mi->pixsz);
-		
+
 		if (mi->fix.smem_len<(dword) mi->fb_sz){
 			/* smem_len is invalid */
 			ALOGE("LINUXFBDR smem_len(%i) < fb_sz(%i)", mi->fix.smem_len, mi->fb_sz);
@@ -176,15 +332,15 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 										PROT_READ | PROT_WRITE, MAP_SHARED,
 										mi->fb, 0
 									);
-	
+
 		if (!mi->buffer) {
 			ALOGE("LINUXFBDR mmap framebuffer memory error");
 			goto error;
 		}
-		
+
 		/* swap buffer now */
 		LINUXFBDR_flush(me);
-		
+
 		if (mi->pixsz == 2) {
 			/* not 32bit depth */
 			mi->is32 = 0;
@@ -197,15 +353,16 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 			LINUXFBDR_init_32bit(me);
 		}
 	}
-	
+
 	/* set config */
 	me->config = &LINUXFBDR_config;
-	
+
 	/* set dpi */
 	LINUXFBDP_set_dpi(me);
-	
+
 	/* ok */
 	goto ok;
+
 	/* return */
 error:
 	free(mi);
@@ -227,25 +384,25 @@ void LINUXFBDR_release(LIBAROMA_FBP me) {
 	if (mi==NULL){
 		return;
 	}
-	
+
 	if (mi->qcom!=NULL){
 		/* release qcom overlay driver */
 		QCOMFB_release(me);
 	}
-	
+
 	/* unmap */
 	if (mi->buffer!=NULL){
 		ALOGV("LINUXFBDR munmap buffer");
 		munmap(mi->buffer, mi->fix.smem_len);
 	}
-	
+
 	/* close fb */
 	ALOGV("LINUXFBDR close fb-fd");
 	close(mi->fb);
-	
+
 	/* destroy mutex & cond */
 	libaroma_mutex_free(mi->mutex);
-	
+
 	/* free internal data */
 	ALOGV("LINUXFBDR free internal data");
 	free(me->internal);
@@ -293,7 +450,7 @@ byte LINUXFBDR_flush(LIBAROMA_FBP me) {
 		return 0;
 	}
 	LINUXFBDR_INTERNALP mi = (LINUXFBDR_INTERNALP) me->internal;
-	
+
 	// fsync(mi->fb);
 	LINUXFBDR_swap_buffer(mi);
 	/*
@@ -301,7 +458,7 @@ byte LINUXFBDR_flush(LIBAROMA_FBP me) {
 		mi->var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
 	}
 	else{
-		mi->var.activate = FB_ACTIVATE_VBL; 
+		mi->var.activate = FB_ACTIVATE_VBL;
 	}
 	*/
 	mi->var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
@@ -325,17 +482,17 @@ void LINUXFBDR_init_features(LIBAROMA_FBP me) {
 		return;
 	}
 	int res=0;
-	
+
 	/* set non interlanced */
 	mi->var.vmode = FB_VMODE_NONINTERLACED;
-	
+
 	/* request double buffer */
 	mi->double_buffering=0;
 	if (mi->var.yres_virtual<mi->var.yres*2){
 		mi->var.yres_virtual=mi->var.yres*2;
 		mi->var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
 		ioctl(mi->fb, FBIOPUT_VSCREENINFO, &mi->var);
-		
+
 		/* update vars */
 		ioctl(mi->fb, FBIOGET_FSCREENINFO, &mi->fix);
 		ioctl(mi->fb, FBIOGET_VSCREENINFO, &mi->var);
@@ -349,17 +506,17 @@ void LINUXFBDR_init_features(LIBAROMA_FBP me) {
 	}
 	me->double_buffer=mi->double_buffering;
 	ALOGV("LINUXFBDR Double Buffering = %s",mi->double_buffering?"yes":"no");
-	
+
 	/* activate vsync - universal */
 	mi->var.sync=FB_SYNC_VERT_HIGH_ACT;
 	mi->var.activate = FB_ACTIVATE_NOW | FB_ACTIVATE_FORCE;
 	res = ioctl(mi->fb, FBIOPUT_VSCREENINFO, &mi->var);
 	ALOGV("LINUXFBDR FB_SYNC_VERT_HIGH_ACT = %i",res);
-	
+
 	/* update vars */
 	ioctl(mi->fb, FBIOGET_FSCREENINFO, &mi->fix);
 	ioctl(mi->fb, FBIOGET_VSCREENINFO, &mi->var);
-	
+
 	/* enable omapfb vsync */
 	mi->is_omap=0;
 	if (mi->var.sync!=FB_SYNC_VERT_HIGH_ACT){
@@ -431,48 +588,48 @@ void LINUXFBDP_set_dpi(LIBAROMA_FBP me) {
 void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
 	ALOGI("FRAMEBUFFER INFORMATIONS:");
 	ALOGI("VAR");
-	ALOGI(" xres					 : %i", mi->var.xres);
-	ALOGI(" yres					 : %i", mi->var.yres);
-	ALOGV(" xres_virtual	 : %i", mi->var.xres_virtual);
-	ALOGV(" yres_virtual	 : %i", mi->var.yres_virtual);
+	ALOGI(" xres				: %i", mi->var.xres);
+	ALOGI(" yres				: %i", mi->var.yres);
+	ALOGV(" xres_virtual		: %i", mi->var.xres_virtual);
+	ALOGV(" yres_virtual		: %i", mi->var.yres_virtual);
 	ALOGV(" xoffset				: %i", mi->var.xoffset);
 	ALOGV(" yoffset				: %i", mi->var.yoffset);
-	ALOGI(" bits_per_pixel : %i", mi->var.bits_per_pixel);
+	ALOGI(" bits_per_pixel		: %i", mi->var.bits_per_pixel);
 	ALOGV(" grayscale			: %i", mi->var.grayscale);
-	ALOGI(" red						: %i, %i, %i", 
+	ALOGI(" red					: %i, %i, %i",
 		mi->var.red.offset, mi->var.red.length, mi->var.red.msb_right);
-	ALOGI(" green					: %i, %i, %i", 
+	ALOGI(" green				: %i, %i, %i",
 		mi->var.green.offset, mi->var.green.length, mi->var.red.msb_right);
-	ALOGI(" blue					 : %i, %i, %i", 
+	ALOGI(" blue				: %i, %i, %i",
 		mi->var.blue.offset, mi->var.blue.length, mi->var.red.msb_right);
-	ALOGV(" transp				 : %i, %i, %i", 
+	ALOGV(" transp				: %i, %i, %i",
 		mi->var.transp.offset, mi->var.transp.length, mi->var.red.msb_right);
-	ALOGV(" nonstd				 : %i", mi->var.nonstd);
-	ALOGV(" activate			 : %i", mi->var.activate);
-	ALOGV(" height				 : %i", mi->var.height);
-	ALOGV(" width					: %i", mi->var.width);
-	ALOGV(" accel_flags		: %i", mi->var.accel_flags);
-	ALOGV(" pixclock			 : %i", mi->var.pixclock);
-	ALOGV(" left_margin		: %i", mi->var.left_margin);
-	ALOGV(" right_margin	 : %i", mi->var.right_margin);
-	ALOGV(" upper_margin	 : %i", mi->var.upper_margin);
-	ALOGV(" lower_margin	 : %i", mi->var.lower_margin);
+	ALOGV(" nonstd				: %i", mi->var.nonstd);
+	ALOGV(" activate			: %i", mi->var.activate);
+	ALOGV(" height				: %i", mi->var.height);
+	ALOGV(" width				: %i", mi->var.width);
+	ALOGV(" accel_flags			: %i", mi->var.accel_flags);
+	ALOGV(" pixclock			: %i", mi->var.pixclock);
+	ALOGV(" left_margin			: %i", mi->var.left_margin);
+	ALOGV(" right_margin		: %i", mi->var.right_margin);
+	ALOGV(" upper_margin		: %i", mi->var.upper_margin);
+	ALOGV(" lower_margin		: %i", mi->var.lower_margin);
 	ALOGV(" hsync_len			: %i", mi->var.hsync_len);
 	ALOGV(" vsync_len			: %i", mi->var.vsync_len);
-	ALOGV(" sync					 : %i", mi->var.sync);
-	ALOGV(" rotate				 : %i", mi->var.rotate);
-	
+	ALOGV(" sync				: %i", mi->var.sync);
+	ALOGV(" rotate				: %i", mi->var.rotate);
+
 	ALOGI("FIX");
-	ALOGI(" id						 : %s", mi->fix.id);
-	ALOGI(" smem_len			 : %i", mi->fix.smem_len);
-	ALOGV(" type					 : %i", mi->fix.type);
-	ALOGV(" type_aux			 : %i", mi->fix.type_aux);
-	ALOGV(" visual				 : %i", mi->fix.visual);
-	ALOGV(" xpanstep			 : %i", mi->fix.xpanstep);
-	ALOGV(" ypanstep			 : %i", mi->fix.ypanstep);
+	ALOGI(" id					: %s", mi->fix.id);
+	ALOGI(" smem_len			: %i", mi->fix.smem_len);
+	ALOGV(" type				: %i", mi->fix.type);
+	ALOGV(" type_aux			: %i", mi->fix.type_aux);
+	ALOGV(" visual				: %i", mi->fix.visual);
+	ALOGV(" xpanstep			: %i", mi->fix.xpanstep);
+	ALOGV(" ypanstep			: %i", mi->fix.ypanstep);
 	ALOGV(" ywrapstep			: %i", mi->fix.ywrapstep);
-	ALOGI(" line_length		: %i", mi->fix.line_length);
-	ALOGV(" accel					: %i", mi->fix.accel);
+	ALOGI(" line_length			: %i", mi->fix.line_length);
+	ALOGV(" accel				: %i", mi->fix.accel);
 } /* End of LINUXFBDR_dump */
 
 /*
@@ -481,7 +638,15 @@ void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
  * Descriptions: init function for libaroma fb
  */
 byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
-	return LINUXFBDR_init(me);
+
+	if (libaroma_file_exists("/dev/dri/card0")){
+		ALOGI("DRM card file found!! Trying to init DRM subsystem...");
+		return LINUXDRM_init(me);
+	}
+	else return LINUXFBDR_init(me);
 } /* End of libaroma_fb_driver_init */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_fb_driver_c__ */

@@ -1,87 +1,77 @@
-byte dialog_demo(LIBAROMA_WINDOWP parent){
-  int res=libaroma_dialog_list(
-    "Dialog Demo",
-    "OK",
-    "CANCEL",
-    NULL,
-    LIBAROMA_DIALOG_DIM_PARENT|LIBAROMA_DIALOG_WITH_SHADOW|
-    LIBAROMA_DIALOG_ACCENT_BUTTON|LIBAROMA_DIALOG_CANCELABLE
-  );
-  printf("DIALOG RESULT: %i\n",res);
-  libaroma_window_anishow(parent,0,0);
-}
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 void bar_test(){
-  
+
   LIBAROMA_WINDOWP win = libaroma_window(
     NULL, 0, 0, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL);
-  
+
   int _y = 0;
   LIBAROMA_CONTROLP bar = libaroma_ctl_bar(
     win, 1,
     0, _y, LIBAROMA_SIZE_FULL, 56,
     "Libaroma Test", RGB(009385), RGB(ffffff)
   );
-  
+
   libaroma_ctl_bar_set_icon_mask(bar,1,1);
-  
+
   _y+=56;
   LIBAROMA_CONTROLP tabs=libaroma_ctl_tabs(
     win, 2,
     0, _y, LIBAROMA_SIZE_FULL, 48,
     RGB(009385), RGB(ffffff), 0, 0
   );
-  
+
   _y+=48;
   LIBAROMA_CONTROLP pager=libaroma_ctl_pager(
     win, 3, 5,
     0, _y, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL
   );
-  
+
   /* set pager & tab text */
   char * tab_texts[5]={ "FIRST TABS", "SECOND TABS", "THIRD TABS", "FOURTH TABS", "FIFTH TABS" };
   libaroma_ctl_tabs_set_texts(tabs,tab_texts,5,0);
   libaroma_ctl_tabs_set_pager(tabs,pager);
-  
+
   /* pager window */
   LIBAROMA_WINDOWP win2 = libaroma_ctl_pager_get_window(pager);
   int pw = libaroma_px(pager->w);
-  
+
   LIBAROMA_CONTROLP button_exit = libaroma_ctl_button(
     win2, 5, pw, 0, pw, 60,
     "Exit Libaroma", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED,
     RGB(880000)
   );
-  
+
   LIBAROMA_CONTROLP button_style = libaroma_ctl_button(
     win2, 6, pw, 60, pw, 60,
     "Update App Bar", LIBAROMA_CTL_BUTTON_RAISED, 0
   );
-  
+
   LIBAROMA_CONTROLP button_gapstyle = libaroma_ctl_button(
     win2, 7, pw, 120, pw, 60,
     "Change App Bar Text Gap", LIBAROMA_CTL_BUTTON_RAISED, 0
   );
-  
+
   LIBAROMA_CONTROLP button_2 = libaroma_ctl_button(
     win2, 8, pw*2, 0, pw, 60,
     "Second Button", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED, RGB(008800)
   );
-  
+
   LIBAROMA_CONTROLP buttonx_2 = libaroma_ctl_button(
     win2, 181, pw*2, 60, 72, 72,
     "X", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED|LIBAROMA_CTL_BUTTON_CIRCLE,
     RGB(44688)
   );
-  
+
   LIBAROMA_CONTROLP buttonx_3 = libaroma_ctl_button(
     win2, 182, pw*2+72, 60, 72, 72,
     "A", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED|LIBAROMA_CTL_BUTTON_CIRCLE,
     RGB(ffffff)
   );
-  
-  
-  
+
+
+
   LIBAROMA_CONTROLP progress2 = libaroma_ctl_progress(
     win2, 51,
     (pw*3.5)-24, 48, 48, 48,
@@ -89,7 +79,7 @@ void bar_test(){
     100,
     0
   );
-  
+
   /* list */
   LIBAROMA_CONTROLP list = libaroma_ctl_list(
     win2, 77, /* win, id */
@@ -99,7 +89,7 @@ void bar_test(){
     LIBAROMA_CTL_SCROLL_WITH_SHADOW
     |LIBAROMA_CTL_SCROLL_WITH_HANDLE
   );
-  
+
   libaroma_listitem_image(
     list,1,
     libaroma_image_uri("file:///sdcard/wall2.jpg"),
@@ -108,20 +98,20 @@ void bar_test(){
     LIBAROMA_LISTITEM_IMAGE_FILL|LIBAROMA_LISTITEM_IMAGE_PROPORTIONAL|
     LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH,
     -1);
-  
-  
+
+
   LIBAROMA_CANVASP list_icon =
     libaroma_image_uri("file:///sdcard/card.png");
   LIBAROMA_CANVASP list_icon2 =
     libaroma_image_uri("file:///sdcard/gesture.png");
   LIBAROMA_CANVASP list_icon3 =
     libaroma_image_uri("file:///sdcard/inbox.png");
-  
+
   /* fill color */
   libaroma_canvas_fillcolor(list_icon,libaroma_colorget(NULL,NULL)->primary);
   libaroma_canvas_fillcolor(list_icon2,libaroma_colorget(NULL,NULL)->primary);
   libaroma_canvas_fillcolor(list_icon3,libaroma_colorget(NULL,NULL)->primary);
-    
+
   char main_text[256];
   char extra_text[256];
   int itm=0;
@@ -137,19 +127,19 @@ void bar_test(){
         LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH|LIBAROMA_LISTITEM_IMAGE_PARALAX,
       -1);
     }
-    
+
     if (itm%6==4){
       libaroma_listitem_divider(
         list, 1, (((kdv++)%2)==0)?LIBAROMA_LISTITEM_DIVIDER_SUBSCREEN:
           LIBAROMA_LISTITEM_SEPARATOR_TEXTALIGN, -1);
     }
-    
+
     if (itm%15==0){
       snprintf(main_text,256,"List Caption %i",itm);
       libaroma_listitem_caption(
         list, 200, main_text, -1);
     }
-    
+
     snprintf(main_text,256,"Item id#%i",itm);
     word add_flags=0;
     if (itm%3==1){
@@ -186,14 +176,14 @@ void bar_test(){
       );
     }
   }
-  
+
   /* set bar tools */
   LIBAROMA_CTL_BAR_TOOLSP bar_tools=libaroma_ctl_bar_tools(2);
   libaroma_ctl_bar_tools_set(
     bar_tools, 0, 1, "one", list_icon, LIBAROMA_CTL_BAR_TOOL_ICON_SHARED
   );
   libaroma_ctl_bar_tools_set(
-    bar_tools, 1, 3, "two", list_icon, 
+    bar_tools, 1, 3, "two", list_icon,
     LIBAROMA_CTL_BAR_TOOL_SWITCH|LIBAROMA_CTL_BAR_TOOL_ICON_SHARED
   );
   libaroma_ctl_bar_set_tools(
@@ -202,11 +192,11 @@ void bar_test(){
     bar,NULL,0,LIBAROMA_CTL_BAR_ICON_DRAWER, 1
   );
 
-  
+
   LIBAROMA_WINDOWP sidebar=libaroma_window_sidebar(win,0);
   if (sidebar){
     printf("SIDEBAR INITIALIZED\n");
-    
+
     /* list */
     LIBAROMA_CONTROLP sblist = libaroma_ctl_list(
       sidebar, 88, /* win, id */
@@ -215,7 +205,7 @@ void bar_test(){
       RGB(ffffff), /* bgcolor */
       LIBAROMA_CTL_SCROLL_WITH_SHADOW
     );
-    
+
     libaroma_listitem_image(
       sblist,1,
       libaroma_image_uri("file:///sdcard/wall2.jpg"),
@@ -232,14 +222,14 @@ void bar_test(){
         libaroma_listitem_caption_color(
           sblist, 200, xtext, RGB(888888), -1);
       }
-      
+
       if (r%3==0){
         libaroma_listitem_divider(
           sblist, 1, (((kdv++)%2)==0)?LIBAROMA_LISTITEM_DIVIDER_SUBSCREEN:
             LIBAROMA_LISTITEM_SEPARATOR_TEXTALIGN,
             -1);
       }
-    
+
       snprintf(xtext,256,"Sidebar Menu #%i",r);
       libaroma_listitem_menu(
         sblist, r+100,
@@ -252,7 +242,7 @@ void bar_test(){
         -1
       );
     }
-    
+
   }
   else{
     printf("SIDEBAR FAILED\n");
@@ -264,16 +254,16 @@ void bar_test(){
   );
   */
   // libaroma_window_layer_init(win);
-  
+
   libaroma_window_anishow(win, LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_LEFT, 400);
-  
-  
-  
-  
+
+
+
+
   // libaroma_window_layer_init(win);
-  
-  
-  
+
+
+
   byte gap_wide = 1;
   int change_id=0;
   byte onpool=1;
@@ -283,7 +273,7 @@ void bar_test(){
     byte cmd  = LIBAROMA_CMD(command);
     word id   = LIBAROMA_CMD_ID(command);
     byte param = LIBAROMA_CMD_PARAM(command);
-    
+
     if (msg.msg==LIBAROMA_MSG_KEY_SELECT){
       if (msg.state==0){
         printf("Screenshoot... and exit\n");
@@ -309,7 +299,6 @@ void bar_test(){
           }
         }
         else if (id==8){
-          dialog_demo(win);
         }
         else if (id==7){
           libaroma_ctl_bar_set_textgap(bar,gap_wide,1);
@@ -367,7 +356,7 @@ void bar_test(){
           }
           else if (change_id==5){
             libaroma_ctl_bar_tools_set(
-              bar_tools, 1, 3, "three", list_icon, 
+              bar_tools, 1, 3, "three", list_icon,
               LIBAROMA_CTL_BAR_TOOL_SWITCH|LIBAROMA_CTL_BAR_TOOL_ICON_SHARED
             );
             libaroma_ctl_bar_set_icon(
@@ -444,14 +433,18 @@ void bar_test(){
     }
   }
   while(onpool);
-  
+
   libaroma_ctl_bar_tools_free(bar_tools);
-  
+
   libaroma_canvas_free(list_icon);
   libaroma_canvas_free(list_icon2);
   libaroma_canvas_free(list_icon3);
-  
+
   printf("Free Window\n");
   libaroma_window_free(win);
   printf("FREED\n");
 }
+
+#ifdef __cplusplus
+}
+#endif

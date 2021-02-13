@@ -21,6 +21,9 @@
  * + 21/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_line_c__
 #define __libaroma_text_line_c__
 
@@ -99,7 +102,7 @@ _LIBAROMA_TEXTLINEP libaroma_textline_align(
 	limit_width -= indent_size;
 	int width_left = limit_width - line_width;
 	byte allow_maxmin = 1;
-	
+
 	/* delete last whitespace */
 	_LIBAROMA_TEXTSPANP span = line->span;
 	_LIBAROMA_TEXTSPANP prev = NULL;
@@ -217,7 +220,7 @@ _LIBAROMA_TEXTLINEP libaroma_textline_align(
 			int num_spaces = 0;
 			span = line->span;
 			byte isfirstspan = 1;
-			
+
 			while (span) {
 				if (
 						(span->type == _LIBAROMA_TEXTSPAN_IMAGE) &&
@@ -365,7 +368,7 @@ void libaroma_textline_add_span_img(
 			(_LIBAROMA_TEXTSPANP) malloc(sizeof(_LIBAROMA_TEXTSPAN));
 		span->type = _LIBAROMA_TEXTSPAN_IMAGE;
 		span->data = (voidp) imgspan;
-		
+
 		/* insert span */
 		if (line->span == NULL) {
 			line->span	= span;
@@ -378,7 +381,7 @@ void libaroma_textline_add_span_img(
 			span->next	= first;
 		}
 		int pending_w = 0;
-		
+
 		/* float left/right */
 		if ((imgspan->s&3) == 1) {
 			span->x = libaroma_textline_get_floated_image_width(chunk, line, 1);
@@ -469,12 +472,12 @@ _LIBAROMA_TEXTLINEP libaroma_textline(
 		chunk->max_width -
 		libaroma_textline_get_floated_image_width(chunk, line, 2);
 	int indent_size = -1;
-	
+
 	/* span temporaries */
 	_LIBAROMA_TEXTSPANP last = NULL;
 	_LIBAROMA_TEXTSPANP rtl_findex = NULL;
 	_LIBAROMA_TEXTSPANP rtl_bindex = NULL;
-	
+
 	/* pending data */
 	if (chunk->pending_data != NULL) {
 		if (chunk->pending_data->type == _LIBAROMA_TEXTSPAN_HR) {
@@ -897,3 +900,7 @@ byte libaroma_textline_free(
 } /* End of libaroma_textline_free */
 
 #endif /* __libaroma_text_line_c__ */
+
+#ifdef __cplusplus
+}
+#endif

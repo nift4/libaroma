@@ -25,6 +25,9 @@
 #define __libaroma_hid_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 byte LIBAROMA_HID_INIT_FUNCTION(
 		LIBAROMA_HIDP);
 /*
@@ -63,32 +66,32 @@ byte libaroma_hid_init() {
 		ALOGE("hid instance already initialized");
 		goto return_error;
 	}
-	
+
 	/* allocating input instance */
 	ALOGV("allocating hid instance");
 	_libaroma_hid = (LIBAROMA_HIDP) calloc(sizeof(LIBAROMA_HID),1);
-	
+
 	/* check allocation */
 	if (!_libaroma_hid) {
 		ALOGE("unable to allocating hid instance");
 		goto return_error_clean;
 	}
-	
+
 	/* check framebuffer */
 	if (libaroma_fb() == NULL) {
 		ALOGE("framebuffer instance not initialized yet!");
 		goto return_error_clean;
 	}
-	
+
 	/* set screen information */
 	_libaroma_hid->screen_width = libaroma_fb()->w;
 	_libaroma_hid->screen_height = libaroma_fb()->h;
 	_libaroma_hid->touch_last_x = 0;
 	_libaroma_hid->touch_last_y = 0;
-	
+
 	/* init driver */
 	ALOGV("init hid driver");
-	
+
 	if (_libaroma_hid_initializer){
 		ALOGV("Init hid driver - runtime");
 		if (!_libaroma_hid_initializer(_libaroma_hid)) {
@@ -103,7 +106,7 @@ byte libaroma_hid_init() {
 			goto return_error_clean;
 		}
 	}
-	
+
 	/* Check Callbacks */
 	if ((_libaroma_hid->release == NULL) ||
 			(_libaroma_hid->getinput == NULL)){
@@ -154,7 +157,7 @@ byte libaroma_hid_set_keypress(
 			case LIBAROMA_HID_EV_STATE_DOWN:
 				_libaroma_hid->key_pressed[code >> 3] |= bit_pos;
 				break;
-				
+
 			case LIBAROMA_HID_EV_STATE_UP:
 			case LIBAROMA_HID_EV_STATE_CANCEL:
 				_libaroma_hid->key_pressed[code >> 3] &= ~bit_pos;
@@ -204,21 +207,21 @@ byte libaroma_hid_get(
 		LIBAROMA_HID_EVENTP e) {
 	/* clean destination variable */
 	memset(e, 0, sizeof(LIBAROMA_HID_EVENT));
-	
+
 	/* check instance */
 	if (_libaroma_hid == NULL) {
 		ALOGW("hid instance uninitialized");
 		return LIBAROMA_HID_EV_RET_ERROR;
 	}
-	
+
 	/* Loop Until Event Type != LIBAROMA_HID_EV_TYPE_NONE & _libaroma_hid!=NULL */
 	while (_libaroma_hid != NULL) {
 		/* call driver getinput callback */
 		byte ret = _libaroma_hid->getinput(_libaroma_hid, e);
-		
+
 		ALOGT("EVENT RECIVED: type=%i, state=%i, key=%i, x=%i, y=%i",
 			ret,e->state,e->key,e->x,e->y);
-		
+
 		/* check return value */
 		switch (ret) {
 			case LIBAROMA_HID_EV_RET_NONE:
@@ -283,17 +286,20 @@ byte libaroma_hid_config(
 		ALOGW("hid instance uninitialized");
 		return 0;
 	}
-	
+
 	if (_libaroma_hid->config == NULL) {
 		/* Not Supported */
 		ALOGW("hid driver do not support runtime configuration");
 		return 0;
 	}
-	
+
 	ALOGV("hid set config %s=%s,(%x)", name, svalue, dvalue);
 	return _libaroma_hid->config(_libaroma_hid, name, svalue, dvalue);
 } /* End of libaroma_hid_config */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_hid_c__ */
 

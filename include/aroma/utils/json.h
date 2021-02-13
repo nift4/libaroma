@@ -106,21 +106,21 @@ extern void cJSON_Minify(char * json);
  */
 typedef cJSON LIBAROMA_JSON;
 typedef cJSON * LIBAROMA_JSONP;
-#define libaroma_json(x)					cJSON_Parse(x)
-#define libaroma_json_free(x)			cJSON_Delete(x)
+#define libaroma_json(x)			cJSON_Parse(x)
+#define libaroma_json_free(x)		cJSON_Delete(x)
 #define libaroma_json_is_object(x)	((x)->type==cJSON_Object)
-#define libaroma_json_is_array(x)	 ((x)->type==cJSON_Array)
+#define libaroma_json_is_array(x)	((x)->type==cJSON_Array)
 #define libaroma_json_is_string(x)	((x)->type==cJSON_String)
 #define libaroma_json_is_number(x)	((x)->type==cJSON_Number)
-#define libaroma_json_is_null(x)		((x)->type==cJSON_NULL)
-#define libaroma_json_is_true(x)		((x)->type==cJSON_True)
-#define libaroma_json_is_false(x)	 ((x)->type==cJSON_False)
-#define libaroma_json_array(x,n)	 cJSON_GetArrayItem((x),(n))
+#define libaroma_json_is_null(x)	((x)->type==cJSON_NULL)
+#define libaroma_json_is_true(x)	((x)->type==cJSON_True)
+#define libaroma_json_is_false(x)	((x)->type==cJSON_False)
+#define libaroma_json_array(x,n)	cJSON_GetArrayItem((x),(n))
 #define libaroma_json_array_size(x) cJSON_GetArraySize(x)
 #define libaroma_json_object(x,n)	cJSON_GetObjectItem((x),(n))
 #define libaroma_json_string(x)		((x)->valuestring)
-#define libaroma_json_int(x)			 ((x)->valueint)
-#define libaroma_json_float(x)		 ((x)->valuedouble)
-#define libaroma_json_bool(x)			(!libaroma_json_is_false(x)&&!libaroma_json_is_null(x))
+#define libaroma_json_int(x)		((x)->valueint)
+#define libaroma_json_float(x)		((x)->valuedouble)
+#define libaroma_json_bool(x)		(!libaroma_json_is_false(x)&&!libaroma_json_is_null(x))
 
 #endif /* __libaroma_json_h__ */

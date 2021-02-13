@@ -25,6 +25,9 @@
 #define __libaroma_alignblt_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void libaroma_blt_align16(wordp __restrict dst, wordp __restrict src,
 		int w, int h, int dst_stride, int src_stride) {
 	int i;
@@ -118,6 +121,9 @@ void libaroma_blt_align_to16_pos(wordp __restrict dst, dwordp __restrict src,
 	}
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_alignblt_c__ */
 

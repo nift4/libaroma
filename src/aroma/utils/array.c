@@ -25,6 +25,9 @@
 #define __libaroma_array_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_iarray
  * Return Value: LIBAROMA_IARRAYP
@@ -70,7 +73,7 @@ byte libaroma_iarray_set_ex(
 				a->cb(item->val);
 			}
 		}
-		
+
 		free(item->val);
 		item->val = malloc(strlen(val) + 1);
 		strcpy(item->val, val);
@@ -122,10 +125,10 @@ byte libaroma_iarray_unshift(
  * Descriptions: set value
  */
 byte libaroma_iarray_set(
-		LIBAROMA_IARRAYP a, 
-		int key, 
-		voidp val, 
-		size_t sz, 
+		LIBAROMA_IARRAYP a,
+		int key,
+		voidp val,
+		size_t sz,
 		byte use_freecb) {
 	return libaroma_iarray_set_ex(a, key, val, sz, use_freecb, 0);
 } /* End of libaroma_iarray_set */
@@ -136,8 +139,8 @@ byte libaroma_iarray_set(
  * Descriptions: set string value
  */
 byte libaroma_iarray_set_string(
-		LIBAROMA_IARRAYP a, 
-		int key, 
+		LIBAROMA_IARRAYP a,
+		int key,
 		char * val) {
 	return libaroma_iarray_set(a, key, (voidp) val, strlen(val) + 1, 0);
 } /* End of libaroma_iarray_set_string */
@@ -149,22 +152,22 @@ byte libaroma_iarray_set_string(
  * Descriptions: get value
  */
 voidp libaroma_iarray_get(
-		LIBAROMA_IARRAYP a, 
+		LIBAROMA_IARRAYP a,
 		int key) {
 	if (!a) {
 		return NULL;
 	}
 	/* Find Key */
 	LIBAROMA_IARRAY_ITEMP item = a->first;
-	
+
 	while (item != NULL) {
 		if (item->key == key) {
 			return item->val;
 		}
-		
+
 		item = item->next;
 	}
-	
+
 	return NULL;
 } /* End of libaroma_iarray_get */
 
@@ -174,7 +177,7 @@ voidp libaroma_iarray_get(
  * Descriptions: get string value
  */
 char * libaroma_iarray_get_string(
-		LIBAROMA_IARRAYP a, 
+		LIBAROMA_IARRAYP a,
 		int key) {
 	return (char *) libaroma_iarray_get(a, key);
 } /* End of libaroma_iarray_get_string */
@@ -197,7 +200,7 @@ byte libaroma_iarray_delete(
 		if (item->key == key) {
 			if (prev != NULL) {
 				prev->next = item->next;
-				
+
 				if (item->next == NULL) {
 					a->last	 = prev;
 				}
@@ -209,19 +212,19 @@ byte libaroma_iarray_delete(
 				a->first	= NULL;
 				a->last	 = NULL;
 			}
-			
+
 			a->n--;
-			
+
 			/* Free item */
 			if (a->cb != NULL) {
 				a->cb(item->val);
 			}
-			
+
 			free(item->val);
 			free(item);
 			return 1;
 		}
-		
+
 		prev = item;
 		item = item->next;
 	}
@@ -388,7 +391,7 @@ byte libaroma_sarray_delete(
 	if (!a || !key) {
 		return 0;
 	}
-	
+
 	dword hash = libaroma_hash(key);
 	LIBAROMA_SARRAY_ITEMP item = a->first;
 	LIBAROMA_SARRAY_ITEMP prev = NULL;
@@ -399,7 +402,7 @@ byte libaroma_sarray_delete(
 			if (strcmp(item->key, key) == 0) {
 				if (prev != NULL) {
 					prev->next = item->next;
-					
+
 					if (item->next == NULL) {
 						a->last	 = prev;
 					}
@@ -507,13 +510,13 @@ voidp libaroma_stack_shift(
 	if (!a) {
 		return NULL;
 	}
-	
+
 	LIBAROMA_STACK_ITEMP first = a->first;
-	
+
 	if (first == NULL) {
 		return NULL;
 	}
-	
+
 	if (first == a->last) {
 		a->first = NULL;
 		a->last = NULL;
@@ -521,7 +524,7 @@ voidp libaroma_stack_shift(
 	else {
 		a->first					= first->next;
 	}
-	
+
 	a->n--;
 	voidp ret					 = first->val;
 	free(first);
@@ -598,7 +601,7 @@ byte libaroma_stack_unshift(
 	if (!a || !val || (sz == 0)) {
 		return 0;
 	}
-	
+
 	/* Init Item */
 	LIBAROMA_STACK_ITEMP item = malloc(sizeof(LIBAROMA_STACK_ITEM));
 	item->val = malloc(sz);
@@ -778,7 +781,7 @@ byte libaroma_stack_item_delete(
 	a->first = afist;
 	a->last	= alast;
 	a->n--;
-	
+
 	if (a->cb != NULL) {
 		a->cb(ai->val);
 	}
@@ -804,7 +807,7 @@ int libaroma_stack_get_pos(
 		if (item == ai) {
 			return pos;
 		}
-		
+
 		item = item->next;
 		pos++;
 	}
@@ -995,7 +998,7 @@ byte libaroma_stack_free(
 		if (a->cb != NULL) {
 			a->cb(item->val);
 		}
-		
+
 		free(item->val);
 		tmp_item = item;
 		item = item->next;
@@ -1006,5 +1009,8 @@ byte libaroma_stack_free(
 	return 1;
 } /* End of libaroma_stack_free */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_array_c__ */
 

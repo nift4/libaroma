@@ -24,6 +24,10 @@
 #ifndef __libaroma_text_shaper_c__
 #define __libaroma_text_shaper_c__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Function		: libaroma_text_shaper
  * Return Value: _LIBAROMA_TEXTSHAPEDP
@@ -34,31 +38,31 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 		_LIBAROMA_TEXTCHUNKP chunk) {
 
 	/* get freetype font face */
-	FT_Face font = libaroma_font_get(span->fontid, 1);	
+	FT_Face font = libaroma_font_get(span->fontid, 1);
 	if (font == NULL) {
 		return NULL;
 	}
 	_libaroma_text_lock(1);
-	
+
 	/* set size */
 	byte fontsize = _LIBAROMA_TEXTCHUNK_GETFONTSIZE(chunk->curr_state.font);
 	libaroma_font_set_size(span->fontid, libaroma_font_size_px(fontsize), 0);
-	
+
 	/* init harfbuzz font */
 	_LIBAROMA_FONT_FACEP afont = libaroma_font_get_face(span->fontid);
 
 	/* calculating */
 	dword i = 0;
-	int	 sizer_x = 0;
-	int	 sizer_y = 0;
-	int	 max_x	 = INT_MIN;
-	int	 min_x	 = INT_MAX;
-	int	 max_y	 = INT_MIN;
-	int	 min_y	 = INT_MAX;
-	int	 x			 = 0;
-	int	 y			 = 0;
-	int	 u 			= 0;
-	
+	int	sizer_x = 0;
+	int	sizer_y = 0;
+	int	max_x	= INT_MIN;
+	int	min_x	= INT_MAX;
+	int	max_y	= INT_MIN;
+	int	min_y	= INT_MAX;
+	int	x		= 0;
+	int	y		= 0;
+	int	u		= 0;
+
 #ifdef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 	_LIBAROMA_TEXTSHAPEDP shaped =
 	(_LIBAROMA_TEXTSHAPEDP) malloc(sizeof(_LIBAROMA_TEXTSHAPED));
@@ -118,12 +122,12 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 	}
 #else
 	hb_font_t * hb_font			 = afont->hb_font;
-	
+
 	/* create harfbuzz buffer */
 	hb_buffer_t * buf = hb_buffer_create();
 	hb_buffer_set_unicode_funcs(buf, hb_ucdn_get_unicode_funcs());
 	hb_buffer_set_direction(buf, chunk->rtl?HB_DIRECTION_RTL:HB_DIRECTION_LTR);
-	
+
 	/* set harfbuzz text buffer */
 	hb_buffer_add_utf32(
 		buf,
@@ -133,10 +137,10 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 		(unsigned int) span->len);
 
 	// hb_buffer_guess_segment_properties(buf);
-	
+
 	/* run harfbuzz shaper */
 	hb_shape(hb_font, buf, NULL, 0);
-	
+
 	/* get harfbuzz result values */
 	dword glyph_count = hb_buffer_get_length(buf);
 	if (glyph_count < 1) {
@@ -144,7 +148,7 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 		_libaroma_text_lock(0);
 		return NULL;
 	}
-	
+
 	hb_glyph_info_t	 *	glyph_info =
 		hb_buffer_get_glyph_infos(buf, &glyph_count);
 	hb_glyph_position_t * glyph_pos =
@@ -159,7 +163,7 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 	shaped->rtl = chunk->rtl;
 	shaped->font = _LIBAROMA_TEXT_FONT(span->fontid, fontsize);
 	shaped->next = NULL;
-	
+
 	for (i = 0; i < glyph_count; i++) {
 		/* offsets and advances */
 		int xo = glyph_pos[i].x_offset	>> 6;
@@ -198,7 +202,7 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 	hb_buffer_destroy(buf);
 
 #endif
-	
+
 	/* still have to take into account last glyph's advance. or not? */
 	if (min_x > sizer_x) {
 		min_x = sizer_x;
@@ -212,7 +216,7 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 	if (max_y < sizer_y) {
 		max_y = sizer_y;
 	}
-	
+
 	/* get bounding box */
 	shaped->w = max_x - min_x;
 	shaped->h = max_y - min_y;
@@ -253,7 +257,7 @@ byte libaroma_text_get_preshaped(
 	span->fontid = _LIBAROMA_TEXTCHUNK_GETFONTID(chunk->curr_state.font);
 	span->text = NULL;
 	span->len = 0;
-	
+
 	/* characters loop */
 	while (i < len) {
 		uchar c = text[i];
@@ -348,13 +352,13 @@ _LIBAROMA_TEXTSHAPED_GROUPP libaroma_text_group_split(
 	}
 	shaped		= group->shaped;
 	shaped_n	= 0;
-	
+
 	/* get unpending data */
 	_LIBAROMA_TEXTSHAPEDP used_shaped = NULL;
 	_LIBAROMA_TEXTSHAPEDP used_shaped_last = NULL;
 	int group_w = 0;
 	int group_h = 0;
-	
+
 	while (shaped) {
 		int sx = shaped_x[shaped_n];
 		_LIBAROMA_TEXTSHAPEDP new_shaped = NULL;
@@ -412,7 +416,7 @@ _LIBAROMA_TEXTSHAPED_GROUPP libaroma_text_group_split(
 		shaped_n++;
 		shaped = shaped->next;
 	}
-	
+
 	shaped		= group->shaped;
 	shaped_n	= 0;
 	/* get pending data */
@@ -428,7 +432,7 @@ _LIBAROMA_TEXTSHAPED_GROUPP libaroma_text_group_split(
 			/* direct move */
 			new_shaped = (_LIBAROMA_TEXTSHAPEDP)
 				malloc(sizeof(_LIBAROMA_TEXTSHAPED));
-			memcpy(new_shaped, 
+			memcpy(new_shaped,
 				shaped, sizeof(_LIBAROMA_TEXTSHAPED));
 			shaped->cols = NULL;
 			shaped->coln = 0;
@@ -535,15 +539,15 @@ _LIBAROMA_TEXTSHAPED_GROUPP libaroma_text_group(
 	);
 	/* save last chunk result */
 	chunk->last_res = res;
-	
+
 	/* if it was tag (img/hr) return it directly */
 	if (_LIBAROMA_TEXTCHUNK_RETURN_TAG & res) {
 		return NULL;
 	}
-	
+
 	/* group container */
 	_LIBAROMA_TEXTSHAPED_GROUPP shaped_group = NULL;
-	
+
 	/* we have a buffer */
 	if (res & _LIBAROMA_TEXTCHUNK_RETURN_HAVEBUF) {
 		/* Get utf32 length */
@@ -553,7 +557,7 @@ _LIBAROMA_TEXTSHAPED_GROUPP libaroma_text_group(
 			ucharp text = libaroma_utf8_dec(buf);
 			int clen = len;
 			ucharp ctext = text;
-			
+
 			/* shaping data */
 			_LIBAROMA_TEXTSHAPEDP first_shaped = NULL;
 			_LIBAROMA_TEXTSHAPEDP last_shaped = NULL;
@@ -633,6 +637,8 @@ byte _libaroma_text_group_free(
 	return 1;
 } /* End of _libaroma_text_group_free */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_text_shaper_c__ */

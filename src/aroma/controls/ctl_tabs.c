@@ -26,6 +26,9 @@
 #include <aroma_internal.h>
 #include "../ui/ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #define _LIBAROMA_CTL_TABS_HOLD_TIMING 300
 #define _LIBAROMA_CTL_TABS_ANI_TIMING 500
 
@@ -72,11 +75,11 @@ struct __LIBAROMA_CTL_TABS{
 	int pagen;
 	word selcolor;
 	word bgcolor;
-	
+
 	LIBAROMA_CANVASP change_dc;
 	long change_start;
 	float change_state;
-	
+
 	byte forcedraw;
 	int draw_x;
 	int req_x;
@@ -84,14 +87,14 @@ struct __LIBAROMA_CTL_TABS{
 	int active_x;
 	int active_w;
 	int active_page;
-	
+
 	byte no_auto_scroll;
 	byte allow_scroll;
 	int touched_id;
 	int velocity;
 	int touch_x;
 	int touch_scroll_x;
-	
+
 	LIBAROMA_RIPPLE ripple;
 	LIBAROMA_FLING fling;
 	int hpad; /* horizontal padding */
@@ -150,7 +153,7 @@ int _libaroma_ctl_tabs_calc_x(LIBAROMA_CONTROLP ctl,byte force){
 } /* End of _libaroma_ctl_tabs_calc_x */
 
 void _libaroma_ctl_tabs_pager_onscroll(
-	LIBAROMA_CONTROLP ctl, LIBAROMA_CONTROLP pager, 
+	LIBAROMA_CONTROLP ctl, LIBAROMA_CONTROLP pager,
 	int cx, int fw, int pw, int tp
 ){
 	_LIBAROMA_CTL_CHECK(
@@ -165,7 +168,7 @@ void _libaroma_ctl_tabs_pager_onscroll(
 		int rw = tw;
 		int diff_w = 0;
 		me->active_w = tw;
-		
+
 		/* set width */
 		if (me->active_page<=target_page){
 			if (target_page<me->pagen-1){
@@ -240,7 +243,7 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 	if (ctl->window==NULL){
 		return;
 	}
-	
+
 	byte isactive=0;
 	if (ctl->window->active){
 		isactive=1;
@@ -253,27 +256,27 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 		me->change_start=0;
 		me->change_state=0;
 	}
-	
+
 	int i;
 	LIBAROMA_CANVASP rest_canvas=NULL;
 	LIBAROMA_CANVASP push_canvas=NULL;
 	libaroma_mutex_lock(me->mutex);
 	LIBAROMA_TEXT * texts = NULL;
-	
+
 	word pushtxt_color = libaroma_color_isdark(me->bgcolor)?0xffff:0;
 	word resttxt_color = libaroma_alpha(me->bgcolor,pushtxt_color,153);
-	
+
 	int active_page = 0;
 	int page_n = me->textn;
 	if (me->controller.pager){
 		page_n=libaroma_ctl_pager_get_pages(me->controller.pager);
 		active_page=libaroma_ctl_pager_get_active_page(me->controller.pager);
 	}
-	
+
 	if ((active_page>=page_n)||(active_page<0)){
 		active_page=0;
 	}
-	
+
 	int show_w = ctl->w;
 	me->pagen = page_n;
 	int sum_w = me->left_pad+(me->hpad*2);
@@ -313,7 +316,7 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 			itextw[i]=me->textw[i];
 			sum_w += me->textw[i];
 		}
-		
+
 		/* add width */
 		if (sum_w<show_w-sum_pad){
 			int adds = (show_w-sum_pad) - sum_w;
@@ -329,14 +332,14 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 				}
 			}
 		}
-		
+
 		int cw = sum_w + sum_pad;
 		int ch = ctl->h;
 		rest_canvas = libaroma_canvas(cw, ch);
 		push_canvas = libaroma_canvas(cw, ch);
 		libaroma_canvas_setcolor(rest_canvas, me->bgcolor, 0xff);
 		libaroma_canvas_setcolor(push_canvas, me->bgcolor, 0xff);
-		
+
 		/* draw texts */
 		int xpos = me->left_pad+me->hpad;
 		for (i=0;i<page_n;i++){
@@ -351,7 +354,7 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 			);
 			xpos+=itw;
 		}
-		
+
 		/* set canvas */
 		if (me->rest_canvas!=NULL){
 			libaroma_canvas_free(me->rest_canvas);
@@ -363,12 +366,12 @@ void _libaroma_ctl_tabs_internal_draw(LIBAROMA_CONTROLP ctl){
 		}
 		me->rest_canvas = rest_canvas;
 		me->push_canvas = push_canvas;
-		
+
 		/* cleanup */
 		for (i=0;i<page_n;i++){
 			libaroma_text_free(texts[i]);
 		}
-		
+
 		/* save indicator */
 		me->active_x=_libaroma_ctl_tabs_indicator_x(ctl,active_page);
 		me->active_w=me->textw[active_page]+libaroma_dp(24);
@@ -410,9 +413,9 @@ void _libaroma_ctl_tabs_draw(
 		LIBAROMA_CANVASP c){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP, 
+		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP,
 	);
-	
+
 	libaroma_mutex_lock(me->mutex);
 	if ((me->rest_canvas==NULL)||(me->forcedraw==2)){
 		libaroma_mutex_unlock(me->mutex);
@@ -424,7 +427,7 @@ void _libaroma_ctl_tabs_draw(
 		}
 	}
 	me->forcedraw = 0;
-	
+
 	if ((me->change_start>1)&&(me->change_state<1)){
 		if (!me->change_dc){
 			me->change_dc = libaroma_canvas(c->w,c->h);
@@ -437,13 +440,13 @@ void _libaroma_ctl_tabs_draw(
 		libaroma_canvas_free(me->change_dc);
 		me->change_dc=NULL;
 	}
-	
+
 	libaroma_control_erasebg(ctl,c);
 	me->draw_x=me->req_x;
 	int ax = me->active_x - me->draw_x;
 	int aw = me->active_w;
 	libaroma_draw_ex(
-		c, me->rest_canvas, 
+		c, me->rest_canvas,
 		0, 0,
 		me->draw_x, 0,
 		c->w, c->h,
@@ -457,7 +460,7 @@ void _libaroma_ctl_tabs_draw(
 			int xstart = touched_x - me->draw_x;
 			int xend = xstart + touched_w;
 			if ((xstart<c->w)&&(xend>0)){
-				libaroma_draw_ex(c, 
+				libaroma_draw_ex(c,
 					me->push_canvas,
 					xstart, 0,
 					touched_x, 0,
@@ -467,7 +470,7 @@ void _libaroma_ctl_tabs_draw(
 			}
 		}
 	}
-	
+
 	if (me->touched_id>=0){
 		int touched_x = _libaroma_ctl_tabs_indicator_x(ctl,me->touched_id);
 		if (touched_x>=0){
@@ -509,14 +512,14 @@ void _libaroma_ctl_tabs_draw(
 			libaroma_canvas_free(tc);
 		}
 	}
-	
+
 	/* draw indicator */
 	libaroma_draw_rect(
 		c,
 		ax, c->h-libaroma_dp(2), aw, libaroma_dp(2),
 		me->selcolor, 0xff
 	);
-	
+
 	if ((me->change_start>1)&&(me->change_state<1)){
 		if (me->change_dc){
 			float xstate = libaroma_cubic_bezier_swiftout(me->change_state);
@@ -525,7 +528,7 @@ void _libaroma_ctl_tabs_draw(
 			);
 		}
 	}
-	
+
 	libaroma_mutex_unlock(me->mutex);
 } /* End of _libaroma_ctl_tabs_draw */
 
@@ -541,7 +544,7 @@ byte _libaroma_ctl_tabs_thread(LIBAROMA_CONTROLP ctl) {
 	);
 	byte is_draw = me->forcedraw;
 	libaroma_mutex_lock(me->mutex);
-	
+
 	if (me->change_start>1){
 		float nowstate=libaroma_control_state(me->change_start, 200);
 		if (nowstate>=1){
@@ -558,8 +561,8 @@ byte _libaroma_ctl_tabs_thread(LIBAROMA_CONTROLP ctl) {
 			me->change_state=nowstate;
 		}
 	}
-	
-	
+
+
 	if (me->request_x!=-1){
 		/* direct request */
 		if (me->request_x!=me->req_x){
@@ -629,7 +632,7 @@ byte _libaroma_ctl_tabs_thread(LIBAROMA_CONTROLP ctl) {
 	if (is_draw){
 		return 1;
 	}
-	
+
 	return 0;
 } /* End of _libaroma_ctl_tabs_thread */
 
@@ -663,18 +666,18 @@ void _libaroma_ctl_tabs_destroy(
 		LIBAROMA_CONTROLP ctl){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
-		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP, 
+		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP,
 	);
 	libaroma_mutex_lock(me->mutex);
-	
+
 	/* remove controller from pager */
 	if (me->controller.pager){
 		libaroma_ctl_pager_set_controller(me->controller.pager, NULL);
 	}
-	
+
 	/* free texts */
 	_libaroma_ctl_tabs_free_texts(ctl);
-	
+
 	/* free canvases */
 	if (me->rest_canvas!=NULL){
 		libaroma_canvas_free(me->rest_canvas);
@@ -708,7 +711,7 @@ dword _libaroma_ctl_tabs_msg(
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP, 0
 	);
-	
+
 	switch(msg->msg){
 		case LIBAROMA_MSG_WIN_ACTIVE:
 		case LIBAROMA_MSG_WIN_INACTIVE:
@@ -798,7 +801,7 @@ dword _libaroma_ctl_tabs_msg(
 						}
 						me->touch_scroll_x = move_x;
 						me->forcedraw = 1;
-						
+
 						/* set history */
 						libaroma_fling_move(&me->fling, x);
 						me->touch_x=x;
@@ -838,17 +841,17 @@ LIBAROMA_CONTROLP libaroma_ctl_tabs(
 		ALOGW("libaroma_ctl_tabs alloc button memory failed");
 		return NULL;
 	}
-	
+
 	me->hpad=libaroma_window_measure_point(hpad);
 	me->left_pad=libaroma_window_measure_point(left_pad);
 	me->selcolor=selcolor;
 	me->bgcolor=bgcolor;
 	me->touched_id=-1;
 	me->request_x=-1;
-	
+
 	/* set internal data */
 	libaroma_mutex_init(me->mutex);
-	
+
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
 		libaroma_control_new(
@@ -863,10 +866,10 @@ LIBAROMA_CONTROLP libaroma_ctl_tabs(
 		free(me);
 		return NULL;
 	}
-	
+
 	me->controller.controller = ctl;
 	me->controller.handler = &_libaroma_ctl_tabs_pager_handler;
-	
+
 	return ctl;
 } /* End of libaroma_ctl_tabs */
 
@@ -902,10 +905,10 @@ byte libaroma_ctl_tabs_set_texts(LIBAROMA_CONTROLP ctl,
 		_libaroma_ctl_tabs_handler, _LIBAROMA_CTL_TABSP, 0
 	);
 	int i;
-	
+
 	libaroma_mutex_lock(me->mutex);
 	_libaroma_ctl_tabs_free_texts(ctl);
-	
+
 	me->texts=(char **) calloc(sizeof(char *),textn);
 	if (!me->texts){
 		me->textn=0;
@@ -951,4 +954,7 @@ byte libaroma_ctl_tabs_set_color(LIBAROMA_CONTROLP ctl,
 	return 1;
 } /* End of libaroma_ctl_bar_set_color */
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_ctl_tabs_c__ */

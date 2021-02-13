@@ -25,6 +25,9 @@
 #define __libaromart_sysui_c__
 #include "aromart_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* sysui app structure */
 typedef struct{
 	int		 aid;						/* application id */
@@ -46,10 +49,10 @@ typedef struct{
 	int							 appid;			/* current appid */
 	LARTAPP_SYSUI *	 fg_app;		 /* foreground app */
 	byte							active;		 /* is active */
-	
+
 	int							 dpi;				/* dpi */
 	LIBAROMA_ZIP			zip;				/* zip global assets */
-	
+
 	int							 sb_h;			 /* statusbar height */
 	LART_SYSTEM_UI_STATUSBAR_DRAW sb_drawer;
 	LIBAROMA_CANVASP	sb_canvas;	/* statusbar canvas */
@@ -123,12 +126,12 @@ void _lart_sysui_killpid(pid_t pid){
 	pthread_create(&th,NULL,_lart_sysui_killpid_thread,(void *) pidt);
 	pthread_detach(th);
 }
-	
+
 /* new fifo and return fd */
 int _lart_sysui_makefifo(char * path){
 	int ret=-1;
 	unlink(path);
-	if (mkfifo(path,0666)==0){ 
+	if (mkfifo(path,0666)==0){
 		ret = open(path,O_RDWR);
 		if (ret<0){
 			unlink(path);
@@ -142,11 +145,11 @@ byte lart_sysui_app_free(LARTAPP_SYSUI * app){
 	if (!app){
 		return 0;
 	}
-	
+
 	lart_send(app->efd,
 		LART_EV_EXIT,0,NULL, 0
 	);
-	
+
 	if (_lart_sysui->appn == 1){
 		/* delete from list */
 		if (_lart_sysui->apps[0]==app){
@@ -170,7 +173,7 @@ byte lart_sysui_app_free(LARTAPP_SYSUI * app){
 		_lart_sysui->apps=newapps;
 	}
 	usleep(200000);
-	
+
 	char stmp[256];
 	int appid = app->aid;
 	if (app->wfd>0){
@@ -213,7 +216,7 @@ typedef struct{
 static void * _lart_sysui_appthread(void * cookie) {
 	LARTAPP_SYSUI * app_data = (LARTAPP_SYSUI *) cookie;
 	app_data->isrun=1;
-	
+
 	/* app request loop */
 	while ((_lart_sysui->active)&&(app_data)){
 		if (!app_data->isrun){
@@ -224,7 +227,7 @@ static void * _lart_sysui_appthread(void * cookie) {
 		dword param=0;
 		/* get command request */
 		byte status=lart_recv(app_data->rfd,&param,&data,&len);
-		
+
 		_MLOCK();
 		byte isfg=0;
 		if (_lart_sysui->fg_app){
@@ -257,12 +260,12 @@ static void * _lart_sysui_appthread(void * cookie) {
 					if (isfg){
 						libaroma_fb_start_post();
 						libaroma_fb_post(_lart_sysui->sb_canvas,
-							0, 0, 0, 0, _lart_sysui->sb_canvas->w, 
+							0, 0, 0, 0, _lart_sysui->sb_canvas->w,
 							_lart_sysui->sb_canvas->h
 						);
 						libaroma_fb_post(
 							app_data->cfb,
-							0, _lart_sysui->sb_canvas->h, 0, 0, 
+							0, _lart_sysui->sb_canvas->h, 0, 0,
 							app_data->cfb->w, app_data->cfb->h
 						);
 						/* don't wait for vsync to send respond message */
@@ -374,7 +377,7 @@ static void * _lart_sysui_appthread(void * cookie) {
 					lart_sysui_app_free(app_data);
 					free(app_data);
 					app_data=NULL;
-					
+
 					if (_lart_sysui->fg_app){
 						_lart_sysui_sb_setcolor(_lart_sysui->fg_app->primary_color);
 						lart_send(_lart_sysui->fg_app->efd,LART_EV_RESUME,0,NULL,0);
@@ -407,7 +410,7 @@ static void * _lart_sysui_appthread(void * cookie) {
 				}
 				break;
 		}
-		
+
 		/* cleanup data */
 		if (len>0){
 			if (data){
@@ -443,14 +446,14 @@ inline int lart_sysui_req_new_app(
 	app.dpi = _lart_sysui->dpi;
 	snprintf(app.program,256,"%s",program?program:"");
 	snprintf(app.param,256,"%s",param?param:"");
-	
+
 	int rfd = -1;
 	int wfd = -1;
 	int efd = -1;
 	LIBAROMA_CANVASP cfb=NULL;
 	LIBAROMA_CANVASP csb=NULL;
-	
-	
+
+
 	char stmp[256];
 	/* init pipes */
 	snprintf(stmp,256,LART_NAMED_PIPE_APP_READ,app.aid);
@@ -459,7 +462,7 @@ inline int lart_sysui_req_new_app(
 	rfd = _lart_sysui_makefifo(stmp);
 	snprintf(stmp,256,LART_NAMED_PIPE_APP_EVENT,app.aid);
 	efd = _lart_sysui_makefifo(stmp);
-	
+
 	/* init canvases */
 	snprintf(stmp,256,LART_SHMCANVAS_FB,app.aid);
 	cfb = libaroma_canvas_shmem(
@@ -508,7 +511,7 @@ inline int lart_sysui_req_new_app(
 						app_data->efd = efd;
 						app_data->cfb = cfb;
 						app_data->csb = csb;
-						
+
 						LARTAPP_SYSUI ** napps = NULL;
 						if (_lart_sysui->appn==0){
 							napps=calloc(sizeof(LARTAPP_SYSUI *),1);
@@ -562,7 +565,7 @@ inline int lart_sysui_req_new_app(
 			len=0;
 		}
 	}
-	
+
 	if (!is_ok){
 		if (wfd>0){
 			close(wfd);
@@ -590,7 +593,7 @@ inline int lart_sysui_req_new_app(
 		}
 		_lart_sysui->appid--;
 	}
-	
+
 	_MUNLOCK();
 	return ret_appid;
 }
@@ -621,12 +624,12 @@ void _lart_sysui_sb_update(){
 	);
 	byte isdark = libaroma_color_isdark(bgcolor);
 	word text_color = isdark?0xffff:0;
-	
+
 	libaroma_canvas_fillcolor(
 		_lart_sysui->sb_canvas,
 		bgcolor
 	);
-	
+
 	if (_lart_sysui->sb_side_w){
 		if (_lart_sysui->sb_overlay_canvas){
 			libaroma_draw_rect(
@@ -651,11 +654,11 @@ void _lart_sysui_sb_update(){
 			);
 		}
 	}
-	
+
 	if (_lart_sysui->sb_drawer){
 		_lart_sysui->sb_drawer(_lart_sysui->sb_canvas, text_color);
 	}
-	
+
 	libaroma_draw_text(
 		_lart_sysui->sb_canvas,
 		"AROMA Recovery",
@@ -665,7 +668,7 @@ void _lart_sysui_sb_update(){
 		LIBAROMA_TEXT_CENTER,
 		140
 	);
-	
+
 	if (_lart_sysui->fg_app){
 		lart_send(_lart_sysui->fg_app->efd,
 			LART_EV_NEEDSYNC,0,NULL, 0
@@ -694,7 +697,7 @@ byte _lart_sysui_ui_thread(){
 			libaroma_duration_state(_lart_sysui->sb_updatestart, 200)
 		);
 		if (cstate<1){
-			_lart_sysui->sb_bgcolor = 
+			_lart_sysui->sb_bgcolor =
 				libaroma_alpha(
 					_lart_sysui->sb_prvcolor,
 					_lart_sysui->sb_reqcolor,
@@ -811,7 +814,7 @@ int lart_sysui(
 			/* init sysui values */
 			_lart_sysui->sb_h = libaroma_dp(LART_SYSUI_STATUSBAR_HEIGHT);
 			_lart_sysui->dpi	= libaroma_fb()->dpi;
-			
+
 			/* set workspace size */
 			libaroma_wm_set_workspace(
 				0,
@@ -819,11 +822,11 @@ int lart_sysui(
 				libaroma_fb()->w,
 				libaroma_fb()->h-_lart_sysui->sb_h
 			);
-			
+
 			/* clean display */
 			libaroma_canvas_blank(libaroma_fb()->canvas);
 			libaroma_sync();
-			
+
 			/* create statusbar canvas area */
 			_lart_sysui->sb_canvas=libaroma_canvas_area(
 				libaroma_fb()->canvas,
@@ -833,25 +836,25 @@ int lart_sysui(
 				libaroma_wm_set_ui_thread(_lart_sysui_ui_thread);
 				libaroma_wm_set_message_handler(_lart_sysui_msg_handler);
 				_lart_sysui_sb_setcolor(0);
-				
+
 				/* load zip resource */
 				_lart_sysui->zip = libaroma_zip(LART_SYSUI_ZIP_PATH);
 				if (_lart_sysui->zip){
 					libaroma_stream_set_uri_callback(_lart_sysui_stream_uri_cb);
 					libaroma_font(0,libaroma_stream(LART_SYSUI_MAINFONT_URI));
-					
+
 					_lart_sysui->active = 1;
-					
+
 					if (sysui_handler!=NULL){
 						_MUNLOCK();
 						sysui_handler();
 						_MLOCK();
-						
+
 						/* delete all apps */
 						if (_lart_sysui->appn>0){
 							LARTLOGV("Destroy all running apps: %i apps",
 							_lart_sysui->appn);
-							LARTAPP_SYSUI ** pvui=(LARTAPP_SYSUI **) 
+							LARTAPP_SYSUI ** pvui=(LARTAPP_SYSUI **)
 								calloc(sizeof(LARTAPP_SYSUI *),_lart_sysui->appn);
 							memcpy(pvui,_lart_sysui->apps,
 								sizeof(LARTAPP_SYSUI *)*_lart_sysui->appn);
@@ -864,20 +867,20 @@ int lart_sysui(
 							free(pvui);
 							LARTLOGV("Destroy apps finished");
 						}
-						
+
 						LARTLOGI("Wait for destroyer");
 						while(_lart_on_kill_apps>0){
 							usleep(100000);
 						}
 						LARTLOGI("Destroyer Finished");
 					}
-					
+
 					_lart_sysui->active = 0;
 				}
 				else{
 					LARTLOGE("_lart_sysui->zip init failed");
 				}
-				
+
 				libaroma_wm_set_message_handler(NULL);
 				libaroma_wm_set_ui_thread(NULL);
 			}
@@ -885,7 +888,7 @@ int lart_sysui(
 				LARTLOGE("_lart_sysui->sb_canvas init failed");
 			}
 		}
-		
+
 		/* cleanup */
 		if (_lart_sysui->sb_canvas){
 			libaroma_canvas_free(_lart_sysui->sb_canvas);
@@ -900,7 +903,7 @@ int lart_sysui(
 			_lart_sysui->zip=NULL;
 		}
 		libaroma_end();
-		
+
 		free(_lart_sysui);
 		_lart_sysui=NULL;
 		_MUNLOCK();
@@ -910,7 +913,7 @@ int lart_sysui(
 		res = 200;
 	}
 	LARTLOGI("System UI Ended: %i",res);
-	
+
 	/* terminated message */
 	_MLOCK();
 	lart_rsend(
@@ -920,4 +923,7 @@ int lart_sysui(
 	return res;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaromart_sysui_c__ */

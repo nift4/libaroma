@@ -35,7 +35,7 @@ static inline void libaroma_color_set(
 	wordp __restrict dst,
 	word color,
 	int n
-){	
+){
 	int i,left=n%32;
 	if (n>=32){
 		uint16x8x4_t t_clr;
@@ -57,12 +57,12 @@ static inline void libaroma_color_set(
  */
 static inline void libaroma_color_copy32(
 	dwordp __restrict dst,
-	wordp __restrict src, 
+	wordp __restrict src,
 	int n,
 	bytep __restrict rgb_pos
 ) {
 	int i,left=n%8;
-	
+
 	/* neon */
 	if (n>=8){
 		uint16x8_t msk_r = vdupq_n_u16(0xF800);
@@ -88,7 +88,7 @@ static inline void libaroma_color_copy32(
 			vst4_u8((uint8_t *) (dst+i), n_dst);
 		}
 	}
-	
+
 	/* leftover */
 	if (left>0){
 		word cl;
@@ -125,7 +125,7 @@ static inline void libaroma_color_copy16(
 		for (i=0;i<n-left;i+=8) {
 			uint8x8x4_t psrc = vld4_u8((uint8_t *) (src+i));
 			vst1q_u16(
-				dst+i, 
+				dst+i,
 				vorrq_u16(
 					vorrq_u16(
 						vshlq_n_u16(vmovl_u8(vshr_n_u8(psrc.val[rgb_pos[3]], 3)), 11),
@@ -158,7 +158,7 @@ static inline void libaroma_color_copy_rgb24(
 	int n
 ){
 	int i,left=n%8;
-	
+
 	/* neon */
 	if (n>=8){
 		uint16x8_t maskr = vdupq_n_u16(0xF800);
@@ -166,7 +166,7 @@ static inline void libaroma_color_copy_rgb24(
 		uint16x8_t maskb = vdupq_n_u16(0x001F);
 		for (i=0;i<n-left;i+=8){
 			uint16x8_t psrc = vld1q_u16(src+i);
-			volatile uint8x8x3_t pdst;
+			uint8x8x3_t pdst;
 			pdst.val[0] = vshrn_n_u16(vandq_u16(psrc,maskr),8);
 			pdst.val[1] = vshrn_n_u16(vandq_u16(psrc,maskg),3);
 			pdst.val[2] = vmovn_u16(vshlq_n_u16(vandq_u16(psrc,maskb),3));

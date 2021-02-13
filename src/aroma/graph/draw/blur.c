@@ -25,6 +25,9 @@
 #define __libaroma_blur_c__
 #include <aroma_internal.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 float * _libaroma_blur_kernel(const int inRadius) {
 	int mem_amount = (inRadius * 2) + 1;
 	float * gaussian_kernel = (float *) malloc(mem_amount * sizeof(float));
@@ -69,7 +72,7 @@ byte libaroma_draw_shadow(
 	memset(cv->alpha, 0, cv->s);
 	memset(horiz->alpha, 0, horiz->s);
 	memset(vert->alpha, 0, vert->s);
-	
+
 	int y;
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
@@ -101,7 +104,7 @@ byte libaroma_draw_shadow(
 			);
 		}
 	}
-	
+
 	bytep calpha=cv->alpha+(cv->l*radiusy);
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
@@ -112,23 +115,23 @@ byte libaroma_draw_shadow(
 	if (fill){
 		libaroma_draw_rect(dst,dx,dy,w,h,0,alphamax);
 	}
-	
+
 	libaroma_draw_ex(dst,cv,dx-radiusx,dy-radiusy,0,0,radiusx,radiusy,1,0xff); /* left-top */
 	libaroma_draw_ex(dst,cv,dx+w,dy-radiusy,radiusx+1,0,radiusx,radiusy,1,0xff); /* right-top */
 	libaroma_draw_ex(dst,cv,dx-radiusx,dy+h,0,radiusy+1,radiusx,radiusy,1,0xff); /* left-bottom */
 	libaroma_draw_ex(dst,cv,dx+w,dy+h,radiusx+1,radiusy+1,radiusx,radiusy,1,0xff); /* right-bottom */
-	
+
 	libaroma_draw_ex(dst,horiz,dx,dy-radiusy,0,0,horiz->w,radiusy,1,0xff); /* top */
 	libaroma_draw_ex(dst,horiz,dx,dy+h,0,radiusy,horiz->w,radiusy,1,0xff); /* bottom */
-	
+
 	libaroma_draw_ex(dst,vert,dx-radiusx,dy,0,0,radiusx,vert->h,1,0xff); /* left */
 	libaroma_draw_ex(dst,vert,dx+w,dy,radiusx+1,0,radiusx,vert->h,1,0xff); /* right */
-	
-	
+
+
 	libaroma_canvas_free(cv);
 	libaroma_canvas_free(horiz);
 	libaroma_canvas_free(vert);
-	
+
 	free(kernelx);
 	free(kernely);
 	return 1;
@@ -176,7 +179,7 @@ LIBAROMA_CANVASP libaroma_blur_ex(
 	else{
 		libaroma_canvas_setcolor(t2,0,0);
 	}
-	
+
 	int sz = nwidth * nheight;
 	if (usealpha) {
 		memset(t1->alpha, 0, sz);
@@ -263,6 +266,9 @@ LIBAROMA_CANVASP libaroma_blur_ex(
 	return t2;
 } /* End of libaroma_blur_ex */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_blur_c__ */
 

@@ -41,6 +41,9 @@
 #include <dirent.h>
 #include <unistd.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * defines & macros
  */
@@ -181,7 +184,7 @@ byte LINUXHIDRV_init(
 	/* allocating internal data */
 	LINUXHIDRV_INTERNALP mi = (LINUXHIDRV_INTERNALP)
 		calloc(sizeof(LINUXHIDRV_INTERNAL),1);
-		
+
 	/* set internal address */
 	me->internal = (voidp) mi;
 	/* set initial value */
@@ -191,7 +194,7 @@ byte LINUXHIDRV_init(
 	if (dir != 0) {
 		struct dirent * de; /* dirent */
 		int fd; /* temporary device fd */
-		
+
 		/* read input device directory */
 		while ((de = readdir(dir))) {
 			/* continue if filename not contain "event" */
@@ -210,7 +213,7 @@ byte LINUXHIDRV_init(
 			mi->dev[mi->n].id = mi->n;
 			/* set device filename */
 			snprintf(mi->dev[mi->n].file, 10, "%s", de->d_name) < 0 ? abort() : (void)0 ;
-			
+
 			/* load virtualkeys if there are any */
 			if (LINUXHIDRV_init_device(mi, fd, &mi->dev[mi->n])) {
 				/* dump device information */
@@ -237,7 +240,7 @@ byte LINUXHIDRV_init(
 		}
 		/* close dir */
 		closedir(dir);
-		
+
 		/* input device not found */
 		if (mi->n == 0) {
 			/* free internal data */
@@ -246,14 +249,14 @@ byte LINUXHIDRV_init(
 			/* error */
 			return 0;
 		}
-		
+
 		/* set driver callbacks */
 		me->release		= &LINUXHIDRV_release;
 		me->getinput	 = &LINUXHIDRV_getinput;
 		/* ok */
 		return 1;
 	}
-	
+
 	/* free internal data */
 	free(mi);
 	ALOGE("INDR ERROR: Can't access /dev/input...");
@@ -316,7 +319,7 @@ static byte LINUXHIDRV_nonzero(
 		dword startIndex,
 		dword endIndex) {
 	const bytep end	 = array_s + endIndex;
-	bytep array = array_s + startIndex;	
+	bytep array = array_s + startIndex;
 	while (array != end) {
 		if (*(array++) != 0) {
 			return 1;
@@ -334,14 +337,14 @@ byte LINUXHIDRV_getdevclass(
 	byte keyBitmask[(KEY_MAX + 1) / 8];
 	byte absBitmask[(ABS_MAX + 1) / 8];
 	byte relBitmask[(REL_MAX + 1) / 8];
-	
+
 	ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(keyBitmask)), keyBitmask);
 	ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(absBitmask)), absBitmask);
 	ioctl(fd, EVIOCGBIT(EV_REL, sizeof(relBitmask)), relBitmask);
-	
+
 	/* reset return value */
 	byte ret = 0;
-	
+
 	/* check keyboard */
 	byte haveKeyboardKeys =
 		LINUXHIDRV_nonzero(keyBitmask, 0,
@@ -349,7 +352,7 @@ byte LINUXHIDRV_getdevclass(
 		LINUXHIDRV_nonzero(keyBitmask,
 								 LINUXHIDRV_SIZEOF_BIT_ARRAY(KEY_OK),
 								 LINUXHIDRV_SIZEOF_BIT_ARRAY(KEY_MAX + 1));
-	
+
 	/* check gamepad */
 	byte haveGamepadButtons =
 		LINUXHIDRV_nonzero(keyBitmask,
@@ -358,11 +361,11 @@ byte LINUXHIDRV_getdevclass(
 		LINUXHIDRV_nonzero(keyBitmask,
 								 LINUXHIDRV_SIZEOF_BIT_ARRAY(BTN_JOYSTICK),
 								 LINUXHIDRV_SIZEOF_BIT_ARRAY(BTN_DIGI));
-								 
+
 	if (haveKeyboardKeys) {
 		ret |= LINUXHIDRV_DEVCLASS_KEYBOARD;
 	}
-	
+
 	/* check touch screen */
 	if (LINUXHIDRV_TEST_BIT(ABS_MT_POSITION_X, absBitmask) &&
 			LINUXHIDRV_TEST_BIT(ABS_MT_POSITION_Y, absBitmask)) {
@@ -379,13 +382,13 @@ byte LINUXHIDRV_getdevclass(
 		/* single touch */
 		ret |= LINUXHIDRV_DEVCLASS_TOUCH;
 	}
-	
+
 	/* mouse or gamepad */
 	if (LINUXHIDRV_TEST_BIT(REL_X, relBitmask) &&
 			LINUXHIDRV_TEST_BIT(REL_Y, relBitmask)) {
 		ret |= LINUXHIDRV_DEVCLASS_POINTER;
 	}
-	
+
 	return ret;
 }
 
@@ -400,27 +403,27 @@ byte LINUXHIDRV_init_device(
 	char		vk_path[PATH_MAX] = LINUXHIDRV_BOARD_VKEY_PATH;
 	char	* ts = NULL;
 	char		vks[2048];
-	
+
 	/* get device name */
 	ssize_t len = ioctl(fd, EVIOCGNAME(sizeof(dev->name)), dev->name);
 	if (len <= 0) {
 		ALOGW("INDR ERROR: EVIOCGNAME for %d", dev->id);
 		return 0;
 	}
-	
+
 	/* blacklisted devices */
 	if (LINUXHIDRV_blacklist(dev->name)) {
 		return 0;
 	}
-	
+
 	/* get device class */
 	dev->devclass = LINUXHIDRV_getdevclass(fd);
-	
+
 	/* if class is none, ignore it */
 	if (!dev->devclass) {
 		return 0;
 	}
-	
+
 	/* reset all values */
 	memset(&dev->p, 0, sizeof(LINUXHIDRV_POS));
 	dev->p.tx			 = -1;
@@ -430,7 +433,7 @@ byte LINUXHIDRV_init_device(
 	dev->p.vk			 = -1;
 	dev->vkn				= 0;
 	dev->down			 = 0;
-	
+
 	/* if touchscreen, get calibration data & virtualkeys */
 	if ((dev->devclass & LINUXHIDRV_DEVCLASS_TOUCH)) {
 		/* calibration */
@@ -444,17 +447,17 @@ byte LINUXHIDRV_init_device(
 			ioctl(fd, EVIOCGABS(ABS_X), &dev->p.xi);
 			ioctl(fd, EVIOCGABS(ABS_Y), &dev->p.yi);
 		}
-		
+
 		/* virtualkeys.{device_name} */
 		strcat(vk_path, dev->name);
 		/* some devices split the keys from the touchscreen */
 		int vk_fd = open(vk_path, O_RDONLY);
-		
+
 		if (vk_fd >= 0) {
 			/* read contents */
 			len = read(vk_fd, vks, sizeof(vks) - 1);
 			close(vk_fd);
-			
+
 			/* return false on failed */
 			if (len > 0) {
 				/* add string break */
@@ -473,7 +476,7 @@ byte LINUXHIDRV_init_device(
 				}
 			}
 		}
-		
+
 		/* allocate virtualkeys count */
 		if (dev->vkn > 0) {
 			dev->vks = malloc(sizeof(LINUXHIDRV_VK) * dev->vkn);
@@ -505,7 +508,7 @@ byte LINUXHIDRV_init_device(
 			}
 		}
 	}
-	
+
 	/* ok */
 	return 1;
 }
@@ -527,7 +530,7 @@ byte LINUXHIDRV_translate(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
 		/* it's key device - input_translate/translate_key.c */
 		return LINUXHIDRV_translate_keyboard(me, dev, dest_ev, ev);
 	}
-	
+
 	/* don't process it */
 	return LIBAROMA_HID_EV_RET_NONE;
 }
@@ -560,7 +563,7 @@ byte LINUXHIDRV_getinput(
 						/* translate it */
 						byte translate_ret =
 							LINUXHIDRV_translate(me, &mi->dev[n], dest_ev, &ev);
-						
+
 						/* check */
 						if (translate_ret != LIBAROMA_HID_EV_RET_NONE) {
 							/* don't process it */
@@ -572,7 +575,7 @@ byte LINUXHIDRV_getinput(
 		}
 	}
 	while (me->internal != NULL);
-	
+
 	/* it was exit message */
 	ALOGV("LINUXHIDRV_getinput Input Driver Already Released");
 	return LIBAROMA_HID_EV_RET_EXIT;
@@ -585,4 +588,7 @@ byte libaroma_hid_driver_init(LIBAROMA_HIDP me) {
 	return LINUXHIDRV_init(me);
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_hid_driver_c__ */

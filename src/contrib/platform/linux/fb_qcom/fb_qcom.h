@@ -24,6 +24,9 @@
 #ifndef __libaroma_linux_fb_qcom_driver_h__
 #define __libaroma_linux_fb_qcom_driver_h__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* ION HEADERS */
 #define ION_HEAP(bit) (1 << (bit))
 struct ion_handle;
@@ -130,16 +133,16 @@ typedef struct{
 	int			 ionfd;
 	int			 memfd;
 	voidp		 handle;
-	
+
 	int			 yoffset;
 	int			 overlay_lid;
 	int			 overlay_rid;
-	
+
 	byte			split;
 	int			 split_left;
 	int			 split_right;
 	byte			dbuf;
-	
+
 	struct msmfb_overlay_data overlay;
 	struct mdp_display_commit commiter;
 /*	struct mdp_display_commit_44 commiter44;*/
@@ -195,4 +198,7 @@ byte QCOMFB_sync(LIBAROMA_FBP me, wordp src,int x, int y, int w, int h);
  */
 void QCOMFB_flush(LIBAROMA_FBP me);
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_linux_fb_qcom_driver_h__ */

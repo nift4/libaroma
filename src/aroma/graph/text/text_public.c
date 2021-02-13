@@ -21,6 +21,9 @@
  * + 21/01/15 - Author(s): Ahmad Amarullah
  *
  */
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef __libaroma_text_public_c__
 #define __libaroma_text_public_c__
 
@@ -190,7 +193,7 @@ int libaroma_text_line_info(
 		byte info) {
 	if (text) {
 		_LIBAROMA_TEXTP txt = (_LIBAROMA_TEXTP) text;
-		
+
 		if (line > txt->n - 1) {
 			return 0;
 		}
@@ -485,3 +488,7 @@ int libaroma_draw_text_ex(
 
 
 #endif /* __libaroma_text_public_c__ */
+
+#ifdef __cplusplus
+}
+#endif

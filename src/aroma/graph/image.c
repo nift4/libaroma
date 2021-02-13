@@ -24,15 +24,17 @@
 #ifndef __libaroma_image_c__
 #define __libaroma_image_c__
 #include <aroma_internal.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_image_ex
  * Return Value: LIBAROMA_CANVASP
  * Descriptions: read image by file signature - extended
  */
 LIBAROMA_CANVASP libaroma_image_ex(
-		LIBAROMA_STREAMP stream, 
-		byte freeStream, 
+		LIBAROMA_STREAMP stream,
+		byte freeStream,
 		byte hicolor){
 	if (!stream) {
 		return NULL;
@@ -40,8 +42,9 @@ LIBAROMA_CANVASP libaroma_image_ex(
 	if (stream->size<5){
 		goto errorgo;
 	}
-	bytep d=stream->data;
-	
+	bytep d;
+	d=stream->data;
+
 	/* png */
 	if (
 		(d[0]==0x89)&&
@@ -62,7 +65,8 @@ LIBAROMA_CANVASP libaroma_image_ex(
 
 #ifndef LIBAROMA_CONFIG_NOSVG
 	/* svg */
-	byte is_svg=0;
+	byte is_svg;
+	is_svg=0;
 	if (libaroma_stristr(stream->uri, ".svg", stream->size)!=NULL){
 		is_svg=1;
 	}
@@ -98,7 +102,9 @@ errorgo:
 	}
 	return NULL;
 } /* End of libaroma_image_new */
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_image_c__ */
 

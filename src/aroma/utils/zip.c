@@ -27,6 +27,9 @@
 #include <aroma_internal.h>
 #include <Zip.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * Function		: libaroma_zip
  * Return Value: LIBAROMA_ZIP
@@ -117,6 +120,8 @@ int libaroma_zip_read(
 	return sz;
 } /* End of libaroma_zip_read */
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_zip_c__ */

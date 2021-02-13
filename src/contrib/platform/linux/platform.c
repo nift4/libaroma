@@ -27,6 +27,9 @@
 
 #include <sys/stat.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* shmem prefix */
 #ifndef LIBAROMA_CONFIG_SHMEM_PREFIX
 	#define LIBAROMA_CONFIG_SHMEM_PREFIX "/libaromashm-"
@@ -80,5 +83,8 @@ byte libaroma_file_exists(const char * filename){
 	return 1;
 }
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_platform */
 

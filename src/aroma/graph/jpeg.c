@@ -28,7 +28,9 @@
 #include <jpeglib.h>
 #include <jerror.h>
 #include <setjmp.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifndef LIBAROMA_CONFIG_NOJPEG
 
 /*
@@ -145,33 +147,36 @@ LIBAROMA_CANVASP libaroma_jpeg_ex(
 	if (!stream) {
 		return NULL;
 	}
-	
+
 	/* error handler*/
 	struct jpeg_decompress_struct cinfo;
 	_LIBAROMA_JPEG_ERROR_MGR jerr;
 	cinfo.err = jpeg_std_error(&jerr.pub);
 	jerr.pub.error_exit = _libaroma_jpeg_error_exit;
-	
+
 	/* exception handler */
 	if (setjmp(jerr.setjmp_buffer)) {
 		jpeg_destroy_decompress(&cinfo);
 		goto exit;
 	}
-	
+
 	/* init */
 	jpeg_create_decompress(&cinfo);
 	_libaroma_jpeg_mem_src(&cinfo, (const JOCTET *) stream->data, stream->size);
 	jpeg_read_header(&cinfo, TRUE);
 	jpeg_start_decompress(&cinfo);
-	
+
 	/* set info */
-	int pcv_w		= cinfo.output_width;
-	int pcv_h		= cinfo.output_height;
-	int pcv_c		= cinfo.output_components;
-	
+	int pcv_w;
+	int pcv_h;
+	int pcv_c;
+	pcv_w		= cinfo.output_width;
+	pcv_h		= cinfo.output_height;
+	pcv_c		= cinfo.output_components;
+
 	/* verbose */
 	ALOGV("load jpeg \"%s\" (%ix%i:%i)", stream->uri, pcv_w, pcv_h, pcv_c);
-	
+
 	/* Create Canvas */
 	cv = libaroma_canvas_new(
 		 pcv_w,
@@ -184,11 +189,14 @@ LIBAROMA_CANVASP libaroma_jpeg_ex(
 		jpeg_destroy_decompress(&cinfo);
 		goto exit;
 	}
-	
+
 	/* image loop */
-	dword row_sz		= pcv_w * pcv_c;
-	bytep row_data	= (bytep) malloc(row_sz);
-	int y = 0;
+	dword row_sz;
+	row_sz		= pcv_w * pcv_c;
+	bytep row_data;
+	row_data	= (bytep) malloc(row_sz);
+	int y;
+	y = 0;
 	int x, z;
 	if (hicolor) {
 		while (cinfo.output_scanline < cinfo.output_height) {
@@ -245,28 +253,30 @@ byte libaroma_jpeg_draw(
 	if (!cv){
 		goto exit;
 	}
-	
+
 	/* error handler*/
 	struct jpeg_decompress_struct cinfo;
 	_LIBAROMA_JPEG_ERROR_MGR jerr;
 	cinfo.err = jpeg_std_error(&jerr.pub);
 	jerr.pub.error_exit = _libaroma_jpeg_error_exit;
-	
+
 	/* exception handler */
 	if (setjmp(jerr.setjmp_buffer)) {
 		jpeg_destroy_decompress(&cinfo);
 		goto exit;
 	}
-	
+
 	/* init */
 	jpeg_create_decompress(&cinfo);
 	_libaroma_jpeg_mem_src(&cinfo, (const JOCTET *) stream->data, stream->size);
 	jpeg_read_header(&cinfo, TRUE);
 	jpeg_start_decompress(&cinfo);
-	
-	dword vdw=(dword) dw;
-	dword vdh=(dword) dh;
-	
+
+	dword vdw;
+	vdw=(dword) dw;
+	dword vdh;
+	vdh=(dword) dh;
+
 	if ((cinfo.output_width==vdw)&&(cinfo.output_height==vdh)){
 		dword row_sz = cinfo.output_width * cinfo.output_components;
 		bytep row_data = (bytep) malloc(row_sz);
@@ -295,7 +305,7 @@ byte libaroma_jpeg_draw(
 			jpeg_destroy_decompress(&cinfo);
 			goto exit;
 		}
-		
+
 		/* image loop */
 		dword row_sz		= pcv_w * pcv_c;
 		bytep row_data	= (bytep) malloc(row_sz);
@@ -331,6 +341,8 @@ exit:
 
 #endif /* LIBAROMA_CONFIG_NOJPEG */
 
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_jpeg_c__ */
 

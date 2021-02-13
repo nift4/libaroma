@@ -24,7 +24,9 @@
 #ifndef __libaroma_compiler_message_c__
 #define __libaroma_compiler_message_c__
 #include <aroma_internal.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* stringfy */
 #define __LIBAROMA_STRINGFY(X) #X
@@ -193,6 +195,8 @@
 #undef __LIBAROMA_STR
 #undef __LIBAROMA_CMSG_OPENMP
 #undef __LIBAROMA_CMSG_SUBPIXEL
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* __libaroma_compiler_message_c__ */
 

@@ -26,44 +26,53 @@
 #include <aroma_internal.h>
 #include "ui_internal.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* max touch x dp to trigger sidebar */
 #define _LIBAROMA_LAYER_SIDEBAR_TOUCH_DP 16
-/* max touch x dp to trigger notifications pulldown */
-#define _LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP 16
+/* max touch x dp to trigger pulldown */
+#define _LIBAROMA_LAYER_PULLDOWN_TOUCH_DP 16
 
 /* root window client data */
 typedef struct{
 	LIBAROMA_WINDOWP win;
 	LIBAROMA_WINDOWP sidebar;
-	LIBAROMA_WINDOWP notifpulldown;
+	LIBAROMA_WINDOWP pulldown;
 	byte sidebar_showed;
-	byte notifpulldown_showed;
+	byte pulldown_showed;
 	int sidebar_xpos;
 	int sidebar_req_x;
-	int notifpulldown_ypos;
-	int notifpulldown_req_y;
+	int pulldown_ypos;
+	int pulldown_req_y;
 	int sidebar_velocity;
-	int notifpulldown_velocity;
-	byte notifpulldown_drawtype;
+	int pulldown_velocity;
+	byte pulldown_drawtype;
 	byte redraw;
-	
+
 	LIBAROMA_MUTEX mutex;
 	LIBAROMA_CANVASP tdc;
 	byte on_direct_canvas;
 	byte (*ori_ui_thread)(LIBAROMA_WINDOWP);
-	
-	byte touched;
+
+	byte pd_touched;
+	byte sb_touched;
 	int touch_x;
 	int touch_y;
-	
-	byte allow_scroll;
-	long client_touch_start;
-	LIBAROMA_MSG pretouched_msg;
-	LIBAROMA_CONTROLP pretouched;
-	
+
+	byte pd_allow_scroll;
+	byte sb_allow_scroll;
+	long pd_client_touch_start;
+	long sb_client_touch_start;
+	LIBAROMA_MSG pd_pretouched_msg;
+	LIBAROMA_MSG sb_pretouched_msg;
+	LIBAROMA_CONTROLP pd_pretouched;
+	LIBAROMA_CONTROLP sb_pretouched;
+
 	LIBAROMA_WINDOW_SIDEBAR_SLIDE_CB slide_cb;
-	LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB notif_slide_cb;
-	LIBAROMA_FLING fling;
+	LIBAROMA_WINDOW_PULLDOWN_SLIDE_CB pulldown_slide_cb;
+	LIBAROMA_FLING pd_fling;
+	LIBAROMA_FLING sb_fling;
 } _LIBAROMA_WINDOW_LAYER, *_LIBAROMA_WINDOW_LAYERP;
 
 /* window handler */
@@ -119,7 +128,7 @@ void _libaroma_window_layer_postfree(LIBAROMA_WINDOWP win){
 	if (!me){
 		return;
 	}
-	
+
 	if (me->sidebar){
 		if (me->sidebar->active){
 			me->sidebar->active=0;
@@ -138,22 +147,22 @@ void _libaroma_window_layer_postfree(LIBAROMA_WINDOWP win){
 		libaroma_window_free(me->sidebar);
 		libaroma_mutex_unlock(me->mutex);
 	}
-	if (me->notifpulldown){
-		if (me->notifpulldown->active){
-			me->notifpulldown->active=0;
+	if (me->pulldown){
+		if (me->pulldown->active){
+			me->pulldown->active=0;
 			LIBAROMA_MSG msgia;
 			msgia.msg=LIBAROMA_MSG_WIN_INACTIVE;
 			int i;
-			for (i=0;i<me->notifpulldown->childn;i++){
-				if (me->notifpulldown->childs[i]->handler->message){
-					me->notifpulldown->childs[i]->handler->message(
-						me->notifpulldown->childs[i], &msgia
+			for (i=0;i<me->pulldown->childn;i++){
+				if (me->pulldown->childs[i]->handler->message){
+					me->pulldown->childs[i]->handler->message(
+						me->pulldown->childs[i], &msgia
 					);
 				}
 			}
 		}
 		libaroma_mutex_lock(me->mutex);
-		libaroma_window_free(me->notifpulldown);
+		libaroma_window_free(me->pulldown);
 		libaroma_mutex_unlock(me->mutex);
 	}
 	libaroma_mutex_lock(me->mutex);
@@ -185,7 +194,7 @@ byte _libaroma_window_layer_updatedc(LIBAROMA_WINDOWP win){
 	if (!me->on_direct_canvas){
 		if (me->tdc){
 			byte sidebar_draw=0;
-			byte notifpulldown_draw=0;
+			byte pulldown_draw=0;
 			if (win->active==1){
 				if (me->sidebar_showed){
 					if (me->sidebar){
@@ -206,51 +215,51 @@ byte _libaroma_window_layer_updatedc(LIBAROMA_WINDOWP win){
 								LIBAROMA_DRAW_TO_BLACK,
 								245-(150*me->sidebar_xpos/me->sidebar->w)
 							);
-							
+
 							sidebar_draw=1;
 						}
 					}
 				}
-				if (me->notifpulldown_showed){
-					if (me->notifpulldown){
-						if (me->notifpulldown_ypos>0){
-							libaroma_draw_ex(				//draw notif window
+				if (me->pulldown_showed){
+					if (me->pulldown){
+						if (me->pulldown_ypos>0){
+							libaroma_draw_ex(				//draw pulldown window
 								win->dc,													//dest
-								me->notifpulldown->dc,										//src
+								me->pulldown->dc,										//src
 								0, 															//destx
-								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
-									0:me->notifpulldown->y,									//desty
+								(me->pulldown_drawtype==LIBAROMA_PULLDOWN_CLEAN)?
+									0:me->pulldown->y,									//desty
 								0, 															//srcx
-								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
-									0:(me->notifpulldown->h-me->notifpulldown_ypos),		//srcy
+								(me->pulldown_drawtype==LIBAROMA_PULLDOWN_CLEAN)?
+									0:(me->pulldown->h-me->pulldown_ypos),		//srcy
 								win->dc->w,													//width
-								(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
-									me->notifpulldown_ypos:me->notifpulldown->h,			//height
+								(me->pulldown_drawtype==LIBAROMA_PULLDOWN_CLEAN)?
+									me->pulldown_ypos:me->pulldown->h,			//height
 								0,0xff														//usealpha, level
 							);
-							if ((win->dc->h - me->notifpulldown_ypos) > 0){
+							if ((win->dc->h - me->pulldown_ypos) > 0){
 								libaroma_draw_ex(				//draw alpha section
 									win->dc,me->tdc,										//dest, src
-									0,me->notifpulldown_ypos,								//destx, desty
-									0,me->notifpulldown_ypos,								//srcx, srcy
-									win->dc->w, win->dc->h-me->notifpulldown_ypos,			//width, height
-									(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
+									0,me->pulldown_ypos,								//destx, desty
+									0,me->pulldown_ypos,								//srcx, srcy
+									win->dc->w, win->dc->h-me->pulldown_ypos,			//width, height
+									(me->pulldown_drawtype==LIBAROMA_PULLDOWN_CLEAN)?
 										0:LIBAROMA_DRAW_TO_BLACK,							//alphaflags
-									(me->notifpulldown_drawtype==LIBAROMA_NOTIF_PULLDOWN_CLEAN)?
-										255:(245-(150*me->notifpulldown_ypos/me->notifpulldown->h))//alphalevel
+									(me->pulldown_drawtype==LIBAROMA_PULLDOWN_CLEAN)?
+										255:(245-(150*me->pulldown_ypos/me->pulldown->h))//alphalevel
 								);
 							}
-							//printf("drawing window at x %d, y %d (srcx %d, srcy %d) with w %d, h %d\n", 
-							//		0, me->notifpulldown->y, 0, me->notifpulldown->h-me->notifpulldown_ypos, 
-							//		win->dc->w, me->notifpulldown->h);
-							//printf("notifpulldown has width %d, height %d, x %d and y %d\n", 
-							//					win->dc->w, me->notifpulldown->h, 0, me->notifpulldown_ypos);
-							notifpulldown_draw=1;
+							//printf("drawing window at x %d, y %d (srcx %d, srcy %d) with w %d, h %d\n",
+							//		0, me->pulldown->y, 0, me->pulldown->h-me->pulldown_ypos,
+							//		win->dc->w, me->pulldown->h);
+							//printf("pulldown has width %d, height %d, x %d and y %d\n",
+							//					win->dc->w, me->pulldown->h, 0, me->pulldown_ypos);
+							pulldown_draw=1;
 						}
 					}
 				}
 			}
-			if (!sidebar_draw && !notifpulldown_draw){
+			if (!sidebar_draw && !pulldown_draw){
 				libaroma_draw(win->dc,me->tdc,0,0,0);
 			}
 		}
@@ -424,74 +433,74 @@ byte _libaroma_window_layer_set_sidebar_pos(LIBAROMA_WINDOWP win, int x){
 } /* End of _libaroma_window_layer_set_sidebar_pos */
 
 /*
- * Function		: _libaroma_window_layer_set_notifpulldown_pos
+ * Function		: _libaroma_window_layer_set_pulldown_pos
  * Return Value: byte
- * Descriptions: set notifpulldown position
+ * Descriptions: set pulldown position
  */
-byte _libaroma_window_layer_set_notifpulldown_pos(LIBAROMA_WINDOWP win, int y){
+byte _libaroma_window_layer_set_pulldown_pos(LIBAROMA_WINDOWP win, int y){
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win);
 	if (!me){
 		return 0;
 	}
 	libaroma_mutex_lock(me->mutex);
-	if (!me->notifpulldown){
+	if (!me->pulldown){
 		libaroma_mutex_unlock(me->mutex);
 		return 0;
 	}
 	if (y>0){
-		if (y>me->notifpulldown->h){
-			printf("Touch Y %d is greater than window height %d!\n", y, me->notifpulldown->h);
-			y=me->notifpulldown->h;
+		if (y>me->pulldown->h){
+			printf("Touch Y %d is greater than window height %d!\n", y, me->pulldown->h);
+			y=me->pulldown->h;
 		}
-		if (!me->notifpulldown_showed){
-			if (!me->notifpulldown->active){
-				/* activate notifpulldown */
+		if (!me->pulldown_showed){
+			if (!me->pulldown->active){
+				/* activate pulldown */
 				LIBAROMA_MSG msgr;
 				dword rv=0;
 				msgr.msg=LIBAROMA_MSG_WIN_MEASURED;
 				libaroma_mutex_unlock(me->mutex);
-				me->notifpulldown->handler->message_hooker(me->notifpulldown,&msgr,&rv);
+				me->pulldown->handler->message_hooker(me->pulldown,&msgr,&rv);
 				msgr.msg=LIBAROMA_MSG_WIN_ACTIVE;
-				me->notifpulldown->handler->message_hooker(me->notifpulldown,&msgr,&rv);
-				libaroma_window_invalidate(me->notifpulldown,0);
+				me->pulldown->handler->message_hooker(me->pulldown,&msgr,&rv);
+				libaroma_window_invalidate(me->pulldown,0);
 				libaroma_mutex_lock(me->mutex);
 			}
 			libaroma_mutex_unlock(me->mutex);
 			libaroma_window_layer_direct_canvas(win,0);
 			libaroma_mutex_lock(me->mutex);
-			me->notifpulldown_showed=1;
+			me->pulldown_showed=1;
 		}
-		if (me->notifpulldown_ypos!=y){
+		if (me->pulldown_ypos!=y){
 			me->redraw=1;
 		}
-		if (y==me->notifpulldown->y){
-			if (me->notifpulldown_showed!=2){
-				me->notifpulldown_showed=2;
+		if (y==me->pulldown->y){
+			if (me->pulldown_showed!=2){
+				me->pulldown_showed=2;
 			}
 		}
-		else if (me->notifpulldown_showed==2){
-			me->notifpulldown_showed=1;
+		else if (me->pulldown_showed==2){
+			me->pulldown_showed=1;
 		}
-		me->notifpulldown_ypos=y;
+		me->pulldown_ypos=y;
 	}
 	else{
-		if (me->notifpulldown_showed){
-			me->notifpulldown_showed=0;
+		if (me->pulldown_showed){
+			me->pulldown_showed=0;
 			libaroma_mutex_unlock(me->mutex);
 			libaroma_window_layer_direct_canvas(win,1);
 			libaroma_mutex_lock(me->mutex);
 		}
-		if (me->notifpulldown_ypos!=0){
+		if (me->pulldown_ypos!=0){
 			me->redraw=1;
 		}
-		me->notifpulldown_ypos=0;
+		me->pulldown_ypos=0;
 	}
-	if (me->notif_slide_cb){
-		me->notif_slide_cb(me->notifpulldown, me->notifpulldown_ypos, me->notifpulldown->h);
+	if (me->pulldown_slide_cb){
+		me->pulldown_slide_cb(me->pulldown, me->pulldown_ypos, me->pulldown->h);
 	}
 	libaroma_mutex_unlock(me->mutex);
 	return 1;
-} /* End of _libaroma_window_layer_set_notifpulldown_pos */
+} /* End of _libaroma_window_layer_set_pulldown_pos */
 
 byte _libaroma_window_layer_message_hooker(
 		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval){
@@ -500,32 +509,34 @@ byte _libaroma_window_layer_message_hooker(
 		return 0;
 	}
 	if (win->active==1){
+		if (!me->pulldown_showed && me->sidebar_showed==2){
+			if (me->sidebar->handler->message_hooker(
+					me->sidebar, msg, retval
+				)){
+				return 1;
+			}
+		}/*
 		if (me->sidebar_showed==2){
 			if (me->sidebar){
-				if (me->sidebar->handler->message_hooker(
-						me->sidebar, msg, retval
+			}
+		}*/
+		else if (me->pulldown_showed==2){
+			if (me->pulldown){
+				if (me->pulldown->handler->message_hooker(
+						me->pulldown, msg, retval
 					)){
 					return 1;
 				}
 			}
 		}
-		else if (me->notifpulldown_showed==2){
-			if (me->notifpulldown){
-				if (me->notifpulldown->handler->message_hooker(
-						me->notifpulldown, msg, retval
-					)){
-					return 1;
-				}
-			}
-		}
-		else if (me->touched==10){
+		else if (me->pd_touched==10){
 			/* cancel any touch event */
 			if (msg->msg==LIBAROMA_MSG_TOUCH){
 				return 1;
 			}
 		}
-		else if (me->notifpulldown || me->sidebar || (me->notifpulldown && me->sidebar)){
-			if (me->notifpulldown){
+		else if (me->pulldown || me->sidebar){
+			if (me->pulldown){
 				switch (msg->msg){
 					case LIBAROMA_MSG_TOUCH:
 						{
@@ -533,63 +544,63 @@ byte _libaroma_window_layer_message_hooker(
 							int y = msg->y;
 							libaroma_window_calculate_pos(win,NULL,&x,&y);
 							if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
-								if (y<libaroma_dp(_LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP) || 
-									(y>=(me->notifpulldown->h-libaroma_dp(20)) && me->notifpulldown_showed)){
+								if (y<libaroma_dp(_LIBAROMA_LAYER_PULLDOWN_TOUCH_DP) ||
+								(y>=(me->pulldown->h-libaroma_dp(20)) && me->pulldown_showed)){
 									// start showing pulldown
 									printf("Touching to show/hide! y=%d\n", y);
 									libaroma_mutex_lock(me->mutex);
-									me->notifpulldown_velocity=0;
-									if (y>=(me->notifpulldown->h-libaroma_dp(20))){
-										me->notifpulldown_req_y=me->notifpulldown->h;										
+									me->pulldown_velocity=0;
+									if (y>=(me->pulldown->h-libaroma_dp(20))){
+										me->pulldown_req_y=me->pulldown->h;
 									}
-									else me->notifpulldown_req_y=libaroma_dp(15);
-									me->touched=1;
+									else me->pulldown_req_y=libaroma_dp(15);
+									me->pd_touched=1;
 									me->touch_x=x;
 									me->touch_y=y;
-									libaroma_fling_down(&me->fling, y);
+									libaroma_fling_down(&me->pd_fling, y);
 									libaroma_mutex_unlock(me->mutex);
 									return 1;
 								}
 							}
-							else if (me->touched){
+							else if (me->pd_touched){
 								if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
 									libaroma_mutex_lock(me->mutex);/*
-									if (y>=(me->notifpulldown->h-libaroma_dp(20))){									
-										me->notifpulldown_req_y=me->notifpulldown->h;
-										libaroma_fling_move(&me->fling, me->notifpulldown->h);
+									if (y>=(me->pulldown->h-libaroma_dp(20))){
+										me->pulldown_req_y=me->pulldown->h;
+										libaroma_fling_move(&me->fling, me->pulldown->h);
 										libaroma_mutex_unlock(me->mutex);
 										return 1;
 									}*/
 									int reqy=y;
-									if (me->touched==2){
-										reqy=(me->notifpulldown->h)+(y-me->touch_y);
+									if (me->pd_touched==2){
+										reqy=(me->pulldown->h)+(y-me->touch_y);
 									}
-									me->notifpulldown_req_y=MAX(
-										libaroma_dp(_LIBAROMA_LAYER_NOTIFPULLDOWN_TOUCH_DP),reqy);
-									libaroma_fling_move(&me->fling, y);
+									me->pulldown_req_y=MAX(
+										libaroma_dp(_LIBAROMA_LAYER_PULLDOWN_TOUCH_DP),reqy);
+									libaroma_fling_move(&me->pd_fling, y);
 									libaroma_mutex_unlock(me->mutex);
 								}
 								else if (msg->state==LIBAROMA_HID_EV_STATE_UP){
 									libaroma_mutex_lock(me->mutex);
-									me->notifpulldown_velocity=
-										((int) (libaroma_fling_up(&me->fling, y)*1.3)>>8);
-									if (me->notifpulldown_velocity>=0||y<=(me->notifpulldown->h)/2){
+									me->pulldown_velocity=
+										((int) (libaroma_fling_up(&me->pd_fling, y)*1.3)>>8);
+									if (me->pulldown_velocity>=0||y<=(me->pulldown->h)/2){
 										printf("Swiped up!\n");
-										me->notifpulldown_req_y=0;
+										me->pulldown_req_y=0;
 									}
 									else{
 										printf("Swiped down!\n");
-										me->notifpulldown_req_y=me->notifpulldown->h;
-										me->notifpulldown_velocity=abs(me->notifpulldown_velocity);
+										me->pulldown_req_y=me->pulldown->h;
+										me->pulldown_velocity=abs(me->pulldown_velocity);
 									}
-									if (me->notifpulldown_velocity){
+									if (me->pulldown_velocity){
 										/* fix velocity */
-										int diff = me->notifpulldown->h;
-										me->notifpulldown_velocity = MAX(MIN(
-											me->notifpulldown_velocity, 0.45*diff),0.05*diff);
+										int diff = me->pulldown->h;
+										me->pulldown_velocity = MAX(MIN(
+											me->pulldown_velocity, 0.45*diff),0.05*diff);
 									}
-									if (me->notifpulldown_req_y!=me->notifpulldown_ypos){
-										me->touched=10;
+									if (me->pulldown_req_y!=me->pulldown_ypos){
+										me->pd_touched=10;
 									}
 									libaroma_mutex_unlock(me->mutex);
 								}
@@ -611,30 +622,30 @@ byte _libaroma_window_layer_message_hooker(
 								libaroma_mutex_lock(me->mutex);
 								me->sidebar_velocity=0;
 								me->sidebar_req_x=libaroma_dp(15);
-								me->touched=1;
+								me->sb_touched=1;
 								me->touch_x=x;
 								me->touch_y=y;
-								libaroma_fling_down(&me->fling, x);
+								libaroma_fling_down(&me->sb_fling, x);
 								libaroma_mutex_unlock(me->mutex);
 								return 1;
 							}
 						}
-						else if (me->touched){
+						else if (me->sb_touched){
 							if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
 								libaroma_mutex_lock(me->mutex);
 								int reqx=x;
-								if (me->touched==2){
+								if (me->sb_touched==2){
 									reqx=(me->sidebar->w)+(x-me->touch_x);
 								}
 								me->sidebar_req_x=MAX(
 									libaroma_dp(_LIBAROMA_LAYER_SIDEBAR_TOUCH_DP),reqx);
-								libaroma_fling_move(&me->fling, x);
+								libaroma_fling_move(&me->sb_fling, x);
 								libaroma_mutex_unlock(me->mutex);
 							}
 							else if (msg->state==LIBAROMA_HID_EV_STATE_UP){
 								libaroma_mutex_lock(me->mutex);
 								me->sidebar_velocity=
-									((int) (libaroma_fling_up(&me->fling, x)*1.3)>>8);
+									((int) (libaroma_fling_up(&me->sb_fling, x)*1.3)>>8);
 								if (me->sidebar_velocity>=0){
 									me->sidebar_req_x=0;
 								}
@@ -649,7 +660,7 @@ byte _libaroma_window_layer_message_hooker(
 										me->sidebar_velocity, 0.45*diff),0.05*diff);
 								}
 								if (me->sidebar_req_x!=me->sidebar_xpos){
-									me->touched=10;
+									me->sb_touched=10;
 								}
 								libaroma_mutex_unlock(me->mutex);
 							}
@@ -716,12 +727,12 @@ byte _libaroma_window_layer_ui_thread(LIBAROMA_WINDOWP win) {
 				}
 				int target_sz = me->sidebar_xpos+move_sz;
 				if (target_sz>=me->sidebar->w){
-					if ((me->touched)&&(me->touched!=10)){
+					if ((me->sb_touched)&&(me->sb_touched!=10)){
 						target_sz=me->sidebar->w-1;
 					}
 					else{
-						if (me->touched==10){
-							me->touched=0;
+						if (me->sb_touched==10){
+							me->sb_touched=0;
 						}
 						target_sz=me->sidebar->w;
 						me->sidebar_req_x=-1;
@@ -729,12 +740,12 @@ byte _libaroma_window_layer_ui_thread(LIBAROMA_WINDOWP win) {
 					}
 				}
 				else if (target_sz<=0){
-					if ((me->touched)&&(me->touched!=10)){
+					if ((me->sb_touched)&&(me->sb_touched!=10)){
 						target_sz=1;
 					}
 					else{
-						if (me->touched==10){
-							me->touched=0;
+						if (me->sb_touched==10){
+							me->sb_touched=0;
 						}
 						target_sz=0;
 						me->sidebar_req_x=-1;
@@ -746,81 +757,81 @@ byte _libaroma_window_layer_ui_thread(LIBAROMA_WINDOWP win) {
 				libaroma_mutex_lock(me->mutex);
 			}
 		}
-		
-		if ((me->notifpulldown)&&(me->notifpulldown_req_y!=-1)){
-			/* show - hide notifpulldown */
-			if (!me->notifpulldown->active){
+
+		if ((me->pulldown)&&(me->pulldown_req_y!=-1)){
+			/* show - hide pulldown */
+			if (!me->pulldown->active){
 				libaroma_mutex_unlock(me->mutex);
-				_libaroma_window_layer_set_notifpulldown_pos(win,1);
+				_libaroma_window_layer_set_pulldown_pos(win,1);
 				libaroma_mutex_lock(me->mutex);
 			}
-			else if (me->notifpulldown->h<=0){
-				/* invalid notifpulldown */
-				me->notifpulldown_req_y=-1;
+			else if (me->pulldown->h<=0){
+				/* invalid pulldown */
+				me->pulldown_req_y=-1;
 			}
-			else if (me->notifpulldown_req_y!=me->notifpulldown_ypos){
-				int move_sz = (me->notifpulldown_req_y-me->notifpulldown_ypos);
-				if (me->notifpulldown_velocity!=0){
-					me->notifpulldown_velocity=(me->notifpulldown_velocity*246)>>8;
-					int minh=MAX(1,0.05*me->notifpulldown->h);
-					if (me->notifpulldown_velocity<minh){
-						me->notifpulldown_velocity=minh;
+			else if (me->pulldown_req_y!=me->pulldown_ypos){
+				int move_sz = (me->pulldown_req_y-me->pulldown_ypos);
+				if (me->pulldown_velocity!=0){
+					me->pulldown_velocity=(me->pulldown_velocity*246)>>8;
+					int minh=MAX(1,0.05*me->pulldown->h);
+					if (me->pulldown_velocity<minh){
+						me->pulldown_velocity=minh;
 					}
 					if (move_sz<0){
-						move_sz = 0-me->notifpulldown_velocity;
+						move_sz = 0-me->pulldown_velocity;
 					}
 					else{
-						move_sz = me->notifpulldown_velocity;
+						move_sz = me->pulldown_velocity;
 					}
 				}
 				else{
 					move_sz = (move_sz<<6)>>8;
 				}
 				if (abs(move_sz)<2){
-					if (me->notifpulldown_req_y<me->notifpulldown_ypos){
+					if (me->pulldown_req_y<me->pulldown_ypos){
 						move_sz=-1;
 					}
 					else{
 						move_sz=1;
 					}
 				}
-				int target_sz = me->notifpulldown_ypos+move_sz;
-				if (target_sz>=me->notifpulldown->h){
-					if ((me->touched)&&(me->touched!=10)){
-						target_sz=me->notifpulldown->y-1;
+				int target_sz = me->pulldown_ypos+move_sz;
+				if (target_sz>=me->pulldown->h){
+					if ((me->pd_touched)&&(me->pd_touched!=10)){
+						target_sz=me->pulldown->y-1;
 					}
 					else{
-						if (me->touched==10){
-							me->touched=0;
+						if (me->pd_touched==10){
+							me->pd_touched=0;
 						}
-						target_sz=me->notifpulldown->h;
-						me->notifpulldown_req_y=-1;
-						me->notifpulldown_velocity=0;
+						target_sz=me->pulldown->h;
+						me->pulldown_req_y=-1;
+						me->pulldown_velocity=0;
 					}
 				}
 				else if (target_sz<=0){
-					if ((me->touched)&&(me->touched!=10)){
+					if ((me->pd_touched)&&(me->pd_touched!=10)){
 						target_sz=1;
 					}
 					else{
-						if (me->touched==10){
-							me->touched=0;
+						if (me->pd_touched==10){
+							me->pd_touched=0;
 						}
 						target_sz=0;
-						me->notifpulldown_req_y=-1;
-						me->notifpulldown_velocity=0;
+						me->pulldown_req_y=-1;
+						me->pulldown_velocity=0;
 					}
 				}
 				libaroma_mutex_unlock(me->mutex);
-				_libaroma_window_layer_set_notifpulldown_pos(win,target_sz);
+				_libaroma_window_layer_set_pulldown_pos(win,target_sz);
 				libaroma_mutex_lock(me->mutex);
 			}
 		}
-		
+
 		libaroma_mutex_unlock(me->mutex);
-		
-		if (me->sidebar_showed){
-			if (me->sidebar){	
+
+		if (!me->pulldown_showed && me->sidebar_showed){
+			if (me->sidebar){
 				if (me->sidebar->ui_thread){
 					if (me->sidebar->ui_thread(me->sidebar)){
 						need_sync=1;
@@ -828,24 +839,24 @@ byte _libaroma_window_layer_ui_thread(LIBAROMA_WINDOWP win) {
 				}
 			}
 		}
-		
-		if (me->notifpulldown_showed){
-			if (me->notifpulldown){	
-				if (me->notifpulldown->ui_thread){
-					if (me->notifpulldown->ui_thread(me->notifpulldown)){
+
+		if (me->pulldown_showed){
+			if (me->pulldown){
+				if (me->pulldown->ui_thread){
+					if (me->pulldown->ui_thread(me->pulldown)){
 						need_sync=1;
 					}
 				}
 			}
 		}
 	}
-	
+
 	if (me->ori_ui_thread){
 		if (me->ori_ui_thread(win)){
 			need_sync = 1;
 		}
 	}
-	
+
 	libaroma_mutex_lock(me->mutex);
 	if (me->redraw){
 		need_sync=1;
@@ -893,7 +904,7 @@ byte libaroma_window_layer_init(LIBAROMA_WINDOWP win){
 	me->on_direct_canvas=1;
 	me->ori_ui_thread=win->ui_thread;
 	me->sidebar_req_x=-1;
-	me->notifpulldown_req_y=-1;
+	me->pulldown_req_y=-1;
 	win->handler = &_libaroma_window_layer_handler;
 	win->client_data = me;
 	win->ui_thread=_libaroma_window_layer_ui_thread;
@@ -916,23 +927,23 @@ byte libaroma_window_layer_release(LIBAROMA_WINDOWP win){
 	return 1;
 } /* End of libaroma_window_layer_release */
 
-/**************************** NOTIFPULLDOWN ************************************/
+/**************************** PULLDOWN ************************************/
 
 /* sidebar window handler */
-byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync);
-byte _libaroma_window_notifpulldown_sync(LIBAROMA_WINDOWP win,
+byte _libaroma_window_pulldown_invalidate(LIBAROMA_WINDOWP win, byte sync);
+byte _libaroma_window_pulldown_sync(LIBAROMA_WINDOWP win,
 	int x,int y,int w,int h);
-byte _libaroma_window_notifpulldown_message_hooker(
+byte _libaroma_window_pulldown_message_hooker(
 		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval
 );
 
-static LIBAROMA_WINDOW_HANDLER _libaroma_window_notifpulldown_handler={
+static LIBAROMA_WINDOW_HANDLER _libaroma_window_pulldown_handler={
 	prefree:NULL,
 	postfree:NULL,
 	updatebg:NULL,
-	invalidate:_libaroma_window_notifpulldown_invalidate,
-	sync:_libaroma_window_notifpulldown_sync,
-	message_hooker:_libaroma_window_notifpulldown_message_hooker,
+	invalidate:_libaroma_window_pulldown_invalidate,
+	sync:_libaroma_window_pulldown_sync,
+	message_hooker:_libaroma_window_pulldown_message_hooker,
 	control_draw_flush:NULL,
 	control_erasebg:NULL,
 	control_isvisible:NULL,
@@ -940,12 +951,12 @@ static LIBAROMA_WINDOW_HANDLER _libaroma_window_notifpulldown_handler={
 };
 
 /*
- * Function		: _libaroma_window_notifpulldown_invalidate
+ * Function		: _libaroma_window_pulldown_invalidate
  * Return Value: byte
  * Descriptions: invalidate
  */
-byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync){
-	if (win->handler!=&_libaroma_window_notifpulldown_handler){
+byte _libaroma_window_pulldown_invalidate(LIBAROMA_WINDOWP win, byte sync){
+	if (win->handler!=&_libaroma_window_pulldown_handler){
 		return 0;
 	}
 	if ((win->dc)&&(win->bg)){
@@ -960,76 +971,76 @@ byte _libaroma_window_notifpulldown_invalidate(LIBAROMA_WINDOWP win, byte sync){
 		}
 	}
 	if (sync){
-		return _libaroma_window_notifpulldown_sync(win,0,0,win->w,win->h);
+		return _libaroma_window_pulldown_sync(win,0,0,win->w,win->h);
 	}
 	return 1;
-} /* End of _libaroma_window_notifpulldown_invalidate */
+} /* End of _libaroma_window_pulldown_invalidate */
 
 /*
- * Function		: _libaroma_window_notifpulldown_sync
+ * Function		: _libaroma_window_pulldown_sync
  * Return Value: byte
- * Descriptions: sync notifpulldown
+ * Descriptions: sync pulldown
  */
-byte _libaroma_window_notifpulldown_sync(LIBAROMA_WINDOWP win,
+byte _libaroma_window_pulldown_sync(LIBAROMA_WINDOWP win,
 	int x,int y,int w,int h){
-	if (win->handler!=&_libaroma_window_notifpulldown_handler){
+	if (win->handler!=&_libaroma_window_pulldown_handler){
 		return 0;
 	}
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
 	if (!me){
 		return 0;
 	}
-	if (me->notifpulldown_showed){
+	if (me->pulldown_showed){
 		me->redraw=1;
 	}
 	return 1;
-} /* End of _libaroma_window_notifpulldown_sync */
+} /* End of _libaroma_window_pulldown_sync */
 
 /*
- * Function		: libaroma_window_notifpulldown_show
+ * Function		: libaroma_window_pulldown_show
  * Return Value: byte
- * Descriptions: show/hide notifpulldown
+ * Descriptions: show/hide pulldown
  */
-byte libaroma_window_notifpulldown_show(LIBAROMA_WINDOWP win, byte show){
+byte libaroma_window_pulldown_show(LIBAROMA_WINDOWP win, byte show){
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
 	if (!me){
 		return 0;
 	}
 	libaroma_mutex_lock(me->mutex);
 	if (show){
-		if (!me->notifpulldown_showed){
+		if (!me->pulldown_showed){
 			libaroma_mutex_unlock(me->mutex);
-			_libaroma_window_layer_set_notifpulldown_pos(win->parent,1);
+			_libaroma_window_layer_set_pulldown_pos(win->parent,1);
 			libaroma_mutex_lock(me->mutex);
-			me->notifpulldown_req_y=win->h;
-			me->touched=10;
+			me->pulldown_req_y=win->h;
+			me->pd_touched=10;
 			libaroma_mutex_unlock(me->mutex);
 			return 1;
 		}
 	}
 	else{
-		if (me->notifpulldown_showed){
-			if (me->notifpulldown_showed==2){
+		if (me->pulldown_showed){
+			if (me->pulldown_showed==2){
 				libaroma_mutex_unlock(me->mutex);
-				_libaroma_window_layer_set_notifpulldown_pos(win->parent,win->h-1);
+				_libaroma_window_layer_set_pulldown_pos(win->parent,win->h-1);
 				libaroma_mutex_lock(me->mutex);
 			}
-			me->notifpulldown_req_y=0;
-			me->touched=10;
+			me->pulldown_req_y=0;
+			me->pd_touched=10;
 			libaroma_mutex_unlock(me->mutex);
 			return 1;
 		}
 	}
 	libaroma_mutex_unlock(me->mutex);
 	return 0;
-} /* End of libaroma_window_notifpulldown_show */
+} /* End of libaroma_window_pulldown_show */
 
 /*
- * Function		: _libaroma_window_notifpulldown_message_hooker
+ * Function		: _libaroma_window_pulldown_message_hooker
  * Return Value: byte
- * Descriptions: notifpulldown message hooker
+ * Descriptions: pulldown message hooker
  */
-byte _libaroma_window_notifpulldown_message_hooker(
+byte _libaroma_window_pulldown_message_hooker(
 		LIBAROMA_WINDOWP win, LIBAROMA_MSGP msg, dwordp retval
 ){
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
@@ -1042,7 +1053,7 @@ byte _libaroma_window_notifpulldown_message_hooker(
 		case LIBAROMA_MSG_KEY_BACK:
 			{
 				libaroma_mutex_unlock(me->mutex);
-				libaroma_window_notifpulldown_show(win, 0);
+				libaroma_window_pulldown_show(win, 0);
 				libaroma_mutex_lock(me->mutex);
 				return_state=1;
 				goto end_message;
@@ -1056,10 +1067,10 @@ byte _libaroma_window_notifpulldown_message_hooker(
 				}
 				/* touch handler */
 				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
-					memcpy(&me->pretouched_msg,msg,sizeof(LIBAROMA_MSG));
+					memcpy(&me->pd_pretouched_msg,msg,sizeof(LIBAROMA_MSG));
 					win->touched = NULL;
-					me->pretouched=NULL;
-					
+					me->pd_pretouched=NULL;
+
 					int x = msg->x;
 					int y = msg->y;
 					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
@@ -1067,16 +1078,16 @@ byte _libaroma_window_notifpulldown_message_hooker(
 						int i;
 						for (i=0;i<win->childn;i++){
 							if (_libaroma_window_is_inside(win->childs[i],x,y)){
-								me->pretouched = win->childs[i];
+								me->pd_pretouched = win->childs[i];
 								break;
 							}
 						}
-						if (me->pretouched!=NULL){
-							if (me->pretouched->handler->message){
-								me->client_touch_start=libaroma_tick();
+						if (me->pd_pretouched!=NULL){
+							if (me->pd_pretouched->handler->message){
+								me->pd_client_touch_start=libaroma_tick();
 							}
 							else{
-								me->pretouched=NULL;
+								me->pd_pretouched=NULL;
 							}
 						}
 					}
@@ -1086,10 +1097,10 @@ byte _libaroma_window_notifpulldown_message_hooker(
 						libaroma_window_sidebar_show(win, 0);
 						libaroma_mutex_lock(me->mutex);
 					}*/
-					me->allow_scroll=2;
+					me->pd_allow_scroll=2;
 					me->touch_x=x;
 					me->touch_y=y;
-					libaroma_fling_down(&me->fling, y);
+					libaroma_fling_down(&me->pd_fling, y);
 				}
 				else if (win->touched!=NULL){
 					if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
@@ -1110,19 +1121,19 @@ byte _libaroma_window_notifpulldown_message_hooker(
 					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
 					if (y>=win->h){
 						libaroma_mutex_unlock(me->mutex);
-						libaroma_window_notifpulldown_show(win, 0);
+						libaroma_window_pulldown_show(win, 0);
 						libaroma_mutex_lock(me->mutex);
 					}
-					else if (me->pretouched){
-						if (me->pretouched->handler->message){
-							me->pretouched->handler->message(
-								me->pretouched,&me->pretouched_msg);
-							me->pretouched->handler->message(
-								me->pretouched,msg);
+					else if (me->pd_pretouched){
+						if (me->pd_pretouched->handler->message){
+							me->pd_pretouched->handler->message(
+								me->pd_pretouched,&me->pd_pretouched_msg);
+							me->pd_pretouched->handler->message(
+								me->pd_pretouched,msg);
 						}
-						me->pretouched=NULL;
-						me->client_touch_start=0;
-						me->allow_scroll=0;
+						me->pd_pretouched=NULL;
+						me->pd_client_touch_start=0;
+						me->pd_allow_scroll=0;
 						me->touch_x=x;
 						me->touch_y=y;
 						me->redraw=1;
@@ -1132,44 +1143,44 @@ byte _libaroma_window_notifpulldown_message_hooker(
 					int x = msg->x;
 					int y = msg->y;
 					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
-					
-					if (me->allow_scroll==2){
+
+					if (me->pd_allow_scroll==2){
 						int move_sz = me->touch_x - x;
 						int move_sz_y = me->touch_y - y;
 						int scrdp=libaroma_dp(24);
 						if ((abs(move_sz_y)>=scrdp)&&(abs(move_sz_y)>=abs(move_sz))){
 							/* halt the scroll and send to control */
-							if (me->pretouched){
-								if (me->pretouched->handler->message){
-									me->client_touch_start=0;
-									win->touched=me->pretouched;
-									me->pretouched=NULL;
+							if (me->pd_pretouched){
+								if (me->pd_pretouched->handler->message){
+									me->pd_client_touch_start=0;
+									win->touched=me->pd_pretouched;
+									me->pd_pretouched=NULL;
 									win->touched->handler->message(
-										win->touched,&me->pretouched_msg);
+										win->touched,&me->pd_pretouched_msg);
 									win->touched->handler->message(
 										win->touched,msg);
 								}
 								else{
-									me->pretouched=NULL;
+									me->pd_pretouched=NULL;
 								}
-								me->client_touch_start=0;
-								me->allow_scroll=0;
+								me->pd_client_touch_start=0;
+								me->pd_allow_scroll=0;
 								me->touch_x=x;
 								me->touch_y=y;
 								me->redraw=1;
 							}
 						}
 						else if (abs(move_sz)>=scrdp){
-							me->allow_scroll=1;
-							me->client_touch_start=0;
-							me->pretouched=NULL;
+							me->pd_allow_scroll=1;
+							me->pd_client_touch_start=0;
+							me->pd_pretouched=NULL;
 							win->touched=NULL;
-							me->notifpulldown_showed=1;
-							me->touched=2;
+							me->pulldown_showed=1;
+							me->pd_touched=2;
 							me->touch_x=x;
 							me->touch_y=y;
 							libaroma_mutex_unlock(me->mutex);
-							_libaroma_window_layer_set_notifpulldown_pos(win->parent,win->h-1);
+							_libaroma_window_layer_set_pulldown_pos(win->parent,win->h-1);
 							libaroma_mutex_lock(me->mutex);
 						}
 					}
@@ -1236,7 +1247,7 @@ byte _libaroma_window_notifpulldown_message_hooker(
 					libaroma_canvas_setcolor(win->dc,0xffff,0);
 					libaroma_canvas_setcolor(win->bg,0xffff,0);
 				}
-				
+
 				/* remeasured all childs */
 				int i;
 				for (i=0;i<win->childn;i++){
@@ -1248,39 +1259,39 @@ byte _libaroma_window_notifpulldown_message_hooker(
 end_message:
 	libaroma_mutex_unlock(me->mutex);
 	return return_state;
-} /* End of _libaroma_window_notifpulldown_message_hooker */
+} /* End of _libaroma_window_pulldown_message_hooker */
 
 /*
- * Function		: _libaroma_window_notifpulldown_ui_thread
+ * Function		: _libaroma_window_pulldown_ui_thread
  * Return Value: byte
- * Descriptions: window notifpulldown ui thread
+ * Descriptions: window pulldown ui thread
  */
-byte _libaroma_window_notifpulldown_ui_thread(LIBAROMA_WINDOWP win) {
+byte _libaroma_window_pulldown_ui_thread(LIBAROMA_WINDOWP win) {
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
 	if (!me){
 		return 0;
 	}
-	
+
 	int i;
 	byte need_sync = 0;
 	if (win->active==1){
 		/* pretouched */
 		libaroma_mutex_lock(me->mutex);
-		if ((me->client_touch_start!=0)&&
-				(libaroma_tick()-me->client_touch_start>180)){
-			me->client_touch_start=0;
-			if (me->pretouched!=NULL){
-				win->touched=me->pretouched;
-				me->pretouched=NULL;
+		if ((me->pd_client_touch_start!=0)&&
+				(libaroma_tick()-me->pd_client_touch_start>180)){
+			me->pd_client_touch_start=0;
+			if (me->pd_pretouched!=NULL){
+				win->touched=me->pd_pretouched;
+				me->pd_pretouched=NULL;
 				if (win->touched->handler->message){
 					win->touched->handler->message(
-						win->touched,&me->pretouched_msg);
+						win->touched,&me->pd_pretouched_msg);
 				}
 			}
 		}
 		libaroma_mutex_unlock(me->mutex);
-		
-		
+
+
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
 #endif
@@ -1296,14 +1307,14 @@ byte _libaroma_window_notifpulldown_ui_thread(LIBAROMA_WINDOWP win) {
 		}
 	}
 	return need_sync;
-} /* End of _libaroma_window_notifpulldown_ui_thread */
+} /* End of _libaroma_window_pulldown_ui_thread */
 
 /*
- * Function		: libaroma_window_sidebar
+ * Function		: libaroma_window_pulldown
  * Return Value: LIBAROMA_WINDOWP
- * Descriptions: new or get notifpulldown window
+ * Descriptions: new or get pulldown window
  */
-LIBAROMA_WINDOWP libaroma_window_notifpulldown(LIBAROMA_WINDOWP win, int height, byte showtype){
+LIBAROMA_WINDOWP libaroma_window_pulldown(LIBAROMA_WINDOWP win, int height, byte showtype){
 	if (!libaroma_window_layer_init(win)){
 		return NULL;
 	}
@@ -1311,48 +1322,48 @@ LIBAROMA_WINDOWP libaroma_window_notifpulldown(LIBAROMA_WINDOWP win, int height,
 	if (!me){
 		return NULL;
 	}
-	if (me->notifpulldown){
-		return me->notifpulldown;
+	if (me->pulldown){
+		return me->pulldown;
 	}
-	
+
 	libaroma_mutex_lock(me->mutex);
-	LIBAROMA_WINDOWP notifpulldown = (LIBAROMA_WINDOWP)
+	LIBAROMA_WINDOWP pulldown = (LIBAROMA_WINDOWP)
 		calloc(sizeof(LIBAROMA_WINDOW),1);
-	if (!notifpulldown){
+	if (!pulldown){
 		libaroma_mutex_unlock(me->mutex);
-		ALOGW("window_notifpulldown alloc notifpulldown data failed");
+		ALOGW("window_pulldown alloc pulldown data failed");
 		return NULL;
 	}
-	notifpulldown->rh = height;
-	notifpulldown->handler=&_libaroma_window_notifpulldown_handler;
-	notifpulldown->parent=win;
-	notifpulldown->ui_thread=_libaroma_window_notifpulldown_ui_thread;
-	me->notifpulldown=notifpulldown;
-	if (!showtype) me->notifpulldown_drawtype=LIBAROMA_NOTIF_PULLDOWN_SLIDE;
-	else me->notifpulldown_drawtype=showtype;
+	pulldown->rh = height;
+	pulldown->handler=&_libaroma_window_pulldown_handler;
+	pulldown->parent=win;
+	pulldown->ui_thread=_libaroma_window_pulldown_ui_thread;
+	me->pulldown=pulldown;
+	if (!showtype) me->pulldown_drawtype=LIBAROMA_PULLDOWN_SLIDE;
+	else me->pulldown_drawtype=showtype;
 	me->redraw=1;
 	libaroma_mutex_unlock(me->mutex);
-	return notifpulldown;
-} /* End of libaroma_window_notifpulldown */
+	return pulldown;
+} /* End of libaroma_window_pulldown */
 
 
 /*
- * Function		: libaroma_window_notifpulldown_onslide
+ * Function		: libaroma_window_pulldown_onslide
  * Return Value: byte
- * Descriptions: set notifpulldown slide position callback
+ * Descriptions: set pulldown slide position callback
  */
-byte libaroma_window_notifpulldown_onslide(
-	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_NOTIFPULLDOWN_SLIDE_CB cb){
+byte libaroma_window_pulldown_onslide(
+	LIBAROMA_WINDOWP win, LIBAROMA_WINDOW_PULLDOWN_SLIDE_CB cb){
 	_LIBAROMA_WINDOW_LAYERP me = _libaroma_window_layer_check(win->parent);
 	if (!me){
 		return 0;
 	}
 	libaroma_mutex_lock(me->mutex);
-	me->notif_slide_cb = cb;
-	ALOGI("Init notifpulldown slide callback");
+	me->pulldown_slide_cb = cb;
+	ALOGI("Init pulldown slide callback");
 	libaroma_mutex_unlock(me->mutex);
 	return 1;
-} /* End of libaroma_window_notifpulldown_onslide */
+} /* End of libaroma_window_pulldown_onslide */
 
 
 /******************************* SIDEBAR **************************************/
@@ -1440,7 +1451,7 @@ byte libaroma_window_sidebar_show(LIBAROMA_WINDOWP win, byte show){
 			_libaroma_window_layer_set_sidebar_pos(win->parent,1);
 			libaroma_mutex_lock(me->mutex);
 			me->sidebar_req_x=win->w;
-			me->touched=10;
+			me->sb_touched=10;
 			libaroma_mutex_unlock(me->mutex);
 			return 1;
 		}
@@ -1453,7 +1464,7 @@ byte libaroma_window_sidebar_show(LIBAROMA_WINDOWP win, byte show){
 				libaroma_mutex_lock(me->mutex);
 			}
 			me->sidebar_req_x=0;
-			me->touched=10;
+			me->sb_touched=10;
 			libaroma_mutex_unlock(me->mutex);
 			return 1;
 		}
@@ -1496,10 +1507,10 @@ byte _libaroma_window_sidebar_message_hooker(
 				}
 				/* touch handler */
 				if (msg->state==LIBAROMA_HID_EV_STATE_DOWN){
-					memcpy(&me->pretouched_msg,msg,sizeof(LIBAROMA_MSG));
+					memcpy(&me->sb_pretouched_msg,msg,sizeof(LIBAROMA_MSG));
 					win->touched = NULL;
-					me->pretouched=NULL;
-					
+					me->sb_pretouched=NULL;
+
 					int x = msg->x;
 					int y = msg->y;
 					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
@@ -1507,16 +1518,16 @@ byte _libaroma_window_sidebar_message_hooker(
 						int i;
 						for (i=0;i<win->childn;i++){
 							if (_libaroma_window_is_inside(win->childs[i],x,y)){
-								me->pretouched = win->childs[i];
+								me->sb_pretouched = win->childs[i];
 								break;
 							}
 						}
-						if (me->pretouched!=NULL){
-							if (me->pretouched->handler->message){
-								me->client_touch_start=libaroma_tick();
+						if (me->sb_pretouched!=NULL){
+							if (me->sb_pretouched->handler->message){
+								me->sb_client_touch_start=libaroma_tick();
 							}
 							else{
-								me->pretouched=NULL;
+								me->sb_pretouched=NULL;
 							}
 						}
 					}
@@ -1526,10 +1537,10 @@ byte _libaroma_window_sidebar_message_hooker(
 						libaroma_window_sidebar_show(win, 0);
 						libaroma_mutex_lock(me->mutex);
 					}*/
-					me->allow_scroll=2;
+					me->sb_allow_scroll=2;
 					me->touch_x=x;
 					me->touch_y=y;
-					libaroma_fling_down(&me->fling, x);
+					libaroma_fling_down(&me->sb_fling, x);
 				}
 				else if (win->touched!=NULL){
 					if (msg->state==LIBAROMA_HID_EV_STATE_MOVE){
@@ -1553,16 +1564,16 @@ byte _libaroma_window_sidebar_message_hooker(
 						libaroma_window_sidebar_show(win, 0);
 						libaroma_mutex_lock(me->mutex);
 					}
-					else if (me->pretouched){
-						if (me->pretouched->handler->message){
-							me->pretouched->handler->message(
-								me->pretouched,&me->pretouched_msg);
-							me->pretouched->handler->message(
-								me->pretouched,msg);
+					else if (me->sb_pretouched){
+						if (me->sb_pretouched->handler->message){
+							me->sb_pretouched->handler->message(
+								me->sb_pretouched,&me->sb_pretouched_msg);
+							me->sb_pretouched->handler->message(
+								me->sb_pretouched,msg);
 						}
-						me->pretouched=NULL;
-						me->client_touch_start=0;
-						me->allow_scroll=0;
+						me->sb_pretouched=NULL;
+						me->sb_client_touch_start=0;
+						me->sb_allow_scroll=0;
 						me->touch_x=x;
 						me->touch_y=y;
 						me->redraw=1;
@@ -1572,40 +1583,40 @@ byte _libaroma_window_sidebar_message_hooker(
 					int x = msg->x;
 					int y = msg->y;
 					libaroma_window_calculate_pos(win->parent,NULL,&x,&y);
-					
-					if (me->allow_scroll==2){
+
+					if (me->sb_allow_scroll==2){
 						int move_sz = me->touch_x - x;
 						int move_sz_y = me->touch_y - y;
 						int scrdp=libaroma_dp(24);
 						if ((abs(move_sz_y)>=scrdp)&&(abs(move_sz_y)>=abs(move_sz))){
 							/* halt the scroll and send to control */
-							if (me->pretouched){
-								if (me->pretouched->handler->message){
-									me->client_touch_start=0;
-									win->touched=me->pretouched;
-									me->pretouched=NULL;
+							if (me->sb_pretouched){
+								if (me->sb_pretouched->handler->message){
+									me->sb_client_touch_start=0;
+									win->touched=me->sb_pretouched;
+									me->sb_pretouched=NULL;
 									win->touched->handler->message(
-										win->touched,&me->pretouched_msg);
+										win->touched,&me->sb_pretouched_msg);
 									win->touched->handler->message(
 										win->touched,msg);
 								}
 								else{
-									me->pretouched=NULL;
+									me->sb_pretouched=NULL;
 								}
-								me->client_touch_start=0;
-								me->allow_scroll=0;
+								me->sb_client_touch_start=0;
+								me->sb_allow_scroll=0;
 								me->touch_x=x;
 								me->touch_y=y;
 								me->redraw=1;
 							}
 						}
 						else if (abs(move_sz)>=scrdp){
-							me->allow_scroll=1;
-							me->client_touch_start=0;
-							me->pretouched=NULL;
+							me->sb_allow_scroll=1;
+							me->sb_client_touch_start=0;
+							me->sb_pretouched=NULL;
 							win->touched=NULL;
 							me->sidebar_showed=1;
-							me->touched=2;
+							me->sb_touched=2;
 							me->touch_x=x;
 							me->touch_y=y;
 							libaroma_mutex_unlock(me->mutex);
@@ -1680,7 +1691,7 @@ byte _libaroma_window_sidebar_message_hooker(
 					libaroma_canvas_setcolor(win->dc,0xffff,0);
 					libaroma_canvas_setcolor(win->bg,0xffff,0);
 				}
-				
+
 				/* remeasured all childs */
 				int i;
 				for (i=0;i<win->childn;i++){
@@ -1704,27 +1715,27 @@ byte _libaroma_window_sidebar_ui_thread(LIBAROMA_WINDOWP win) {
 	if (!me){
 		return 0;
 	}
-	
+
 	int i;
 	byte need_sync = 0;
 	if (win->active==1){
 		/* pretouched */
 		libaroma_mutex_lock(me->mutex);
-		if ((me->client_touch_start!=0)&&
-				(libaroma_tick()-me->client_touch_start>180)){
-			me->client_touch_start=0;
-			if (me->pretouched!=NULL){
-				win->touched=me->pretouched;
-				me->pretouched=NULL;
+		if ((me->sb_client_touch_start!=0)&&
+				(libaroma_tick()-me->sb_client_touch_start>180)){
+			me->sb_client_touch_start=0;
+			if (me->sb_pretouched!=NULL){
+				win->touched=me->sb_pretouched;
+				me->sb_pretouched=NULL;
 				if (win->touched->handler->message){
 					win->touched->handler->message(
-						win->touched,&me->pretouched_msg);
+						win->touched,&me->sb_pretouched_msg);
 				}
 			}
 		}
 		libaroma_mutex_unlock(me->mutex);
-		
-		
+
+
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
 #endif
@@ -1758,7 +1769,7 @@ LIBAROMA_WINDOWP libaroma_window_sidebar(LIBAROMA_WINDOWP win, int width){
 	if (me->sidebar){
 		return me->sidebar;
 	}
-	
+
 	libaroma_mutex_lock(me->mutex);
 	LIBAROMA_WINDOWP sidebar = (LIBAROMA_WINDOWP)
 		calloc(sizeof(LIBAROMA_WINDOW),1);
@@ -1796,6 +1807,9 @@ byte libaroma_window_sidebar_onslide(
 	return 1;
 } /* End of libaroma_window_sidebar_onslide */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __libaroma_window_layer_c__ */
 
