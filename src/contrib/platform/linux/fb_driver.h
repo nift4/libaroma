@@ -100,7 +100,7 @@ struct _LINUXDRM_INTERNAL{
 	int 		row_bytes;							/* row size in bytes */
 	voidp		buffer;								/* direct buffer */
 	int			stride;								/* stride size */
-	int			line;								/* line size */
+	int 		line;								/* line size (frame width * pixel size) */
 	byte		depth;								/* color depth */
 	byte		pixsz;								/* memory size per pixel */
 	int 		bpp;								/* bits per pixel */

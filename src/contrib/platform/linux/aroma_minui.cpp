@@ -15,6 +15,7 @@ int aroma_minui_init(void) {
 		printf("aroma_minui_init: failed to start up minui drm backend (F)\n");
 		return 1;
 	}
+	printf("aroma_minui_init: gr_draw surface bpp is %d\n", gr_draw->pixel_bytes*8);
 	printf("aroma_minui_init: Trying to allocate aroma_surface memory\n");
 	aroma_surface=malloc(sizeof(GRSurface));
 	printf("aroma_minui_init: getting minui fb width\n");

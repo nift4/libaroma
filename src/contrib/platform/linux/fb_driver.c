@@ -115,6 +115,66 @@ byte LINUXDRM_end_post(LIBAROMA_FBP me){
 }
 
 /*
+ * Function		: LINUXDRM_release
+ * Return Value: byte
+ * Descriptions: end post
+ */
+byte LINUXDRM_release(LIBAROMA_FBP me){
+	aroma_minui_exit();
+	return 0;
+}
+
+/*
+ * Function		: LINUXDRM_setrgbpos
+ * Return Value: void
+ * Descriptions: set rgbx position
+ */
+void LINUXDRM_setrgbpos(LIBAROMA_FBP me, byte r, byte g, byte b) {
+	if (me == NULL) {
+		return;
+	}
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
+	/* save color position */
+	mi->rgb_pos[0] = r;
+	mi->rgb_pos[1] = g;
+	mi->rgb_pos[2] = b;
+	mi->rgb_pos[3] = r >> 3;
+	mi->rgb_pos[4] = g >> 3;
+	mi->rgb_pos[5] = b >> 3;
+}
+
+/*
+ * Function		: LINUXDRM_snapshoot_32bit
+ * Return Value: byte
+ * Descriptions: get snapshoot
+ */
+byte LINUXDRM_snapshoot_32bit(LIBAROMA_FBP me, wordp dst) {
+	if (me == NULL) {
+		return 0;
+	}
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
+	libaroma_blt_align_to16_pos(
+		dst, (dwordp) mi->buffer, me->w, me->h,
+		0, mi->stride, mi->rgb_pos);
+	return 1;
+}
+
+/*
+ * Function		: LINUXDRM_snapshoot_16bit
+ * Return Value: byte
+ * Descriptions: get snapshoot
+ */
+byte LINUXDRM_snapshoot_16bit(LIBAROMA_FBP me, wordp dst) {
+	if (me == NULL) {
+		return 0;
+	}
+	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
+	libaroma_blt_align16(
+		dst, (wordp) mi->buffer, me->w, me->h, 0, mi->stride);
+	return 1;
+}
+
+/*
  * Function		: LINUXDRM_post
  * Return Value: byte
  * Descriptions: post data
@@ -132,7 +192,7 @@ byte LINUXDRM_post(
 	int sstride = (sw - dw) * 2;
 	int dstride = mi->stride;
 	dwordp copy_dst =
-		(dwordp) (((bytep) mi->buffer)+(me->w * dy)+(dx * mi->pixsz));
+		(dwordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
 	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	if (mi->is32){
@@ -163,35 +223,6 @@ byte LINUXDRM_post(
 }
 
 /*
- * Function		: LINUXDRM_release
- * Return Value: byte
- * Descriptions: end post
- */
-byte LINUXDRM_release(LIBAROMA_FBP me){
-	aroma_minui_exit();
-	return 0;
-}
-
-/*
- * Function		: LINUXDRM_setrgbpos
- * Return Value: void
- * Descriptions: set rgbx position
- */
-void LINUXDRM_setrgbpos(LIBAROMA_FBP me, byte r, byte g, byte b) {
-	if (me == NULL) {
-		return;
-	}
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
-	/* save color position */
-	mi->rgb_pos[0] = r;
-	mi->rgb_pos[1] = g;
-	mi->rgb_pos[2] = b;
-	mi->rgb_pos[3] = r >> 3;
-	mi->rgb_pos[4] = g >> 3;
-	mi->rgb_pos[5] = b >> 3;
-}
-
-/*
  * Function		: LINUXDRM_init
  * Return Value: byte
  * Descriptions: init framebuffer
@@ -216,14 +247,16 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	mi->bpp=mi->pixsz*8;
 	mi->is32=(mi->bpp==32)?1:0;
 	ALOGI("Got bpp!");
-	mi->stride=mi->row_bytes/mi->bpp;
-	ALOGI("Got stride!");
 	me->internal=(voidp) mi;
-	LINUXDRM_setrgbpos(me, 0, 8, 16); // 8, 8, 8 causes green instead of white at lmi
+	LINUXDRM_setrgbpos(me, 16, 8, 0); // 8, 8, 8 causes green instead of white at lmi
 	me->w=aroma_minui_get_fb_width();
 	ALOGI("Got width!");
 	me->h=aroma_minui_get_fb_height();
 	ALOGI("Got height!");
+	mi->line=(me->w*mi->pixsz);
+	ALOGI("Got line size!");
+	mi->stride=mi->(mi->line - (dw * mi->pixsz));
+	ALOGI("Got stride!");
 	me->sz = me->w * me->h;
 	ALOGI("DRM Framebuffer info that we obtained:");
 	ALOGI("width: %d", me->w);
@@ -233,12 +266,15 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	ALOGI("pixel_bytes: %d", mi->pixsz);
 	ALOGI("bpp: %d", mi->bpp);
 	ALOGI("stride: %d", mi->stride);
+	ALOGI("line size: %d", mi->line);
 
-	me->start_post	= &LINUXDRM_start_post;
-	me->end_post	= &LINUXDRM_end_post;
-	me->post		= &LINUXDRM_post;
-	me->release		= &LINUXDRM_release;
-	me->snapshoot	= NULL;
+	me->start_post		= &LINUXDRM_start_post;
+	me->end_post		= &LINUXDRM_end_post;
+	me->post			= &LINUXDRM_post;
+	me->release			= &LINUXDRM_release;
+	if (mi->is32)
+		me->snapshoot	= &LINUXDRM_snapshoot_32bit;
+	else me->snapshoot	= &LINUXDRM_snapshoot_16bit;
 	ALOGI("Function callbacks set");
 	return 1;
 }
@@ -588,48 +624,49 @@ void LINUXFBDP_set_dpi(LIBAROMA_FBP me) {
 void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
 	ALOGI("FRAMEBUFFER INFORMATIONS:");
 	ALOGI("VAR");
-	ALOGI(" xres				: %i", mi->var.xres);
-	ALOGI(" yres				: %i", mi->var.yres);
-	ALOGV(" xres_virtual		: %i", mi->var.xres_virtual);
-	ALOGV(" yres_virtual		: %i", mi->var.yres_virtual);
-	ALOGV(" xoffset				: %i", mi->var.xoffset);
-	ALOGV(" yoffset				: %i", mi->var.yoffset);
-	ALOGI(" bits_per_pixel		: %i", mi->var.bits_per_pixel);
-	ALOGV(" grayscale			: %i", mi->var.grayscale);
-	ALOGI(" red					: %i, %i, %i",
+	ALOGI(" xres                : %i", mi->var.xres);
+	ALOGI(" yres                : %i", mi->var.yres);
+	ALOGI(" xres_virtual        : %i", mi->var.xres_virtual);
+	ALOGI(" yres_virtual        : %i", mi->var.yres_virtual);
+	ALOGI(" xoffset             : %i", mi->var.xoffset);
+	ALOGI(" yoffset             : %i", mi->var.yoffset);
+	ALOGI(" bits_per_pixel      : %i", mi->var.bits_per_pixel);
+	ALOGI(" grayscale           : %i", mi->var.grayscale);
+	ALOGI(" red                 : %i, %i, %i",
 		mi->var.red.offset, mi->var.red.length, mi->var.red.msb_right);
-	ALOGI(" green				: %i, %i, %i",
+	ALOGI(" green               : %i, %i, %i",
 		mi->var.green.offset, mi->var.green.length, mi->var.red.msb_right);
-	ALOGI(" blue				: %i, %i, %i",
+	ALOGI(" blue                : %i, %i, %i",
 		mi->var.blue.offset, mi->var.blue.length, mi->var.red.msb_right);
-	ALOGV(" transp				: %i, %i, %i",
+	ALOGI(" transp              : %i, %i, %i",
 		mi->var.transp.offset, mi->var.transp.length, mi->var.red.msb_right);
-	ALOGV(" nonstd				: %i", mi->var.nonstd);
-	ALOGV(" activate			: %i", mi->var.activate);
-	ALOGV(" height				: %i", mi->var.height);
-	ALOGV(" width				: %i", mi->var.width);
-	ALOGV(" accel_flags			: %i", mi->var.accel_flags);
-	ALOGV(" pixclock			: %i", mi->var.pixclock);
-	ALOGV(" left_margin			: %i", mi->var.left_margin);
-	ALOGV(" right_margin		: %i", mi->var.right_margin);
-	ALOGV(" upper_margin		: %i", mi->var.upper_margin);
-	ALOGV(" lower_margin		: %i", mi->var.lower_margin);
-	ALOGV(" hsync_len			: %i", mi->var.hsync_len);
-	ALOGV(" vsync_len			: %i", mi->var.vsync_len);
-	ALOGV(" sync				: %i", mi->var.sync);
-	ALOGV(" rotate				: %i", mi->var.rotate);
+	ALOGI(" nonstd              : %i", mi->var.nonstd);
+	ALOGI(" activate            : %i", mi->var.activate);
+	ALOGI(" height              : %i", mi->var.height);
+	ALOGI(" width               : %i", mi->var.width);
+	ALOGI(" accel_flags         : %i", mi->var.accel_flags);
+	ALOGI(" pixclock            : %i", mi->var.pixclock);
+	ALOGI(" left_margin         : %i", mi->var.left_margin);
+	ALOGI(" right_margin        : %i", mi->var.right_margin);
+	ALOGI(" upper_margin        : %i", mi->var.upper_margin);
+	ALOGI(" lower_margin        : %i", mi->var.lower_margin);
+	ALOGI(" hsync_len           : %i", mi->var.hsync_len);
+	ALOGI(" vsync_len           : %i", mi->var.vsync_len);
+	ALOGI(" sync                : %i", mi->var.sync);
+	ALOGI(" rotate              : %i", mi->var.rotate);
 
 	ALOGI("FIX");
-	ALOGI(" id					: %s", mi->fix.id);
-	ALOGI(" smem_len			: %i", mi->fix.smem_len);
-	ALOGV(" type				: %i", mi->fix.type);
-	ALOGV(" type_aux			: %i", mi->fix.type_aux);
-	ALOGV(" visual				: %i", mi->fix.visual);
-	ALOGV(" xpanstep			: %i", mi->fix.xpanstep);
-	ALOGV(" ypanstep			: %i", mi->fix.ypanstep);
-	ALOGV(" ywrapstep			: %i", mi->fix.ywrapstep);
-	ALOGI(" line_length			: %i", mi->fix.line_length);
-	ALOGV(" accel				: %i", mi->fix.accel);
+	ALOGI(" id                  : %s", mi->fix.id);
+	ALOGI(" smem_len            : %i", mi->fix.smem_len);
+	ALOGI(" type                : %i", mi->fix.type);
+	ALOGI(" type_aux            : %i", mi->fix.type_aux);
+	ALOGI(" visual              : %i", mi->fix.visual);
+	ALOGI(" xpanstep            : %i", mi->fix.xpanstep);
+	ALOGI(" ypanstep            : %i", mi->fix.ypanstep);
+	ALOGI(" ywrapstep           : %i", mi->fix.ywrapstep);
+	ALOGI(" line_length         : %i", mi->fix.line_length);
+	ALOGI(" accel               : %i", mi->fix.accel);
+	ALOGI(" line size           : %i", mi->line);
 } /* End of LINUXFBDR_dump */
 
 /*
