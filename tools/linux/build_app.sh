@@ -2,7 +2,7 @@
 olddir=$PWD
 scriptdir=$(dirname "$(readlink -f -- "$0")")
 if [ -z "$scriptdir" ]; then
-	echo Unable to get script dir, exiting! 
+	echo Unable to get script dir, exiting!
 	exit
 fi
 cd $scriptdir/libaroma
@@ -23,11 +23,14 @@ $LIBAROMA_GCC \
     -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
   \
     ../obj/*.o ./*.o \
-    ../../../examples/$1/main.c \
+    ../../../examples/$1/*.c \
   \
   -I../../../include \
   -I../../../src \
   -o ../bin/$1 \
   \
-  -lm -lpthread -lstdc++ -lrt
+  -ldrm -lm -lpthread -lstdc++ -lrt
 cd $olddir
+
+# -L../../../libs/minui
+# -lminui

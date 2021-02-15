@@ -255,7 +255,7 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	ALOGI("Got height!");
 	mi->line=(me->w*mi->pixsz);
 	ALOGI("Got line size!");
-	mi->stride=mi->(mi->line - (dw * mi->pixsz));
+	mi->stride=(mi->line - (me->w * mi->pixsz));
 	ALOGI("Got stride!");
 	me->sz = me->w * me->h;
 	ALOGI("DRM Framebuffer info that we obtained:");

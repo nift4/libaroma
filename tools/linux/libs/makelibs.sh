@@ -3,7 +3,7 @@
 olddir=$PWD
 scriptdir=$(dirname "$(readlink -f -- "$0")")
 if [ -z "$scriptdir" ]; then
-	echo Unable to get script dir, exiting! 
+	echo Unable to get script dir, exiting!
 	exit
 fi
 cd $scriptdir
@@ -15,6 +15,6 @@ mkdir -p ../obj
 ./makelibs_hbucdn.sh
 ./makelibs_minzip.sh
 ./makelibs_png.sh
-./makelibs_squirrel.sh
+./makelibs_minui.sh
 ./makelibs_jpeg.sh
 cd $olddir

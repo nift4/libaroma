@@ -23,11 +23,18 @@ int aroma_minui_init(void) {
 	printf("aroma_minui_init: getting minui fb height\n");
 	aroma_surface->height = gr_fb_height();
 	printf("aroma_minui_init: setting up surface size\n");
-	aroma_surface->row_bytes = gr_draw->row_bytes;//aroma_surface->width * 4;
+	aroma_surface->row_bytes = gr_draw->row_bytes;
 	printf("aroma_minui_init: setting up pixel bytes\n");
 	aroma_surface->pixel_bytes = gr_draw->pixel_bytes;
 	printf("aroma_minui_init: allocating framebuffer data (to draw here later)\n");
 	aroma_surface->data = (unsigned char*) malloc(sizeof(uint32_t) * aroma_surface->width * aroma_surface->height);
+	printf("aroma_minui_init: dumping surface info:\n"
+			"width: %d\n"
+			"height: %d\n"
+			"row_bytes: %d\n"
+			"pixel_bytes: %d\n",
+			aroma_surface->width, aroma_surface->height,
+			aroma_surface->row_bytes, aroma_surface->pixel_bytes);
 	printf("aroma_minui_init: Thanks, come back soon! :D\n");
 	return 0;
 }
@@ -66,7 +73,6 @@ void* aroma_minui_get_data(void) {
 }
 
 void aroma_minui_flip(void) {
-	//printf("aroma_minui_flip: asked for flip\n");
 	//printf("aroma_minui_flip: blitting aroma_surface onto main display\n");
 	gr_blit(aroma_surface, 0, 0, aroma_surface->width, aroma_surface->height, 0, 0);
 	//printf("aroma_minui_flip: flipping surfaces\n");

@@ -2,7 +2,7 @@
 olddir=$PWD
 scriptdir=$(dirname "$(readlink -f -- "$0")")
 if [ -z "$scriptdir" ]; then
-	echo Unable to get script dir, exiting! 
+	echo Unable to get script dir, exiting!
 	exit
 fi
 cd $scriptdir
@@ -11,11 +11,12 @@ mkdir -p libaroma
 cd libaroma
 
 echo Building libaroma
+# -Wextra -Wshadow -Wno-unused-parameter
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
-  -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -Wl,-s -Wextra -Wshadow -Wno-unused-parameter \
+  -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG -lstdc++ \
+  -fPIC -DPIC -Wl,-s \
  \
   $LIBAROMA_CFLAGS \
  \
@@ -26,6 +27,7 @@ $LIBAROMA_GCC -c \
   -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
   -DANDROID=1 -D__ANDROID__ \
  \
+  ../../../src/contrib/platform/linux/aroma_minui.cpp \
   ../../../src/contrib/platform/linux/fb_driver.c \
   ../../../src/contrib/platform/linux/hid_driver.c \
   ../../../src/contrib/platform/linux/platform.c \
@@ -43,6 +45,7 @@ $LIBAROMA_GCC -c \
   ../../../src/aroma/controls/listitem/*.c \
  \
   -I../../../include \
+  -I../../../libs/minui \
   -I../../../src/contrib/platform/linux/include \
   -I../../../src \
   -I../../../libs/zlib/src \
@@ -53,7 +56,7 @@ $LIBAROMA_GCC -c \
   -I../../../libs/png \
   -I../../../libs/jpeg \
   -I../../../libs/harfbuzz-ng/src \
-  -I../../../libs/harfbuzz-ng/src/hb-ucdn
+  -I../../../libs/harfbuzz-ng/src/hb-ucdn \
 
 cd ..
 mkdir -p bin
