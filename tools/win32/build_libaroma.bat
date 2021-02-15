@@ -4,7 +4,7 @@ mkdir libaroma
 cd libaroma
 if not "%1"=="" (
 del /F /Q %1.*
-) 
+)
 REM else (
 REM del /F /Q *
 REM )
@@ -26,6 +26,7 @@ echo Compiling Libaroma
   -DANDROID=1 -D__ANDROID__ ^
  ^
   ../../../src/contrib/platform/linux/fb_driver.c ^
+  ../../../src/contrib/platform/linux/aroma_minui.cpp ^
   ../../../src/contrib/platform/linux/hid_driver.c ^
   ../../../src/contrib/platform/linux/platform.c ^
  ^
@@ -45,6 +46,7 @@ echo Compiling Libaroma
   -I../../../src/contrib/platform/linux/include ^
   -I../../../src ^
   -I../../../libs/zlib/src ^
+  -I../../../libs/minui ^
   -I../../../libs/freetype/builds ^
   -I../../../libs/freetype/include ^
   -I../../../libs/minzip ^

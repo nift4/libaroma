@@ -18,13 +18,13 @@ echo Compiling %1
     -DLIBAROMA_CONFIG_SHMEMFB=%LIBAROMA_CONFIG_SHMEMFB% ^
   ^
     ../obj/*.o ./*.o ^
-    ../../../examples/%1/main.c ^
+    ../../../examples/%1/*.c ^
   ^
   -I../../../include ^
   -I../../../libs/selinux/include ^
   -I../../../src %LIBAROMA_CINCLUDES% ^
   -o ../bin/%1 ^
   ^
-  -lm -lpthread -lstdc++ -lrt
+  -ldrm -lm -lpthread -lstdc++ -lrt
 
 cd ..
