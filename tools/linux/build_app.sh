@@ -29,7 +29,7 @@ $LIBAROMA_GCC \
   -I../../../src \
   -o ../bin/$1 \
   \
-  -ldrm -lm -lpthread -lstdc++ -lrt
+  -lm -lpthread -lstdc++ -lrt
 cd $olddir
 
 # -L../../../libs/minui

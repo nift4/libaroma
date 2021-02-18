@@ -1,7 +1,7 @@
 #!/bin/sh
 cd ../obj
 
-echo Compiling minui
+echo Compiling drm
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
@@ -10,11 +10,8 @@ $LIBAROMA_GCC -c \
  \
   $LIBAROMA_CFLAGS \
  \
-  	../../../libs/minui/events.cpp \
-    ../../../libs/minui/graphics.cpp \
-  	../../../libs/minui/graphics_drm.cpp \
-  	../../../libs/minui/resources.cpp \
-  -I../../../libs/minui \
+  	../../../libs/drm/xf86drm.c \
+    ../../../libs/drm/xf86drmMode.c \
   -I../../../libs/drm
 
 cd ../libs
