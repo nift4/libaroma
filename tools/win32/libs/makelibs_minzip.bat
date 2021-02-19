@@ -6,7 +6,7 @@ echo Compiling MinZip
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
-  -fPIC -DPIC -Wl,-s -Doff64_t=__off64_t^
+  -fPIC -DPIC -Wl,-s -Doff64_t=off_t^
   ^
     ../../../libs/minzip/Hash.c ^
     ../../../libs/minzip/SysUtil.c ^

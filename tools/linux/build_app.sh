@@ -26,6 +26,7 @@ $LIBAROMA_GCC \
     ../../../examples/$1/*.c \
   \
   -I../../../include \
+  -I../../../libs/selinux/include \
   -I../../../src \
   -o ../bin/$1 \
   \
