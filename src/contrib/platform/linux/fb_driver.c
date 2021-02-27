@@ -34,9 +34,6 @@
 extern "C" {
 #endif
 
-/* integrating DRM support */
-#include "aroma_minui.h"
-
 /*
  * Function		: LINUXFBDR_start_post
  * Return Value: byte
@@ -92,191 +89,6 @@ byte LINUXFBDR_config(
 		ioctl(mi->fb,FBIO_CURSOR,&cur);
 	}
 	return 0;
-}
-
-
-
-/*
- * Function		: LINUXDRM_start_post
- * Return Value: byte
- * Descriptions: start post
- */
-byte LINUXDRM_start_post(LIBAROMA_FBP me){
-	return 1;
-}
-
-/*
- * Function		: LINUXDRM_end_post
- * Return Value: byte
- * Descriptions: end post
- */
-byte LINUXDRM_end_post(LIBAROMA_FBP me){
-	return 1;
-}
-
-/*
- * Function		: LINUXDRM_release
- * Return Value: byte
- * Descriptions: end post
- */
-byte LINUXDRM_release(LIBAROMA_FBP me){
-	aroma_minui_exit();
-	return 0;
-}
-
-/*
- * Function		: LINUXDRM_setrgbpos
- * Return Value: void
- * Descriptions: set rgbx position
- */
-void LINUXDRM_setrgbpos(LIBAROMA_FBP me, byte r, byte g, byte b) {
-	if (me == NULL) {
-		return;
-	}
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
-	/* save color position */
-	mi->rgb_pos[0] = r;
-	mi->rgb_pos[1] = g;
-	mi->rgb_pos[2] = b;
-	mi->rgb_pos[3] = r >> 3;
-	mi->rgb_pos[4] = g >> 3;
-	mi->rgb_pos[5] = b >> 3;
-}
-
-/*
- * Function		: LINUXDRM_snapshoot_32bit
- * Return Value: byte
- * Descriptions: get snapshoot
- */
-byte LINUXDRM_snapshoot_32bit(LIBAROMA_FBP me, wordp dst) {
-	if (me == NULL) {
-		return 0;
-	}
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
-	libaroma_blt_align_to16_pos(
-		dst, (dwordp) mi->buffer, me->w, me->h,
-		0, mi->stride, mi->rgb_pos);
-	return 1;
-}
-
-/*
- * Function		: LINUXDRM_snapshoot_16bit
- * Return Value: byte
- * Descriptions: get snapshoot
- */
-byte LINUXDRM_snapshoot_16bit(LIBAROMA_FBP me, wordp dst) {
-	if (me == NULL) {
-		return 0;
-	}
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
-	libaroma_blt_align16(
-		dst, (wordp) mi->buffer, me->w, me->h, 0, mi->stride);
-	return 1;
-}
-
-/*
- * Function		: LINUXDRM_post
- * Return Value: byte
- * Descriptions: post data
- */
-byte LINUXDRM_post(
-	LIBAROMA_FBP me, wordp __restrict src,
-	int dx, int dy, int dw, int dh,
-	int sx, int sy, int sw, int sh
-	){
-	if (me == NULL) {
-		return 0;
-	}
-	//void *aroma_surface_data = me->internal;
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
-	int sstride = (sw - dw) * 2;
-	int dstride = mi->stride;
-	dwordp copy_dst =
-		(dwordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
-	wordp copy_src =
-		(wordp) (src + (sw * sy) + sx);
-	if (mi->is32){
-		libaroma_blt_align_to32_pos(
-			copy_dst,
-			copy_src,
-			dw, dh,
-			dstride,
-			sstride,
-			mi->rgb_pos
-		);
-	}
-	else { //using 16bpp
-		libaroma_blt_align16(
-			copy_dst,
-			copy_src,
-			dw, dh,
-			dstride,
-			sstride
-		);
-	}
-	/*ALOGI("Trying to draw to screen! Parameters: \n"
-			"sstride: %d\ndstride: %d (zero is fine)",
-			sstride, dstride);*/
-	aroma_minui_flip();
-	//aroma_minui_fill_red();
-	return 1;
-}
-
-/*
- * Function		: LINUXDRM_init
- * Return Value: byte
- * Descriptions: init framebuffer
- */
-byte LINUXDRM_init(LIBAROMA_FBP me){
-	if (aroma_minui_init()==1){
-		ALOGE("Cannot start DRM subsystem!!! Exiting...")
-		return 0;
-	}
-	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) calloc(sizeof(LINUXDRM_INTERNAL), 1);
-	if (mi==NULL) {
-		ALOGE("cannot allocate internal data");
-		return 0;
-	}
-	ALOGI("Trying to get data...");
-	mi->buffer=aroma_minui_get_data();
-	ALOGI("Got data!");
-	mi->row_bytes=aroma_minui_row_bytes();
-	ALOGI("Got row bytes!");
-	mi->pixsz=aroma_minui_pixel_bytes();
-	ALOGI("Got pixel bytes!");
-	mi->bpp=mi->pixsz*8;
-	mi->is32=(mi->bpp==32)?1:0;
-	ALOGI("Got bpp!");
-	me->internal=(voidp) mi;
-	LINUXDRM_setrgbpos(me, 16, 8, 0); // 8, 8, 8 causes green instead of white at lmi
-	me->w=aroma_minui_get_fb_width();
-	ALOGI("Got width!");
-	me->h=aroma_minui_get_fb_height();
-	ALOGI("Got height!");
-	mi->line=(me->w*mi->pixsz);
-	ALOGI("Got line size!");
-	mi->stride=(mi->line - (me->w * mi->pixsz));
-	ALOGI("Got stride!");
-	me->sz = me->w * me->h;
-	ALOGI("DRM Framebuffer info that we obtained:");
-	ALOGI("width: %d", me->w);
-	ALOGI("height: %d", me->h);
-	ALOGI("32 bpp: %s", (mi->is32==1)?"true":"false");
-	ALOGI("row_bytes: %d", mi->row_bytes);
-	ALOGI("pixel_bytes: %d", mi->pixsz);
-	ALOGI("bpp: %d", mi->bpp);
-	ALOGI("stride: %d", mi->stride);
-	ALOGI("line size: %d", mi->line);
-
-	me->start_post		= &LINUXDRM_start_post;
-	me->end_post		= &LINUXDRM_end_post;
-	me->post			= &LINUXDRM_post;
-	me->release			= &LINUXDRM_release;
-	if (mi->is32)
-		me->snapshoot	= &LINUXDRM_snapshoot_32bit;
-	else me->snapshoot	= &LINUXDRM_snapshoot_16bit;
-	ALOGI("Function callbacks set");
-	return 1;
 }
 
 /*
@@ -675,12 +487,7 @@ void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
  * Descriptions: init function for libaroma fb
  */
 byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
-
-	if (libaroma_file_exists("/dev/dri/card0")){
-		ALOGI("DRM card file found!! Trying to init DRM subsystem...");
-		return LINUXDRM_init(me);
-	}
-	else return LINUXFBDR_init(me);
+	return LINUXFBDR_init(me);
 } /* End of libaroma_fb_driver_init */
 
 #ifdef __cplusplus
