@@ -52,6 +52,8 @@
 #include "hid/messages.h"		 /* message queue */
 #include "ui.h"							 /* ui, window & controls */
 
+typedef word (*color_handler)(char *color_str);
+
 /*
  * Structure	 : LIBAROMA_CONFIG
  * Typedef		 : LIBAROMA_CONFIG, * LIBAROMA_CONFIGP
@@ -61,6 +63,7 @@ typedef struct{
 	char fb_shm_name[64];
 	byte snapshoot_fb;
 	byte multicore_init_num;
+	color_handler custom_color_handler;
 	byte runtime_monitor;
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 
