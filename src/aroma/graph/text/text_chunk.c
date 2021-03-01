@@ -191,17 +191,21 @@ byte _libaroma_text_parse_next(
 							*tok = 0;
 							/* is it string resource ?? */
 							if (cur[0] == '~') {
+								ALOGD("_libaroma_text_parse_next: Parsing tag %s", cur+1);
 								/* string resource */
 								char * string_val = libaroma_lang_get(cur + 1);
 								if (string_val == NULL) {
+									ALOGD("_libaroma_text_parse_next: Failed to parse, using tag");
 									string_val = _libaroma_text_parse_strdup(cur + 1);
 								}
+								ALOGD("_libaroma_text_parse_next: parsed, resulting string is %s", string_val);
 								_libaroma_text_change_current(chunk, tok + 1);
 								if (string_val != NULL) {
 									_libaroma_text_concat_pre(&chunk->text, string_val);
 								}
 								cur = chunk->text;
-								free(string_val);
+								if (string_val!=NULL)
+									free(string_val);
 							}
 							else {
 								byte tag_res = _libaroma_text_parse_tag(
