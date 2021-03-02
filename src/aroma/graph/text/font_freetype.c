@@ -322,7 +322,10 @@ byte libaroma_font(
 
 		if (FT_Set_Pixel_Sizes(tmp_face, 0, def_size) == 0) {
 			/* save it */
-			libaroma_font_free(fontid);
+			if (libaroma_font_exists(fontid)){
+				ALOGV("previous font with same id exists, freeing");
+				libaroma_font_free(fontid);
+			}
 			_libaroma_font_faces[fontid].size	 = def_size;
 			_libaroma_font_faces[fontid].id		 = fontid;
 			_libaroma_font_faces[fontid].face	 = tmp_face;
@@ -355,6 +358,26 @@ byte libaroma_font(
 	_libaroma_font_lock(0);
 	return 0;
 } /* End of libaroma_font */
+
+/*
+ * Function		: libaroma_font_exists
+ * Return Value: byte
+ * Descriptions: check if givent font id exists
+ */
+byte libaroma_font_exists(
+		byte fontid) {
+#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
+	if (_libaroma_font_faces[fontid].hb_font==NULL)
+		return 0;
+#endif
+	if (_libaroma_font_faces[fontid].face==NULL)
+		return -1;
+	if (_libaroma_font_faces[fontid].cache==NULL)
+		return -2;
+	if (_libaroma_font_faces[fontid].stream==NULL)
+		return -3;
+	return 1;
+} /* End of libaroma_font_exists*/
 
 /*
  * Function		: libaroma_font_free
