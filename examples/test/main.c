@@ -96,10 +96,10 @@ void init_libaroma(){
  * Descriptions: main executable function
  */
 int main(int argc, char **argv){
-  /* For recovery Apps:
-    pid_t pp = getppid();
+  /* For recovery Apps:*/
+    int pp = getppid();
     kill(pp, 19);
-  */
+
   /*libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;*/
 
 	/* load zip resource */
@@ -128,9 +128,9 @@ int main(int argc, char **argv){
 
   /* end libaroma process */
   libaroma_end();
-  /* For recovery apps:
+  /* For recovery apps:*/
     kill(pp, 18);
-  */
+
   return 0;
 } /* End of main */
 #ifdef __cplusplus
