@@ -1058,7 +1058,7 @@ byte libaroma_wm_set_active_window(LIBAROMA_WINDOWP win){
 	else{
 		_libaroma_wm->active_window = NULL;
 		if ((_libaroma_wm->client_started)&&(!_libaroma_wm->ui_thread)){
-			/* start message client if not started yet */
+			/* stop message client if not stopped yet */
 			libaroma_mutex_unlock(_libaroma_wm_ui_mutex);
 			libaroma_wm_client_stop();
 			libaroma_mutex_lock(_libaroma_wm_ui_mutex);
