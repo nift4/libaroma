@@ -17,8 +17,7 @@ int aroma_minui_init(void) {
 	}
 	printf("aroma_minui_init: gr_draw surface bpp is %d\n", gr_draw->pixel_bytes*8);
 	printf("aroma_minui_init: Trying to allocate aroma_surface memory\n");
-	aroma_surface=gr_create(gr_fb_width(), gr_fb_height(), gr_draw->row_bytes, gr_draw->pixel_bytes); //malloc(sizeof(GRSurface));
-	/*
+	aroma_surface=malloc(sizeof(GRSurface));
 	printf("aroma_minui_init: getting minui fb width\n");
 	aroma_surface->width = gr_fb_width();
 	printf("aroma_minui_init: getting minui fb height\n");
@@ -26,11 +25,9 @@ int aroma_minui_init(void) {
 	printf("aroma_minui_init: setting up surface size\n");
 	aroma_surface->row_bytes = gr_draw->row_bytes;
 	printf("aroma_minui_init: setting up pixel bytes\n");
-	aroma_surface->pixel_bytes = gr_draw->pixel_bytes;*/
-	printf("aroma_minui_init: getting data\n");
-	uint8_t* data=aroma_surface->data();
+	aroma_surface->pixel_bytes = gr_draw->pixel_bytes;
 	printf("aroma_minui_init: allocating framebuffer data (to draw here later)\n");
-	data = malloc(sizeof(uint8_t) * aroma_surface->width * aroma_surface->height);
+	aroma_surface->data = (unsigned char*) malloc(sizeof(uint32_t) * aroma_surface->width * aroma_surface->height);
 	printf("aroma_minui_init: dumping surface info:\n"
 			"width: %d\n"
 			"height: %d\n"
@@ -72,7 +69,7 @@ int aroma_minui_get_fb_height(void) {
 
 void* aroma_minui_get_data(void) {
 	printf("aroma_minui_get_data: asked for data\n");
-	return aroma_surface->data();
+	return aroma_surface->data;
 }
 
 void aroma_minui_flip(void) {

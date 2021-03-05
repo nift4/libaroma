@@ -14,106 +14,28 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef _MINUI_H_
+#define _MINUI_H_
 
-#include <stdint.h>
-#include <stdlib.h>
+#ifndef TW_USE_OLD_MINUI_H
+
 #include <sys/types.h>
 
 #include <functional>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "android-macros.h"
-#include "android-unique_fd.h"
 
 //
 // Graphics.
 //
 
-class GRSurface {
- public:
-  static constexpr size_t kSurfaceDataAlignment = 8;
-
-  virtual ~GRSurface() = default;
-
-  // Creates and returns a GRSurface instance that's sufficient for storing an image of the given
-  // size (i.e. row_bytes * height). The starting address of the surface data is aligned to
-  // kSurfaceDataAlignment. Returns the created GRSurface instance (in std::unique_ptr), or nullptr
-  // on error.
-  static std::unique_ptr<GRSurface> Create(size_t width, size_t height, size_t row_bytes,
-                                           size_t pixel_bytes);
-
-  // Clones the current GRSurface instance (i.e. an image).
-  std::unique_ptr<GRSurface> Clone() const;
-
-  virtual uint8_t* data() {
-    return data_.get();
-  }
-
-  const uint8_t* data() const {
-    return const_cast<const uint8_t*>(const_cast<GRSurface*>(this)->data());
-  }
-
-  size_t data_size() const {
-    return data_size_;
-  }
-
-  size_t width;
-  size_t height;
-  size_t row_bytes;
-  size_t pixel_bytes;
-  // The deleter for data_, whose data is allocated via aligned_alloc(3).
-  struct DataDeleter {
-    void operator()(uint8_t* data) {
-      free(data);
-    }
-  };
-
-  std::unique_ptr<uint8_t, DataDeleter> data_;
-  size_t data_size_;
-
- protected:
-  GRSurface(size_t width, size_t height, size_t row_bytes, size_t pixel_bytes)
-      : width(width), height(height), row_bytes(row_bytes), pixel_bytes(pixel_bytes) {}
-
- private:
-
-  DISALLOW_COPY_AND_ASSIGN(GRSurface);
+struct GRSurface {
+    int width;
+    int height;
+    int row_bytes;
+    int pixel_bytes;
+    unsigned char* data;
 };
 
-struct GRFont {
-  GRSurface* texture;
-  int char_width;
-  int char_height;
-};
-
-enum class GRRotation : int {
-  NONE = 0,
-  RIGHT = 1,
-  DOWN = 2,
-  LEFT = 3,
-};
-
-enum class PixelFormat : int {
-  UNKNOWN = 0,
-  ABGR = 1,
-  RGBX = 2,
-  BGRA = 3,
-  ARGB = 4,
-};
-
-// Initializes the graphics backend and loads font file. Returns gr_draw on success, or null on error.
-// Note that the font initialization failure would be non-fatal, as caller may not need to draw any
-// text at all. Caller can check the font initialization result via gr_sys_font() as needed.
 GRSurface *gr_init();
-
-// Creates an empty surface with the given base properties.
-GRSurface *gr_create(size_t w, size_t h, size_t rb, size_t pb);
-
-// Frees the allocated resources. The function is idempotent, and safe to be called if gr_init()
-// didn't finish successfully.
 void gr_exit();
 
 int gr_fb_width();
@@ -122,30 +44,17 @@ int gr_fb_height();
 void gr_flip();
 void gr_fb_blank(bool blank);
 
-// Clears entire surface to current color.
-void gr_clear();
+void gr_clear();  // clear entire surface to current color
 void gr_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 void gr_fill(int x1, int y1, int x2, int y2);
+void gr_text(int x, int y, const char *s, bool bold);
+void gr_texticon(int x, int y, GRSurface* icon);
+int gr_measure(const char *s);
+void gr_font_size(int *x, int *y);
 
-void gr_texticon(int x, int y, const GRSurface* icon);
-
-const GRFont* gr_sys_font();
-int gr_init_font(const char* name, GRFont** dest);
-void gr_text(const GRFont* font, int x, int y, const char* s, bool bold);
-// Returns -1 if font is nullptr.
-int gr_measure(const GRFont* font, const char* s);
-// Returns -1 if font is nullptr.
-int gr_font_size(const GRFont* font, int* x, int* y);
-
-void gr_blit(const GRSurface* source, int sx, int sy, int w, int h, int dx, int dy);
-unsigned int gr_get_width(const GRSurface* surface);
-unsigned int gr_get_height(const GRSurface* surface);
-
-// Sets rotation, flips gr_fb_width/height if 90 degree rotation difference
-void gr_rotate(GRRotation rotation);
-
-// Returns the current PixelFormat being used.
-PixelFormat gr_pixel_format();
+void gr_blit(GRSurface* source, int sx, int sy, int w, int h, int dx, int dy);
+unsigned int gr_get_width(GRSurface* surface);
+unsigned int gr_get_height(GRSurface* surface);
 
 //
 // Input events.
@@ -153,15 +62,15 @@ PixelFormat gr_pixel_format();
 
 struct input_event;
 
-using ev_callback = std::function<int(int fd, uint32_t epevents)>;
-using ev_set_key_callback = std::function<int(int code, int value)>;
+// TODO: move these over to std::function.
+typedef int (*ev_callback)(int fd, uint32_t epevents, void* data);
+typedef int (*ev_set_key_callback)(int code, int value, void* data);
 
-int ev_init(ev_callback input_cb, bool allow_touch_inputs = false);
+int ev_init(ev_callback input_cb, void* data);
 void ev_exit();
-int ev_add_fd(android::base::unique_fd&& fd, ev_callback cb);
-void ev_iterate_available_keys(const std::function<void(int)>& f);
-void ev_iterate_touch_inputs(const std::function<void(int)>& action);
-int ev_sync_key_state(const ev_set_key_callback& set_key_cb);
+int ev_add_fd(int fd, ev_callback cb, void* data);
+void ev_iterate_available_keys(std::function<void(int)> f);
+int ev_sync_key_state(ev_set_key_callback set_key_cb, void* data);
 
 // 'timeout' has the same semantics as poll(2).
 //    0 : don't block
@@ -176,8 +85,6 @@ int ev_get_epollfd();
 //
 // Resources
 //
-
-bool matches_locale(const std::string& prefix, const std::string& locale);
 
 // res_create_*_surface() functions return 0 if no error, else
 // negative.
@@ -196,8 +103,8 @@ int res_create_display_surface(const char* name, GRSurface** pSurface);
 // should have a 'Frames' text chunk whose value is the number of
 // frames this image represents.  The pixel data itself is interlaced
 // by row.
-int res_create_multi_display_surface(const char* name, int* frames, int* fps,
-                                     GRSurface*** pSurface);
+int res_create_multi_display_surface(const char* name,
+                                     int* frames, GRSurface*** pSurface);
 
 // Load a single alpha surface from a grayscale PNG image.
 int res_create_alpha_surface(const char* name, GRSurface** pSurface);
@@ -206,14 +113,104 @@ int res_create_alpha_surface(const char* name, GRSurface** pSurface);
 // given locale.  The image is expected to be a composite of multiple
 // translations of the same text, with special added rows that encode
 // the subimages' size and intended locale in the pixel data.  See
-// bootable/recovery/tools/recovery_l10n for an app that will generate
-// these specialized images from Android resources.
+// development/tools/recovery_l10n for an app that will generate these
+// specialized images from Android resources.
 int res_create_localized_alpha_surface(const char* name, const char* locale,
                                        GRSurface** pSurface);
-
-// Return a list of locale strings embedded in |png_name|. Return a empty list in case of failure.
-std::vector<std::string> get_locales_in_png(const std::string& png_name);
 
 // Free a surface allocated by any of the res_create_*_surface()
 // functions.
 void res_free_surface(GRSurface* surface);
+
+#else //ifndef TW_USE_OLD_MINUI_H
+
+// This the old minui.old/minui.h for compatibility with building TWRP
+// in pre 6.0 trees.
+
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef void* gr_surface;
+typedef unsigned short gr_pixel;
+
+int gr_init(void);
+void gr_exit(void);
+
+int gr_fb_width(void);
+int gr_fb_height(void);
+gr_pixel *gr_fb_data(void);
+void gr_flip(void);
+void gr_fb_blank(bool blank);
+
+void gr_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+void gr_fill(int x1, int y1, int x2, int y2);
+
+// system/core/charger uses different gr_print signatures in diferent
+// Android versions, either with or without int bold.
+int gr_text(int x, int y, const char *s, ...);
+int gr_text_impl(int x, int y, const char *s, int bold);
+
+ void gr_texticon(int x, int y, gr_surface icon);
+int gr_measure(const char *s);
+void gr_font_size(int *x, int *y);
+void gr_get_memory_surface(gr_surface);
+
+void gr_blit(gr_surface source, int sx, int sy, int w, int h, int dx, int dy);
+unsigned int gr_get_width(gr_surface surface);
+unsigned int gr_get_height(gr_surface surface);
+
+// input event structure, include <linux/input.h> for the definition.
+// see http://www.mjmwired.net/kernel/Documentation/input/ for info.
+struct input_event;
+
+typedef int (*ev_callback)(int fd, uint32_t epevents, void *data);
+typedef int (*ev_set_key_callback)(int code, int value, void *data);
+
+int ev_init(ev_callback input_cb, void *data);
+void ev_exit(void);
+int ev_add_fd(int fd, ev_callback cb, void *data);
+int ev_sync_key_state(ev_set_key_callback set_key_cb, void *data);
+
+/* timeout has the same semantics as for poll
+ *    0 : don't block
+ *  < 0 : block forever
+ *  > 0 : block for 'timeout' milliseconds
+ */
+int ev_wait(int timeout);
+
+int ev_get_input(int fd, uint32_t epevents, struct input_event *ev);
+void ev_dispatch(void);
+int ev_get_epollfd(void);
+
+// Resources
+
+// Returns 0 if no error, else negative.
+int res_create_surface(const char* name, gr_surface* pSurface);
+
+// Load an array of display surfaces from a single PNG image.  The PNG
+// should have a 'Frames' text chunk whose value is the number of
+// frames this image represents.  The pixel data itself is interlaced
+// by row.
+int res_create_multi_display_surface(const char* name,
+                                     int* frames, gr_surface** pSurface);
+
+int res_create_localized_surface(const char* name, gr_surface* pSurface);
+void res_free_surface(gr_surface surface);
+static inline int res_create_display_surface(const char* name, gr_surface* pSurface) {
+    return res_create_surface(name, pSurface);
+}
+
+// These are new graphics functions from 5.0 that were not available in
+// 4.4 that are required by charger and healthd
+void gr_clear();
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // ifndef TW_USE_OLD_MINUI_H
+#endif // ifndef _MINUI_H_
