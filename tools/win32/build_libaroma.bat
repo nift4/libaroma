@@ -29,7 +29,7 @@ echo Compiling aroma-minui
   -I../../../libs/minui ^
   -I../../../src/contrib/platform/linux/include
 
-echo Compiling Libaroma
+echo Building Libaroma
 %LIBAROMA_GCC% -c ^
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
@@ -62,10 +62,10 @@ echo Compiling Libaroma
   ../../../src/aroma/controls/listitem/*.c ^
  ^
   -I../../../include ^
+  -I../../../libs/minui ^
   -I../../../src/contrib/platform/linux/include ^
   -I../../../src ^
   -I../../../libs/zlib/src ^
-  -I../../../libs/minui ^
   -I../../../libs/freetype/builds ^
   -I../../../libs/freetype/include ^
   -I../../../libs/minzip ^

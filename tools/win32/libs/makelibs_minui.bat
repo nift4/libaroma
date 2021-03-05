@@ -6,14 +6,16 @@ echo Compiling MinUI
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
-  -fPIC -DPIC -Wl,-s -Doff64_t=__off64_t^
+  -fPIC -DPIC -Wl,-s -DUSE_MMAP ^
   ^
     ../../../libs/minui/events.cpp ^
     ../../../libs/minui/graphics.cpp ^
     ../../../libs/minui/graphics_drm.cpp ^
     ../../../libs/minui/resources.cpp ^
   ^
-	-I../../../libs/minui %LIBAROMA_CINCLUDES%
+	-I../../../libs/minui ^
+	-I../../../libs/drm ^
+	-I../../../libs/png %LIBAROMA_CINCLUDES%
 
 cd ..\libs
 
