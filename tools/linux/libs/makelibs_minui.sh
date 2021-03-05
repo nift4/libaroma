@@ -15,6 +15,7 @@ $LIBAROMA_GCC -c \
   	../../../libs/minui/graphics_drm.cpp \
   	../../../libs/minui/resources.cpp \
   -I../../../libs/minui \
+  -I../../../libs/png \
   -I../../../libs/drm
 
 cd ../libs
