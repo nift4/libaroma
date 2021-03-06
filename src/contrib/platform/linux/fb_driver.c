@@ -91,9 +91,6 @@ byte LINUXFBDR_config(
 	return 0;
 }
 
-<<<<<<< HEAD
-
-
 /*
  * Function		: LINUXDRM_start_post
  * Return Value: byte
@@ -278,9 +275,6 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	ALOGI("Function callbacks set");
 	return 1;
 }
-
-=======
->>>>>>> master
 /*
  * Function		: LINUXFBDR_init
  * Return Value: byte
