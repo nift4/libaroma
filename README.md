@@ -11,11 +11,13 @@ This library has a lot of utilities, from drawing simple graphics (shapes, gradi
 I'm just trying to improve it, as the original one has some not-so-nice details (like the dialogs items being hardcoded in the library for the test program, instead of making those changeable by the user).  
 So, if you want to know every change I did, then just look at the commit history (I've tried to keep it clear and concise by doing changes, testing them and the adding each change in a individual commit with a descriptive title/message, howerver didn't do that every time). 
 A summary of changes: 
-- Dialog items now are dynamic
-- ~Window closing animation implemented~ (broken)
+- Dialog items now are dynamic (needs rework)
 - Window now has appbar_bg property (ideal for setting statusbar color, if window has appbar)
+- DRM support is here!
+- Enhanced and fixed some functions
 
 ## How to compile (Windows)
+NOTICE: It may be outdated, needs some care (I mostly build on Linux)
 There are a lot of scripts for building libaroma on tools/win32, but you first need a toolchain. I use gcc-linaro-arm-linux-gnueabihf-4.7-2013.01-20130125_win32 from the launchpad's linaro archive (https://launchpad.net/linaro-toolchain-binaries/).
 After that, the correct way to compile everything is this:
 - go to tools/win32, edit envsetup.bat with the correct paths (you can just edit LIBAROMA_GCC and LIBAROMA_GPP variables), save and run it.
@@ -47,9 +49,11 @@ So, the main workflow to build libaroma and the test app on Linux is as follows:
 - run either build.sh (to do everything automatically) or libs/makelibs.sh, libaroma.sh and then build_app.sh test
 - to run the app on recovery, just use recovery.sh test r (if you want to compile the app and debug, you can omit the "r" at the end).  
 ## In progress
-This is a list of changes I'm currently implementing (or didn't prepare for upload)
-- [ ] Graphics composer (work in progress, troubles with transparency and related things)
-- [ ] New stausbar example for window (need to be updated in order to work with composer)
-- [ ] Slider control (in progress, need to make it a control)
+This is a list of changes I'm wanting to implement (or just didn't prepare for upload)
+- [ ] New stausbar and example (needs to be done in a better way)
+- [ ] Slider control
+- [ ] Better transparency management (use alpha canvas in controls and such)
+- [ ] Expand config system (add default colorspace
+- [ ] Add the posibility to change colorspace if using fb/drm drivers
  
 For more info, please visit github page (it's outdated and not-so-useful, though): http://amarullz.github.io/libaroma/  
