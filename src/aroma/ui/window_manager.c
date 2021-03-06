@@ -666,7 +666,9 @@ static void * _libaroma_wm_ui_thread(void * cookie) {
 				continue;
 			}
 		}
-		libaroma_sleep(16);
+		libaroma_sleep(8);	//lowered due to DRM support, but still useful
+							//TODO: check, if minui graphics not used then
+							//delay should be of 16 (less CPU usage)
 	}
 	ALOGV("wm ui thread ended");
 	return NULL;

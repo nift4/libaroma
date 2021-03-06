@@ -85,7 +85,7 @@ void init_libaroma(){
   /* load font - id=0 */
   libaroma_font(0,
     libaroma_stream(
-      "res:///fonts/Roboto-Regular.ttf"
+      "file:///tmp/Roboto-Regular.ttf"
     )
   );
 } /* End of init_libaroma */
@@ -103,7 +103,7 @@ int main(int argc, char **argv){
   /*libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;*/
 
 	/* load zip resource */
-	/*
+/*
 	if (argv[3]!=NULL){
 		printf("Loading zip from received path (%s)\n", argv[3]);
 		zip=libaroma_zip(argv[3]);

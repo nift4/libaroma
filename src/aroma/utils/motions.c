@@ -178,7 +178,7 @@ byte libaroma_ripple_thread(LIBAROMA_RIPPLEP me, long wait_ms){
 			long touch_start = me->touch_start[i] + wait_ms;
 			if ((nowtick>=touch_start)||(wait_ms==0)){
 				if ((touch_start)&&(me->touch_state[i]<1)){
-					float nowstate=libaroma_duration_state(touch_start, 1600);
+					float nowstate=libaroma_duration_state(touch_start, 1300);
 					if (me->touch_state[i]!=nowstate){
 						ret |= LIBAROMA_RIPPLE_REDRAW;
 						me->touch_state[i]=nowstate;
@@ -213,7 +213,7 @@ byte libaroma_ripple_thread(LIBAROMA_RIPPLEP me, long wait_ms){
 			me->touched=0;
 		}
 		if ((!me->touched||(i!=me->p))&&me->release_start[i]) {
-			float nowstate=libaroma_duration_state(me->release_start[i], 375);
+			float nowstate=libaroma_duration_state(me->release_start[i], 250);
 			if (me->release_state[i]!=nowstate){
 				ret |= LIBAROMA_RIPPLE_REDRAW;
 				me->release_state[i]=nowstate;
