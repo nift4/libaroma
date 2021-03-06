@@ -37,5 +37,6 @@ struct minui_backend {
 };
 
 minui_backend* open_drm();
+minui_backend* open_fbdev();
 
 #endif

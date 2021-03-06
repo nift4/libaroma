@@ -13,6 +13,7 @@ $LIBAROMA_GCC -c \
   	../../../libs/minui/events.cpp \
     ../../../libs/minui/graphics.cpp \
   	../../../libs/minui/graphics_drm.cpp \
+  	../../../libs/minui/graphics_fbdev.cpp \
   	../../../libs/minui/resources.cpp \
   -I../../../libs/minui \
   -I../../../libs/png \

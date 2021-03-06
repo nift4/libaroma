@@ -187,7 +187,6 @@ byte LINUXDRM_post(
 	if (me == NULL) {
 		return 0;
 	}
-	//void *aroma_surface_data = me->internal;
 	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) me->internal;
 	int sstride = (sw - dw) * 2;
 	int dstride = mi->stride;
@@ -218,7 +217,7 @@ byte LINUXDRM_post(
 			"sstride: %d\ndstride: %d (zero is fine)",
 			sstride, dstride);*/
 	aroma_minui_flip();
-	//aroma_minui_fill_red();
+	libaroma_sleep(12);
 	return 1;
 }
 
@@ -258,6 +257,8 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	mi->stride=(mi->line - (me->w * mi->pixsz));
 	ALOGI("Got stride!");
 	me->sz = me->w * me->h;
+	me->dpi=floor(MIN(me->w, me->h)/160) * 80;
+	ALOGI("Calculated DPI!");
 	ALOGI("DRM Framebuffer info that we obtained:");
 	ALOGI("width: %d", me->w);
 	ALOGI("height: %d", me->h);
@@ -267,6 +268,7 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	ALOGI("bpp: %d", mi->bpp);
 	ALOGI("stride: %d", mi->stride);
 	ALOGI("line size: %d", mi->line);
+	ALOGI("dpi: %d", me->dpi);
 
 	me->start_post		= &LINUXDRM_start_post;
 	me->end_post		= &LINUXDRM_end_post;

@@ -25,12 +25,11 @@ $LIBAROMA_GCC -c \
   -I../../../src/contrib/platform/linux/include
 
 echo Building libaroma
-
 $LIBAROMA_GCC -c \
   -save-temps \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG -lstdc++ \
-  -fPIC -DPIC -Wl,-s -Wextra -Wshadow -Wno-unused-parameter \
+  -fPIC -DPIC -Wl,-s \
  \
   $LIBAROMA_CFLAGS \
  \
@@ -72,5 +71,6 @@ $LIBAROMA_GCC -c \
   -I../../../libs/harfbuzz-ng/src/hb-ucdn \
 
 cd ..
+
 mkdir -p bin
 cd $olddir

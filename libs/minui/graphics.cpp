@@ -433,12 +433,15 @@ void gr_flip() {
 GRSurface *gr_init(void)
 {
     gr_draw = NULL;
-    if (!gr_draw) {
-        gr_backend = open_drm();
-        gr_draw = gr_backend->init(gr_backend);
-        if (gr_draw)
-            printf("Using drm graphics.\n");
-    }
+	gr_backend = open_drm();
+	gr_draw = gr_backend->init(gr_backend);
+	if (gr_draw!=NULL) printf("Using drm graphics.\n");
+	else{
+		gr_backend=open_fbdev();
+		gr_draw = gr_backend->init(gr_backend);
+		if (gr_draw) printf("Using fbdev graphics.\n");
+		else return NULL;
+	}
 
     overscan_offset_x = gr_draw->width * overscan_percent / 100;
     overscan_offset_y = gr_draw->height * overscan_percent / 100;

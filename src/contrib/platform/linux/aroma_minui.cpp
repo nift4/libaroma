@@ -18,23 +18,23 @@ int aroma_minui_init(void) {
 	printf("aroma_minui_init: gr_draw surface bpp is %d\n", gr_draw->pixel_bytes*8);
 	printf("aroma_minui_init: Trying to allocate aroma_surface memory\n");
 	aroma_surface=malloc(sizeof(GRSurface));
-	printf("aroma_minui_init: getting minui fb width\n");
 	aroma_surface->width = gr_fb_width();
-	printf("aroma_minui_init: getting minui fb height\n");
+	printf("aroma_minui_init: got minui fb width (%d)\n", aroma_surface->width);
 	aroma_surface->height = gr_fb_height();
-	printf("aroma_minui_init: setting up surface size\n");
-	aroma_surface->row_bytes = gr_draw->row_bytes;
-	printf("aroma_minui_init: setting up pixel bytes\n");
+	printf("aroma_minui_init: got minui fb height (%d)\n", aroma_surface->height);
 	aroma_surface->pixel_bytes = gr_draw->pixel_bytes;
+	printf("aroma_minui_init: pixel bytes set (%d)\n", aroma_surface->pixel_bytes);
+	aroma_surface->row_bytes = aroma_surface->width*aroma_surface->pixel_bytes;//gr_draw->row_bytes;
+	printf("aroma_minui_init: surface size set (%d)\n", aroma_surface->row_bytes);
 	printf("aroma_minui_init: allocating framebuffer data (to draw here later)\n");
-	aroma_surface->data = (unsigned char*) malloc(sizeof(uint32_t) * aroma_surface->width * aroma_surface->height);
-	printf("aroma_minui_init: dumping surface info:\n"
+	aroma_surface->data = (unsigned char*) malloc(sizeof(uint32_t) * aroma_surface->height * aroma_surface->row_bytes);
+	/*printf("aroma_minui_init: dumping surface info:\n"
 			"width: %d\n"
 			"height: %d\n"
 			"row_bytes: %d\n"
 			"pixel_bytes: %d\n",
 			aroma_surface->width, aroma_surface->height,
-			aroma_surface->row_bytes, aroma_surface->pixel_bytes);
+			aroma_surface->row_bytes, aroma_surface->pixel_bytes);*/
 	printf("aroma_minui_init: Thanks, come back soon! :D\n");
 	return 0;
 }
@@ -58,17 +58,17 @@ int aroma_minui_row_bytes(void){
 }
 
 int aroma_minui_get_fb_width(void) {
-	printf("aroma_minui_get_fb_width: asked for width\n");
+	//printf("aroma_minui_get_fb_width: asked for width\n");
 	return aroma_surface->width;
 }
 
 int aroma_minui_get_fb_height(void) {
-	printf("aroma_minui_get_fb_height: asked for height\n");
+	//printf("aroma_minui_get_fb_height: asked for height\n");
 	return aroma_surface->height;
 }
 
 void* aroma_minui_get_data(void) {
-	printf("aroma_minui_get_data: asked for data\n");
+	//printf("aroma_minui_get_data: asked for data\n");
 	return aroma_surface->data;
 }
 
