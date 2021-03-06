@@ -10,20 +10,6 @@ rm -rf libaroma
 mkdir -p libaroma
 cd libaroma
 
-echo Building aroma_minui
-
-$LIBAROMA_GCC -c \
-  -save-temps \
-  -fdata-sections -ffunction-sections -Wl,--gc-sections \
-  -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG -lstdc++ \
-  -fPIC -DPIC -Wl,-s -Wextra -Wshadow -Wno-unused-parameter -fpermissive \
- \
-  $LIBAROMA_CFLAGS \
- \
-  ../../../src/contrib/platform/linux/aroma_minui.cpp \
-  -I../../../libs/minui \
-  -I../../../src/contrib/platform/linux/include
-
 echo Building libaroma
 $LIBAROMA_GCC -c \
   -save-temps \
@@ -57,7 +43,6 @@ $LIBAROMA_GCC -c \
   ../../../src/aroma/controls/listitem/*.c \
  \
   -I../../../include \
-  -I../../../libs/minui \
   -I../../../src/contrib/platform/linux/include \
   -I../../../src \
   -I../../../libs/zlib/src \

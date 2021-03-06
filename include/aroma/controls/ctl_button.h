@@ -27,12 +27,12 @@
 #ifndef __libaroma_ctl_button_h__
 #define __libaroma_ctl_button_h__
 
-#define LIBAROMA_CTL_BUTTON_FLAT			0x0
+#define LIBAROMA_CTL_BUTTON_FLAT		0x0
 #define LIBAROMA_CTL_BUTTON_RAISED		0x1
-#define LIBAROMA_CTL_BUTTON_COLORED	 0x2
+#define LIBAROMA_CTL_BUTTON_COLORED		0x2
 #define LIBAROMA_CTL_BUTTON_DISABLED	0x4
 #define LIBAROMA_CTL_BUTTON_CIRCLE		0x8
-#define LIBAROMA_CTL_BUTTON_KEEP_COLOR 0x16
+#define LIBAROMA_CTL_BUTTON_KEEP_COLOR	0x16
 
 /*
  * Function		: libaroma_ctl_button
@@ -46,6 +46,33 @@ LIBAROMA_CONTROLP libaroma_ctl_button(
 		const char * text,
 		byte button_style,
 		word button_color
+);
+
+/*
+ * Function		: libaroma_ctl_button_icon
+ * Return Value: LIBAROMA_CONTROLP
+ * Descriptions: create button control - with icon
+ */
+LIBAROMA_CONTROLP libaroma_ctl_button_icon(
+		LIBAROMA_WINDOWP win,
+		word id,
+		int x, int y, int w, int h,
+		const char * text,
+		LIBAROMA_CANVASP icon,
+		byte draw_atright,
+		byte button_style,
+		word button_color
+);
+
+/*
+ * Function		: libaroma_ctl_button_seticon
+ * Return Value: byte
+ * Descriptions: set button icon
+ */
+byte libaroma_ctl_button_seticon(
+		LIBAROMA_CONTROLP ctl,
+		LIBAROMA_CANVASP icon,
+		byte draw_atright
 );
 
 int libaroma_ctl_button_width(const char * text);

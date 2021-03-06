@@ -9,6 +9,7 @@ REM else (
 REM del /F /Q *
 REM )
 
+<<<<<<< HEAD
 echo Compiling aroma-minui
 %LIBAROMA_GCC% -c ^
   -save-temps ^
@@ -30,6 +31,9 @@ echo Compiling aroma-minui
   -I../../../src/contrib/platform/linux/include
 
 echo Building Libaroma
+=======
+echo Compiling Libaroma
+>>>>>>> master
 %LIBAROMA_GCC% -c ^
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^

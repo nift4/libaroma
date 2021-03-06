@@ -713,7 +713,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 		ALOGW("listitem_check cannot allocate internal data");
 		return NULL;
 	}
-	mi->selected=0;
+	mi->selected=selected;
 	mi->icon=NULL;
 
 	int vpad = 8;

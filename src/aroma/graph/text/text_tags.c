@@ -95,7 +95,20 @@ byte _libaroma_text_parse_tag(
 				case '#': {
 						/* color */
 						if ((_LIBAROMA_TEXT_FIXED_COLOR&rules) == 0) {
-							chunk->next_state.color = libaroma_rgb_from_string(tag);
+							word newcolor = -1;
+							//ALOGD("Going to check for color %s!", tag);
+							if (libaroma_config()->custom_color_handler != NULL){
+								//ALOGD("Using custom color handler");
+								newcolor=libaroma_config()->custom_color_handler(tag);
+							}
+							if (newcolor > 0) {
+								//ALOGD("Custom color handler gave a valid color, using it...");
+								chunk->next_state.color = newcolor;
+							}
+							else {
+								//ALOGD("NULL color! Treating as RGB");
+								chunk->next_state.color = libaroma_rgb_from_string(tag);
+							}
 						}
 						return 1;
 					}

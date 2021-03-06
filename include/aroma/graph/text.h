@@ -98,6 +98,14 @@ byte libaroma_font(
 		LIBAROMA_STREAMP stream);
 
 /*
+ * Function		: libaroma_font_exists
+ * Return Value: byte
+ * Descriptions: check if givent font id exists
+ */
+byte libaroma_font_exists(
+		byte fontid);
+
+/*
  * Function		: libaroma_font_free
  * Return Value: byte
  * Descriptions: free loaded font

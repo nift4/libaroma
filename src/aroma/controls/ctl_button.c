@@ -58,6 +58,8 @@ struct __LIBAROMA_CTL_BUTTON{
 	byte isdark;
 	word color;
 	byte forcedraw;
+	LIBAROMA_CANVASP icon;
+	byte icon_isleft;
 
 	LIBAROMA_RIPPLE ripple;
 	LIBAROMA_MUTEX mutex;
@@ -120,6 +122,7 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	//libaroma_control_erasebg(ctl,bg);
 
 	byte is_circle=(me->style&LIBAROMA_CTL_BUTTON_CIRCLE)?1:0;
+	byte has_icon=(me->icon!=NULL)?1:0;
 	int ix = libaroma_dp(is_circle?6:4);
 	int iy = libaroma_dp(6);
 	int iw = ctl->w-ix*2;
@@ -201,11 +204,13 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 		}
 	}
 
+	int textw=iw-libaroma_dp(has_icon?32:16);
+
 	/* draw text */
 	LIBAROMA_TEXT textp = libaroma_text(
 		me->text,
 		text_color,
-		iw - libaroma_dp(16),
+		textw,
 		LIBAROMA_FONT(0,4)|
 		LIBAROMA_TEXT_SINGLELINE|
 		LIBAROMA_TEXT_CENTER|
@@ -220,18 +225,28 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	if (is_disabled && !keepcolor_disabled){
 		rest_text_color=me->isdark?0xffff:0;
 	}
-	libaroma_text_draw_color(rest_canvas,textp,libaroma_dp(8)+ix,y,
+	libaroma_text_draw_color(rest_canvas,textp,libaroma_dp(has_icon?(me->icon_isleft?20:8):8)+ix,y,
 		rest_text_color
 	);
 
 	if (!is_disabled || (is_disabled && keepcolor_disabled)){
-		libaroma_text_draw(push_canvas,textp,libaroma_dp(8)+ix,y);
+		libaroma_text_draw(push_canvas,textp,libaroma_dp(has_icon?20:8)+ix,y);
 	}
 	else{
 		libaroma_draw_ex(rest_canvas,bg,0,0,0,0,ctl->w,ctl->h,0,
 			me->isdark?171:189);
 	}
 	libaroma_text_free(textp);
+
+	if (has_icon) { // draw icon
+		int iconsz=libaroma_dp(16);
+		int iconx=me->icon_isleft?libaroma_dp(8):(ctl->w-libaroma_dp(8));
+		int icony=(ctl->h/2)-(iconsz/2);
+		libaroma_draw_scale_smooth(rest_canvas, me->icon, libaroma_dp(8), icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
+		if (!is_disabled || (is_disabled && keepcolor_disabled)){
+			libaroma_draw_scale_smooth(push_canvas, me->icon, libaroma_dp(8), icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
+		}
+	}
 
 	/* cleanup */
 	libaroma_canvas_free(bg);
@@ -273,6 +288,7 @@ void _libaroma_ctl_button_draw(
 		LIBAROMA_CONTROLP ctl,
 		LIBAROMA_CANVASP c){
 	/* internal check */
+
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_button_handler, _LIBAROMA_CTL_BUTTONP,
 	);
@@ -287,8 +303,6 @@ void _libaroma_ctl_button_draw(
 		}
 	}
 	me->forcedraw = 0;
-
-
 
 	libaroma_control_erasebg(ctl,c);
 	if (me->style&LIBAROMA_CTL_BUTTON_DISABLED){
@@ -519,6 +533,48 @@ LIBAROMA_CONTROLP libaroma_ctl_button(
 	}
 	return ctl;
 } /* End of libaroma_ctl_button */
+
+/*
+ * Function		: libaroma_ctl_button_icon
+ * Return Value: LIBAROMA_CONTROLP
+ * Descriptions: create button control - with icon
+ */
+LIBAROMA_CONTROLP libaroma_ctl_button_icon(
+		LIBAROMA_WINDOWP win,
+		word id,
+		int x, int y, int w, int h,
+		const char * text,
+		LIBAROMA_CANVASP icon,
+		byte draw_atright,
+		byte button_style,
+		word button_color
+){
+	LIBAROMA_CONTROLP btn=libaroma_ctl_button(win, id, x, y, w, h, text, button_style, button_color);
+	libaroma_ctl_button_seticon(btn, icon, draw_atright);
+	return btn;
+} /* End of libaroma_ctl_button_icon */
+
+/*
+ * Function		: libaroma_ctl_button_seticon
+ * Return Value: byte
+ * Descriptions: set button icon
+ */
+byte libaroma_ctl_button_seticon(
+		LIBAROMA_CONTROLP ctl,
+		LIBAROMA_CANVASP icon,
+		byte draw_atright
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_button_handler, _LIBAROMA_CTL_BUTTONP, 0
+	);
+	libaroma_mutex_lock(me->mutex);
+	me->icon = icon;
+	me->icon_isleft = (draw_atright?0:1);
+	libaroma_mutex_unlock(me->mutex);
+	_libaroma_ctl_button_req_internal_draw(ctl);
+	return 1;
+} /* End of libaroma_ctl_button_style */
 
 /*
  * Function		: libaroma_ctl_button_style

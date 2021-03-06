@@ -116,7 +116,7 @@ char * libaroma_lang_get(
 		ALOGW("libaroma_lang_get - _libaroma_language uninitialized...");
 		return NULL;
 	}
-	return libaroma_sarray_get_string(_libaroma_language, key);
+	return strdup(libaroma_sarray_get_string(_libaroma_language, key));
 } /* End of libaroma_lang_get */
 
 /*

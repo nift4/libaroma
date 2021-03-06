@@ -34,9 +34,6 @@
 extern "C" {
 #endif
 
-/* integrating DRM support */
-#include "aroma_minui.h"
-
 /*
  * Function		: LINUXFBDR_start_post
  * Return Value: byte
@@ -94,6 +91,7 @@ byte LINUXFBDR_config(
 	return 0;
 }
 
+<<<<<<< HEAD
 
 
 /*
@@ -281,6 +279,8 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	return 1;
 }
 
+=======
+>>>>>>> master
 /*
  * Function		: LINUXFBDR_init
  * Return Value: byte
@@ -677,12 +677,7 @@ void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
  * Descriptions: init function for libaroma fb
  */
 byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
-
-	if (libaroma_file_exists("/dev/dri/card0")){
-		ALOGI("DRM card file found!! Trying to init DRM subsystem...");
-		return LINUXDRM_init(me);
-	}
-	else return LINUXFBDR_init(me);
+	return LINUXFBDR_init(me);
 } /* End of libaroma_fb_driver_init */
 
 #ifdef __cplusplus
