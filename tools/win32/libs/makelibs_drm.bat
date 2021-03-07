@@ -1,7 +1,7 @@
 @ECHO OFF
 cd ..\obj
 
-echo Compiling MinUI
+echo Compiling DRM
 %LIBAROMA_GCC% -c ^
   -save-temps ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^

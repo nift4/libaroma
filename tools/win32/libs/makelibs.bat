@@ -15,6 +15,8 @@ call makelibs_hb.bat -f
 call makelibs_hbucdn.bat -f
 call makelibs_minzip.bat -f
 call makelibs_png.bat -f
+call makelibs_drm.bat -f
+call makelibs_minui.bat -f
 call makelibs_jpeg.bat -f
 call makelibs_squirrel.bat -f
 
