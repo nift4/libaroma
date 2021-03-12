@@ -29,6 +29,7 @@
 #include "fb_colorspace/fb_16bit.c" /* 16 bit */
 #include "fb_colorspace/fb_32bit.c" /* 32 bit */
 #include "fb_qcom/fb_qcom.c" /* qcom overlay */
+#include "aroma_minui.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -114,9 +115,9 @@ byte LINUXDRM_end_post(LIBAROMA_FBP me){
  * Return Value: byte
  * Descriptions: end post
  */
-byte LINUXDRM_release(LIBAROMA_FBP me){
+void LINUXDRM_release(LIBAROMA_FBP me){
 	aroma_minui_exit();
-	return 0;
+	//return 0;
 }
 
 /*
@@ -201,7 +202,7 @@ byte LINUXDRM_post(
 	}
 	else { //using 16bpp
 		libaroma_blt_align16(
-			copy_dst,
+			(wordp)copy_dst,
 			copy_src,
 			dw, dh,
 			dstride,

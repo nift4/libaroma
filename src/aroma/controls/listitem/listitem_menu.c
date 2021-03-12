@@ -356,7 +356,7 @@ char *libaroma_listitem_menu_gettext(
 		LIBAROMA_CTL_LIST_ITEMP item,
 		byte get_extra){
 	_LIBAROMA_LISTITEM_MENUP mi = (_LIBAROMA_LISTITEM_MENUP) item->internal;
-	if (mi==NULL) return;
+	if (mi==NULL) return NULL;
 	if (get_extra)
 		return strdup(mi->extra_text);
 	else return strdup(mi->main_text);

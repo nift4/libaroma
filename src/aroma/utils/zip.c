@@ -41,7 +41,7 @@ LIBAROMA_ZIP libaroma_zip(
 	MemMapping map;
     if (sysMapFile(filename, &map) != 0) {
         printf("libaroma_zip failed to map package %s\n", filename);
-        return 3;
+        return NULL;
     }
 	if (mzOpenZipArchive(map.addr, map.length, (ZipArchive *) zip) != 0) {
 		ALOGW("libaroma_zip mzOpenZipArchive error (%s)", filename);

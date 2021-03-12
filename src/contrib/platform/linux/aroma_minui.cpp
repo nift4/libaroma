@@ -17,7 +17,7 @@ int aroma_minui_init(void) {
 	}
 	printf("aroma_minui_init: gr_draw surface bpp is %d\n", gr_draw->pixel_bytes*8);
 	printf("aroma_minui_init: Trying to allocate aroma_surface memory\n");
-	aroma_surface=malloc(sizeof(GRSurface));
+	aroma_surface=(GRSurface*) malloc(sizeof(GRSurface));
 	aroma_surface->width = gr_fb_width();
 	printf("aroma_minui_init: got minui fb width (%d)\n", aroma_surface->width);
 	aroma_surface->height = gr_fb_height();
