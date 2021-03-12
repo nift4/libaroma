@@ -52,7 +52,7 @@
 #include "hid/messages.h"		 /* message queue */
 #include "ui.h"							 /* ui, window & controls */
 
-typedef word (*color_handler)(char *color_str);
+typedef word (*color_handler)(const char *color_str);
 
 /*
  * Structure	 : LIBAROMA_CONFIG
