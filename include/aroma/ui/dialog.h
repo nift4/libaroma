@@ -70,5 +70,12 @@ int libaroma_dialog_confirm(
   LIBAROMA_COLORSETP colorset,
   byte flags
 );
-  
+
+LIBAROMA_CONTROLP libaroma_dialog_progress(
+	const char * title,
+	const char * message,
+	const char * cancelbtn,
+	LIBAROMA_COLORSETP colorset,
+	byte flags);
+
 #endif /* __libaroma_dialog_h__ */

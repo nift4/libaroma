@@ -321,6 +321,155 @@ int libaroma_dialog_confirm(
 	return retval;
 }
 
+LIBAROMA_CONTROLP libaroma_dialog_progress(
+	const char * title,
+	const char * message,
+	const char * cancelbtn,
+	LIBAROMA_COLORSETP colorset,
+	byte flags){
+
+	int dialog_w = libaroma_wm()->w-libaroma_dp(58);
+	int text_w = dialog_w-libaroma_dp(100);
+	int title_h = 0;
+	if (title){
+		title_h=libaroma_ctl_label_height(
+			title, text_w,
+			0, 6,
+			LIBAROMA_TEXT_LEFT|
+			LIBAROMA_TEXT_FIXED_INDENT|
+			LIBAROMA_TEXT_NOHR,
+			100
+		);
+	}
+	int msg_h = 0;
+	if (message){
+		msg_h=libaroma_ctl_label_height(
+			message, text_w,
+			0, 4,
+			LIBAROMA_TEXT_LEFT|
+			LIBAROMA_TEXT_FIXED_INDENT|
+			LIBAROMA_TEXT_NOHR,
+			120
+		);
+	}
+	else msg_h=libaroma_dp(48);
+	int dialog_h = libaroma_dp(cancelbtn==NULL?84:120)+title_h+msg_h;
+
+	LIBAROMA_WINDOWP win=libaroma_dialog_window(
+		dialog_w, dialog_h,
+		flags,
+		colorset
+	);
+
+	LIBAROMA_DIALOG_DATAP cdata = libaroma_dialog_data(win);
+
+	word title_color = libaroma_colorget(NULL, win)->dialog_primary_text;
+	word msg_color = libaroma_colorget(NULL, win)->dialog_secondary_text;
+	word btncolor = libaroma_colorget(NULL, win)->dialog_primary_text;
+	byte button_style = 0;
+	if (flags&LIBAROMA_DIALOG_ACCENT_BUTTON){
+		btncolor = libaroma_colorget(NULL, win)->accent;
+		button_style=LIBAROMA_CTL_BUTTON_COLORED;
+	}
+
+	if (title){
+		libaroma_ctl_label_valign(win,10,title,
+			libaroma_px(cdata->x)+24,
+			libaroma_px(cdata->y)+24,
+			libaroma_px(text_w),libaroma_px(title_h+10),
+			title_color,0,6,
+			LIBAROMA_TEXT_LEFT|
+			LIBAROMA_TEXT_FIXED_INDENT|
+			LIBAROMA_TEXT_NOHR,
+			100,10
+		);
+	}
+	if (message){
+		libaroma_ctl_label_valign(win,11,message,
+			libaroma_px(cdata->x)+84,
+			libaroma_px(cdata->y)+44+libaroma_px(title_h),
+			libaroma_px(text_w),libaroma_px(msg_h+10),
+			msg_color,0,4,
+			LIBAROMA_TEXT_LEFT|
+			LIBAROMA_TEXT_FIXED_INDENT|
+			LIBAROMA_TEXT_NOHR,
+			120,10
+		);
+	}
+
+	int prog_x;
+	if (message==NULL)
+		prog_x=(libaroma_px(cdata->x)+(libaroma_px(cdata->w/2)-24));
+	else prog_x=libaroma_px(cdata->x)+20;
+	int prog_y=(libaroma_px(cdata->y)+(libaroma_px(cdata->h/2)-24));
+	if (title!=NULL) prog_y+=(44+libaroma_px(title_h))/2;
+
+	LIBAROMA_CONTROLP progress=libaroma_ctl_progress(win, 0, prog_x, prog_y, 48, 48,
+								LIBAROMA_CTL_PROGRESS_CIRCULAR|LIBAROMA_CTL_PROGRESS_INDETERMINATE, 1, 1);
+
+	int button_y = libaroma_px(cdata->y+cdata->h)-52;
+
+	if (cancelbtn){
+		int button1_w = libaroma_ctl_button_width(cancelbtn);
+		int button1_x = libaroma_px(cdata->x+cdata->w-button1_w)-16;
+		libaroma_ctl_button(
+			win,
+			1,
+			button1_x,
+			button_y,
+			libaroma_px(button1_w), 36,
+			cancelbtn,
+			button_style,
+			btncolor
+		);
+	}
+
+	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
+/*
+	byte onpool=1;
+	LIBAROMA_MSG msg;
+	dword command;
+	byte cmd;
+	word id;
+	int retval=-1;
+
+	do{
+		command=libaroma_window_pool(win,&msg);
+		cmd = LIBAROMA_CMD(command);
+		id = LIBAROMA_CMD_ID(command);
+		if (msg.msg==LIBAROMA_MSG_KEY_BACK){
+			if (flags&LIBAROMA_DIALOG_CANCELABLE){
+				ALOGV("libaroma_dialog_progress: Back Button - Cancel");
+				onpool=0;
+			}
+		}
+		else if (cmd==LIBAROMA_CMD_CLICK){
+			if (id==1){
+				ALOGV("libaroma_dialog_progress: Cancel Button Selected");
+				retval=1;
+				onpool=0;
+				//libaroma_sleep(300);
+			}
+		}
+		else if (msg.msg==LIBAROMA_MSG_TOUCH){
+			if (flags&LIBAROMA_DIALOG_CANCELABLE){
+				if (msg.state==1){
+					if ((msg.x<cdata->x)||(msg.y<cdata->y)||(msg.y>cdata->y+cdata->h)||
+						(msg.x>cdata->x+cdata->w)){
+						ALOGV("libaroma_dialog_progress: Touch Outside Dialog - Cancel");
+						onpool=0;
+					}
+				}
+			}
+		}
+	}
+	while(onpool);
+
+	libaroma_dialog_free(win);
+	return retval;*/
+	return progress;
+}
+
 byte _libaroma_dialog_list_simple_option_cb(
 	LIBAROMA_CONTROLP ctl,
 	LIBAROMA_CTL_LIST_ITEMP item,
@@ -374,7 +523,7 @@ int libaroma_dialog_list(
 			100
 		);
 	}
-	int msg_h = 10;
+	int msg_h = title==NULL?0:10;
 	int dialog_h = libaroma_dp(100)+title_h+msg_h;
 
 	LIBAROMA_WINDOWP win=libaroma_dialog_window(
