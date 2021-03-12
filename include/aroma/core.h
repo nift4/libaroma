@@ -96,6 +96,13 @@ void libaroma_debug_set_output(FILE * fd);
 void libaroma_debug_set_tag(char * tag);
 
 /*
+ * Function		: libaroma_debug_set_prefix
+ * Return Value: void
+ * Descriptions: set debug prefix
+ */
+void libaroma_debug_set_prefix(char * prefix);
+
+/*
  * Function		: libaroma_start
  * Return Value: byte
  * Descriptions: Start libaroma application

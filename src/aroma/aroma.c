@@ -69,6 +69,7 @@ static LIBAROMA_CONFIG _libaroma_config;
 static byte _libaroma_config_ready=0;
 static FILE * _libaroma_debug_fp=NULL;
 static char _libaroma_debug_tag[256]="LIBAROMA()";
+static char _libaroma_debug_prefix[32]="";
 
 
 /*
@@ -113,6 +114,15 @@ char * libaroma_debug_tag(){
 } /* End of libaroma_debug_tag */
 
 /*
+ * Function		: libaroma_debug_prefix
+ * Return Value: char *
+ * Descriptions: get debug prefix
+ */
+char * libaroma_debug_prefix(){
+	return _libaroma_debug_prefix;
+} /* End of libaroma_debug_prefix */
+
+/*
  * Function		: libaroma_debug_set_tag
  * Return Value: void
  * Descriptions: set debug tag
@@ -122,6 +132,17 @@ void libaroma_debug_set_tag(char * tag){
 		snprintf(_libaroma_debug_tag,256,"%s",tag);
 	}
 } /* End of libaroma_debug_set_tag */
+
+/*
+ * Function		: libaroma_debug_set_prefix
+ * Return Value: void
+ * Descriptions: set debug prefix
+ */
+void libaroma_debug_set_prefix(char * prefix){
+	if (prefix){
+		snprintf(_libaroma_debug_prefix,32,"%s",prefix);
+	}
+} /* End of libaroma_debug_set_prefix */
 
 /*
  * Function		: libaroma_debug_set_output
