@@ -161,7 +161,7 @@ byte _libaroma_listitem_check_message(
 					//printf("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d\n",
 					//	  x, y, item->checkx, item->checkwidth);
 					if (item->flags&LIBAROMA_LISTITEM_CHECK_HAS_SUBMENU){
-						if (x >= item->checkx && x<= (item->checkx + item->checkwidth)) {
+						if (x >= (item->checkx-(item->checkwidth)) && x<= (item->checkx + (item->checkwidth*1.5))) {
 							libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);
 						}
 						else {
