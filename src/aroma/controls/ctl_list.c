@@ -414,6 +414,19 @@ byte _libaroma_ctl_list_dodraw_item(
 } /* End of _libaroma_ctl_list_dodraw_item */
 
 /*
+ * Function		: libaroma_ctl_list_invalidate_item
+ * Return Value: void
+ * Descriptions: do draw item directly - public
+ */
+void libaroma_ctl_list_invalidate_item(
+		LIBAROMA_CONTROLP ctl,
+		LIBAROMA_CTL_LIST_ITEMP item
+){
+	if (!item || !ctl) return;
+	_libaroma_ctl_list_dodraw_item(ctl, item);
+}
+
+/*
  * Function		: _libaroma_ctl_list_thread
  * Return Value: byte
  * Descriptions: scroll list thread

@@ -155,6 +155,16 @@ int libaroma_ctl_list_get_item_count(
 );
 
 /*
+ * Function		: libaroma_ctl_list_invalidate_item
+ * Return Value: void
+ * Descriptions: do draw item directly - public
+ */
+void libaroma_ctl_list_invalidate_item(
+		LIBAROMA_CONTROLP ctl,
+		LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
  * Function		: libaroma_ctl_list_get_touched_item
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions: get touched item
