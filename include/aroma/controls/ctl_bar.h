@@ -27,14 +27,14 @@
 #ifndef __libaroma_ctl_bar_h__
 #define __libaroma_ctl_bar_h__
 
-#define LIBAROMA_CTL_BAR_TOOL_ICON_FREE				0x1
-#define LIBAROMA_CTL_BAR_TOOL_ICON_SHARED			0x2
-#define LIBAROMA_CTL_BAR_TOOL_SWITCH					 0x4
+#define LIBAROMA_CTL_BAR_TOOL_ICON_FREE			 0x1
+#define LIBAROMA_CTL_BAR_TOOL_ICON_SHARED		 0x2
+#define LIBAROMA_CTL_BAR_TOOL_SWITCH			 0x4
 #define LIBAROMA_CTL_BAR_TOOL_SWITCH_CHECKED	 0x8
-#define LIBAROMA_CTL_BAR_TOOL_SWITCH_CHANGED	 0x10
+#define LIBAROMA_CTL_BAR_TOOL_SWITCH_CHANGED	 0x16
 
-#define LIBAROMA_CTL_BAR_ICON_DRAWER						1
-#define LIBAROMA_CTL_BAR_ICON_ARROW						 2
+#define LIBAROMA_CTL_BAR_ICON_DRAWER			 1
+#define LIBAROMA_CTL_BAR_ICON_ARROW				 2
 #define LIBAROMA_CTL_BAR_ICON_DRAWER_TO_ARROW	 3
 #define LIBAROMA_CTL_BAR_ICON_ARROW_TO_DRAWER	 4
 
@@ -65,6 +65,13 @@ LIBAROMA_CTL_BAR_TOOLSP libaroma_ctl_bar_tools(int count);
  * Descriptions: free tools
  */
 byte libaroma_ctl_bar_tools_free(LIBAROMA_CTL_BAR_TOOLSP tools);
+
+/*
+ * Function		: libaroma_ctl_bar_get_icon_flags
+ * Return Value: byte
+ * Descriptions: get appbar icon flags
+ */
+byte libaroma_ctl_bar_get_icon_flags(LIBAROMA_CONTROLP ctl);
 
 /*
  * Function		: libaroma_ctl_bar_tools_set
@@ -117,7 +124,7 @@ byte libaroma_ctl_bar_set_title(LIBAROMA_CONTROLP ctl,
  */
 byte libaroma_ctl_bar_set_subtitle(LIBAROMA_CONTROLP ctl,
 	char * subtitle, byte update_now);
-	
+
 /*
  * Function		: libaroma_ctl_bar_set_icon_mask
  * Return Value: byte

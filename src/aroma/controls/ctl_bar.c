@@ -1170,7 +1170,7 @@ dword _libaroma_ctl_bar_msg(
 /*
  * Function		: libaroma_ctl_bar
  * Return Value: LIBAROMA_CONTROLP
- * Descriptions: create button control
+ * Descriptions: create bar control
  */
 LIBAROMA_CONTROLP libaroma_ctl_bar(
 		LIBAROMA_WINDOWP win,
@@ -1243,6 +1243,19 @@ byte libaroma_ctl_bar_set_title(LIBAROMA_CONTROLP ctl,
 	}
 	return 1;
 } /* End of libaroma_ctl_bar_set_title */
+
+/*
+ * Function		: libaroma_ctl_bar_get_icon_flags
+ * Return Value: byte
+ * Descriptions: get appbar icon flags
+ */
+byte libaroma_ctl_bar_get_icon_flags(LIBAROMA_CONTROLP ctl){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_bar_handler, _LIBAROMA_CTL_BARP, 0
+	);
+	return me->icon_flags;
+} /* End of libaroma_ctl_bar_get_icon_flags */
 
 /*
  * Function		: libaroma_ctl_bar_set_textgap
