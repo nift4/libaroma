@@ -92,6 +92,17 @@ byte _libaroma_text_parse_tag(
 		else {
 			/* multi characters */
 			switch (tag[0]) {
+				case '@': {
+					if (strstr(tag, "left")!=NULL)
+						_LIBAROMA_TEXTCHUNK_ALIGN_SET(
+							chunk->next_state.flags, _LIBAROMA_TEXTCHUNK_ALIGN_LEFT);
+					else if (strstr(tag, "center")!=NULL)
+						_LIBAROMA_TEXTCHUNK_ALIGN_SET(
+							chunk->next_state.flags, _LIBAROMA_TEXTCHUNK_ALIGN_CENTER);
+					else if (strstr(tag, "right")!=NULL)
+						_LIBAROMA_TEXTCHUNK_ALIGN_SET(
+							chunk->next_state.flags, _LIBAROMA_TEXTCHUNK_ALIGN_RIGHT);
+				}
 				case '#': {
 						/* color */
 						if ((_LIBAROMA_TEXT_FIXED_COLOR&rules) == 0) {
@@ -239,6 +250,21 @@ byte _libaroma_text_parse_tag(
 		if (tagn == 2) {
 			/* single character */
 			switch (tag[1]) {
+				case '@': {
+					if (strcmp(tag, "/@") == 0) {
+						if ((_LIBAROMA_TEXT_FIXED_ALIGN & rules) == 0) {
+							/* reset alignment */
+							_LIBAROMA_TEXTCHUNK_ALIGN_SET(
+								chunk->next_state.flags, (pflags & 0x03));
+							byte line_flags =
+								_LIBAROMA_TEXTCHUNK_LINE_GETFLAGS(chunk->next_state.lflags);
+							line_flags |= _LIBAROMA_TEXTCHUNK_LINE_NEWLINE;
+							_LIBAROMA_TEXTCHUNK_LINE_SETFLAGS(
+								chunk->next_state.lflags, line_flags);
+						}
+						return 1;
+					}
+				}
 				case 'b':
 					chunk->next_state.flags &= ~_LIBAROMA_TEXTCHUNK_BOLD;
 					break;
