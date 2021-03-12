@@ -348,6 +348,21 @@ void _libaroma_listitem_menu_destroy(
 } /* End of _libaroma_listitem_menu_destroy */
 
 /*
+ * Function		: libaroma_listitem_menu_gettext
+ * Return Value: char *
+ * Descriptions: get menu item text
+ */
+char *libaroma_listitem_menu_gettext(
+		LIBAROMA_CTL_LIST_ITEMP item,
+		byte get_extra){
+	_LIBAROMA_LISTITEM_MENUP mi = (_LIBAROMA_LISTITEM_MENUP) item->internal;
+	if (mi==NULL) return;
+	if (get_extra)
+		return strdup(mi->extra_text);
+	else return strdup(mi->main_text);
+}
+
+/*
  * Function		: libaroma_listitem_menu_settext
  * Return Value: void
  * Descriptions: set menu item text

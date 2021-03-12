@@ -35,6 +35,15 @@
 #define LIBAROMA_LISTITEM_MENU_SMALL				0x1000
 
 /*
+ * Function		: libaroma_listitem_menu_gettext
+ * Return Value: char *
+ * Descriptions: get menu item text
+ */
+char *libaroma_listitem_menu_gettext(
+		LIBAROMA_CTL_LIST_ITEMP item,
+		byte get_extra);
+
+/*
  * Function		: libaroma_listitem_menu_settext
  * Return Value: void
  * Descriptions: set menu item text
