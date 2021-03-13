@@ -12,7 +12,7 @@ $LIBAROMA_GCC \
   -static \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -w -g -ggdb \
+  -fPIC -DPIC -w -s -Wl,s \
   \
     $LIBAROMA_CFLAGS \
   \

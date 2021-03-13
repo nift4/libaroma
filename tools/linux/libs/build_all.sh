@@ -9,13 +9,13 @@ fi
 cd $scriptdir
 rm -rf ../obj
 mkdir -p ../obj
-./makelibs_zlib.sh
-./makelibs_freetype.sh
-./makelibs_hb.sh
-./makelibs_hbucdn.sh
-./makelibs_drm.sh
-./makelibs_minui.sh
-./makelibs_minzip.sh
-./makelibs_png.sh
-./makelibs_jpeg.sh
+./zlib.sh
+./freetype.sh
+./hb.sh
+./hbucdn.sh
+./drm.sh
+./minui.sh
+./minzip.sh
+./png.sh
+./jpeg.sh
 cd $olddir

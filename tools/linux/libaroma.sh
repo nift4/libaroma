@@ -13,10 +13,9 @@ cd libaroma
 echo Building aroma minui wrapper
 
 $LIBAROMA_GCC -c \
-  -save-temps -ggdb \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -lstdc++ \
-  -fPIC -DPIC -Wextra -Wshadow -Wno-unused-parameter -fpermissive \
+  -fPIC -DPIC \
  \
   $LIBAROMA_CFLAGS \
  \
@@ -26,9 +25,8 @@ $LIBAROMA_GCC -c \
 
 echo Building libaroma
 $LIBAROMA_GCC -c \
-  -g -DLIBAROMA_CONFIG_DEBUG_TRACE=3 \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
-  -lstdc++ \
+  -lstdc++ -Wl,s \
   -fPIC -DPIC \
  \
   $LIBAROMA_CFLAGS \
