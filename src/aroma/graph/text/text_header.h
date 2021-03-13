@@ -56,7 +56,7 @@ extern "C" {
 
 /* UCDN CALLBACK */
 #ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
-hb_unicode_funcs_t * hb_ucdn_get_unicode_funcs(void);
+hb_unicode_funcs_t * hb_ucd_get_unicode_funcs(void);
 #endif
 
 /*

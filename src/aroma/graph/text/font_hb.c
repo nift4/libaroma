@@ -63,8 +63,22 @@ static _LIBAROMA_FONT_SLOT_CACHEP _libaroma_font_hb_load_glyph(
  * glyph_name
  * glyph_from_name
  */
-/* glyph */
-static hb_bool_t _libaroma_font_hb_glyph_func(
+/* glyph_nominal */
+static hb_bool_t _libaroma_font_hb_nominal_glyph_func(
+	hb_font_t * font,
+	void * font_data,
+	hb_codepoint_t unicode,
+	hb_codepoint_t * glyph,
+	void * user_data
+) {
+	_LIBAROMA_FONT_HB_FTFACE();
+	_libaroma_font_lock(1);
+	*glyph = FT_Get_Char_Index(ft_face, unicode);
+	_libaroma_font_lock(0);
+	return *glyph != 0;
+}
+/* glyph_variation */
+static hb_bool_t _libaroma_font_hb_variation_glyph_func(
 	hb_font_t * font,
 	void * font_data,
 	hb_codepoint_t unicode,
@@ -74,7 +88,7 @@ static hb_bool_t _libaroma_font_hb_glyph_func(
 ) {
 	_LIBAROMA_FONT_HB_FTFACE();
 	_libaroma_font_lock(1);
-	*glyph = FT_Get_Char_Index(ft_face, unicode);
+	*glyph = FT_Face_GetCharVariantIndex(ft_face, unicode, variation_selector);
 	_libaroma_font_lock(0);
 	return *glyph != 0;
 }
@@ -292,7 +306,8 @@ static hb_font_funcs_t * _libaroma_font_hb_init_callbacks() {
 		NULL, \
 		NULL \
 	)
-	_LIBAROMA_FONT_HB_REG_FUNC(glyph);
+	_LIBAROMA_FONT_HB_REG_FUNC(nominal_glyph);
+	_LIBAROMA_FONT_HB_REG_FUNC(variation_glyph);
 	_LIBAROMA_FONT_HB_REG_FUNC(glyph_h_advance);
 	_LIBAROMA_FONT_HB_REG_FUNC(glyph_v_advance);
 	_LIBAROMA_FONT_HB_REG_FUNC(glyph_h_origin);

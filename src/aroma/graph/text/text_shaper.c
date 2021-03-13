@@ -125,7 +125,7 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 
 	/* create harfbuzz buffer */
 	hb_buffer_t * buf = hb_buffer_create();
-	hb_buffer_set_unicode_funcs(buf, hb_ucdn_get_unicode_funcs());
+	hb_buffer_set_unicode_funcs(buf, hb_ucd_get_unicode_funcs());
 	hb_buffer_set_direction(buf, chunk->rtl?HB_DIRECTION_RTL:HB_DIRECTION_LTR);
 
 	/* set harfbuzz text buffer */
