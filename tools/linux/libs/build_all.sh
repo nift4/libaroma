@@ -11,8 +11,7 @@ rm -rf ../obj
 mkdir -p ../obj
 ./drm.sh
 ./freetype.sh
-./hb.sh
-./hb.sh
+./harfbuzz.sh
 ./jpeg.sh
 ./minui.sh
 ./minzip.sh
