@@ -9,13 +9,14 @@ fi
 cd $scriptdir
 rm -rf ../obj
 mkdir -p ../obj
-./zlib.sh
+./drm.sh
 ./freetype.sh
 ./hb.sh
-./hbucdn.sh
-./drm.sh
+./hb.sh
+./jpeg.sh
 ./minui.sh
 ./minzip.sh
+./ucdn.sh
 ./png.sh
-./jpeg.sh
+./zlib.sh
 cd $olddir
