@@ -1,11 +1,30 @@
-# project config
-cmake_minimum_required(VERSION 2.8)
-project(hbucdn)
+cmake_minimum_required(VERSION 2.6)
+project(ucdn C)
 
-# hbucdn
-add_library(hbucdn STATIC 
-	ucdn.c
-)
+add_definitions(-O2 -Wall -Werror -pedantic -std=c89)
 
-# cflags
-set_target_properties(harfbuzz PROPERTIES COMPILE_FLAGS "-DHB_NO_MT -DHAVE_OT -DHAVE_UCDN -DHAVE_FREETYPE -save-temps -fdata-sections -ffunction-sections -Wl,--gc-sections -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG -fPIC -DPIC -Wl,-s -Werror")
+add_library(ucdn ucdn.c ucdn.h)
+
+if(BUILD_SHARED_LIBS)
+    set_target_properties(ucdn PROPERTIES VERSION 1.0.0)
+    set_target_properties(ucdn PROPERTIES SOVERSION 1)
+endif()
+
+add_executable(ucdn-test ucdn-test.c)
+target_link_libraries(ucdn-test ucdn)
+
+install(TARGETS ucdn
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib)
+install(FILES ucdn.h DESTINATION include)
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Check REQUIRED)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CHECK_INCLUDE_DIRS})
+
+add_executable(ucdn-unit-test ucdn-unit-test.c)
+target_link_libraries(ucdn-unit-test ucdn ${CHECK_LIBRARIES} pthread)
+
+enable_testing()
+add_test(NAME ucdn-unitttest COMMAND ucdn-unit-test)

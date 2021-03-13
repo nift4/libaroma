@@ -6,10 +6,10 @@
  *
  * on files with these headers:
  *
- * # ArabicShaping-7.0.0.txt
- * # Date: 2014-02-14, 21:00:00 GMT [RP, KW, LI]
- * # Blocks-7.0.0.txt
- * # Date: 2014-04-03, 23:23:00 GMT [RP, KW]
+ * # ArabicShaping-13.0.0.txt
+ * # Date: 2020-01-31, 23:55:00 GMT [KW, RP]
+ * # Blocks-13.0.0.txt
+ * # Date: 2019-07-10, 19:06:00 GMT [KW]
  * UnicodeData.txt does not have a header.
  */
 
@@ -17,14 +17,15 @@
 #define HB_OT_SHAPE_COMPLEX_ARABIC_TABLE_HH
 
 
-#define X	JOINING_TYPE_X
-#define R	JOINING_TYPE_R
-#define U	JOINING_TYPE_U
 #define A	JOINING_GROUP_ALAPH
 #define DR	JOINING_GROUP_DALATH_RISH
-#define L	JOINING_TYPE_L
 #define C	JOINING_TYPE_C
 #define D	JOINING_TYPE_D
+#define L	JOINING_TYPE_L
+#define R	JOINING_TYPE_R
+#define T	JOINING_TYPE_T
+#define U	JOINING_TYPE_U
+#define X	JOINING_TYPE_X
 
 static const uint8_t joining_table[] =
 {
@@ -44,7 +45,7 @@ static const uint8_t joining_table[] =
 
   /* Syriac */
 
-  /* 0700 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,A,X,D,D,D,DR,DR,R,R,R,D,D,D,D,R,D,
+  /* 0700 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,T,A,X,D,D,D,DR,DR,R,R,R,D,D,D,D,R,D,
   /* 0720 */ D,D,D,D,D,D,D,D,R,D,DR,D,R,D,D,DR,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
   /* 0740 */ X,X,X,X,X,X,X,X,X,X,X,X,X,R,D,D,
 
@@ -70,59 +71,97 @@ static const uint8_t joining_table[] =
 
   /* Mandaic */
 
-  /* 0840 */ R,D,D,D,D,D,R,R,D,R,D,D,D,D,D,D,D,D,D,D,R,D,U,U,U,X,X,X,X,X,X,X,
-  /* 0860 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
+  /* 0840 */ R,D,D,D,D,D,R,R,D,R,D,D,D,D,D,D,D,D,D,D,R,D,R,R,R,X,X,X,X,X,X,X,
+
+  /* Syriac Supplement */
+
+  /* 0860 */ D,U,D,D,D,D,U,R,D,R,R,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
   /* 0880 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
 
   /* Arabic Extended-A */
 
-  /* 08A0 */ D,D,D,D,D,D,D,D,D,D,R,R,R,U,R,D,D,R,R,
+  /* 08A0 */ D,D,D,D,D,D,D,D,D,D,R,R,R,U,R,D,D,R,R,D,D,X,D,D,D,R,D,D,D,D,D,D,
+  /* 08C0 */ D,D,D,D,D,D,D,D,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
+  /* 08E0 */ X,X,U,
 
-#define joining_offset_0x1806u 691
+#define joining_offset_0x1806u 739
 
   /* Mongolian */
 
   /* 1800 */             U,D,X,X,C,X,X,X,U,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
   /* 1820 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
   /* 1840 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
-  /* 1860 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,X,X,X,X,X,X,X,X,
-  /* 1880 */ U,U,U,U,U,U,U,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
+  /* 1860 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,X,X,X,X,X,X,X,
+  /* 1880 */ U,U,U,U,U,T,T,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
   /* 18A0 */ D,D,D,D,D,D,D,D,D,X,D,
 
-#define joining_offset_0x200cu 856
+#define joining_offset_0x200cu 904
 
   /* General Punctuation */
 
-  /* 2000 */                         U,C,
+  /* 2000 */                         U,C,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
+  /* 2020 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,U,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
+  /* 2040 */ X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
+  /* 2060 */ X,X,X,X,X,X,U,U,U,U,
 
-#define joining_offset_0x2066u 858
-
-  /* General Punctuation */
-
-  /* 2060 */             U,U,U,U,
-
-#define joining_offset_0xa840u 862
+#define joining_offset_0xa840u 998
 
   /* Phags-pa */
 
   /* A840 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
   /* A860 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,L,U,
 
-#define joining_offset_0x10ac0u 914
+#define joining_offset_0x10ac0u 1050
 
   /* Manichaean */
 
   /* 10AC0 */ D,D,D,D,D,R,U,R,U,R,R,U,U,L,R,R,R,R,R,D,D,D,D,L,D,D,D,D,D,R,D,D,
   /* 10AE0 */ D,R,U,U,R,X,X,X,X,X,X,D,D,D,D,R,
 
-#define joining_offset_0x10b80u 962
+#define joining_offset_0x10b80u 1098
 
   /* Psalter Pahlavi */
 
   /* 10B80 */ D,R,D,R,R,R,D,D,D,R,D,D,R,D,R,R,D,R,X,X,X,X,X,X,X,X,X,X,X,X,X,X,
   /* 10BA0 */ X,X,X,X,X,X,X,X,X,R,R,R,R,D,D,U,
 
-}; /* Table items: 1010; occupancy: 57% */
+#define joining_offset_0x10d00u 1146
+
+  /* Hanifi Rohingya */
+
+  /* 10D00 */ L,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
+  /* 10D20 */ D,D,R,D,
+
+#define joining_offset_0x10f30u 1182
+
+  /* Sogdian */
+
+  /* 10F20 */                                 D,D,D,R,D,D,D,D,D,D,D,D,D,D,D,D,
+  /* 10F40 */ D,D,D,D,D,U,X,X,X,X,X,X,X,X,X,X,X,D,D,D,R,
+
+#define joining_offset_0x10fb0u 1219
+
+  /* Chorasmian */
+
+  /* 10FA0 */                                 D,U,D,D,R,R,R,U,D,R,R,D,D,R,D,D,
+  /* 10FC0 */ U,D,R,R,D,U,U,U,U,R,D,L,
+
+#define joining_offset_0x110bdu 1247
+
+  /* Kaithi */
+
+  /* 110A0 */                                                           U,X,X,
+  /* 110C0 */ X,X,X,X,X,X,X,X,X,X,X,X,X,U,
+
+#define joining_offset_0x1e900u 1264
+
+  /* Adlam */
+
+  /* 1E900 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
+  /* 1E920 */ D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,
+  /* 1E940 */ D,D,D,D,X,X,X,X,X,X,X,T,
+
+}; /* Table items: 1340; occupancy: 57% */
 
 
 static unsigned int
@@ -131,25 +170,35 @@ joining_type (hb_codepoint_t u)
   switch (u >> 12)
   {
     case 0x0u:
-      if (hb_in_range (u, 0x0600u, 0x08B2u)) return joining_table[u - 0x0600u + joining_offset_0x0600u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x0600u, 0x08E2u)) return joining_table[u - 0x0600u + joining_offset_0x0600u];
       break;
 
     case 0x1u:
-      if (hb_in_range (u, 0x1806u, 0x18AAu)) return joining_table[u - 0x1806u + joining_offset_0x1806u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x1806u, 0x18AAu)) return joining_table[u - 0x1806u + joining_offset_0x1806u];
       break;
 
     case 0x2u:
-      if (hb_in_range (u, 0x200Cu, 0x200Du)) return joining_table[u - 0x200Cu + joining_offset_0x200cu];
-      if (hb_in_range (u, 0x2066u, 0x2069u)) return joining_table[u - 0x2066u + joining_offset_0x2066u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x200Cu, 0x2069u)) return joining_table[u - 0x200Cu + joining_offset_0x200cu];
       break;
 
     case 0xAu:
-      if (hb_in_range (u, 0xA840u, 0xA873u)) return joining_table[u - 0xA840u + joining_offset_0xa840u];
+      if (hb_in_range<hb_codepoint_t> (u, 0xA840u, 0xA873u)) return joining_table[u - 0xA840u + joining_offset_0xa840u];
       break;
 
     case 0x10u:
-      if (hb_in_range (u, 0x10AC0u, 0x10AEFu)) return joining_table[u - 0x10AC0u + joining_offset_0x10ac0u];
-      if (hb_in_range (u, 0x10B80u, 0x10BAFu)) return joining_table[u - 0x10B80u + joining_offset_0x10b80u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x10AC0u, 0x10AEFu)) return joining_table[u - 0x10AC0u + joining_offset_0x10ac0u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x10B80u, 0x10BAFu)) return joining_table[u - 0x10B80u + joining_offset_0x10b80u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x10D00u, 0x10D23u)) return joining_table[u - 0x10D00u + joining_offset_0x10d00u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x10F30u, 0x10F54u)) return joining_table[u - 0x10F30u + joining_offset_0x10f30u];
+      if (hb_in_range<hb_codepoint_t> (u, 0x10FB0u, 0x10FCBu)) return joining_table[u - 0x10FB0u + joining_offset_0x10fb0u];
+      break;
+
+    case 0x11u:
+      if (hb_in_range<hb_codepoint_t> (u, 0x110BDu, 0x110CDu)) return joining_table[u - 0x110BDu + joining_offset_0x110bdu];
+      break;
+
+    case 0x1Eu:
+      if (hb_in_range<hb_codepoint_t> (u, 0x1E900u, 0x1E94Bu)) return joining_table[u - 0x1E900u + joining_offset_0x1e900u];
       break;
 
     default:
@@ -158,14 +207,15 @@ joining_type (hb_codepoint_t u)
   return X;
 }
 
-#undef X
-#undef R
-#undef U
 #undef A
 #undef DR
-#undef L
 #undef C
 #undef D
+#undef L
+#undef R
+#undef T
+#undef U
+#undef X
 
 
 static const uint16_t shaping_table[][4] =
@@ -364,16 +414,16 @@ static const struct ligature_set_t {
 } ligature_table[] =
 {
   { 0xFEDFu, {
-    { 0xFE88u, 0xFEF9u }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW ISOLATED FORM */
     { 0xFE82u, 0xFEF5u }, /* ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE ISOLATED FORM */
-    { 0xFE8Eu, 0xFEFBu }, /* ARABIC LIGATURE LAM WITH ALEF ISOLATED FORM */
     { 0xFE84u, 0xFEF7u }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE ISOLATED FORM */
+    { 0xFE88u, 0xFEF9u }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW ISOLATED FORM */
+    { 0xFE8Eu, 0xFEFBu }, /* ARABIC LIGATURE LAM WITH ALEF ISOLATED FORM */
   }},
   { 0xFEE0u, {
-    { 0xFE88u, 0xFEFAu }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW FINAL FORM */
     { 0xFE82u, 0xFEF6u }, /* ARABIC LIGATURE LAM WITH ALEF WITH MADDA ABOVE FINAL FORM */
-    { 0xFE8Eu, 0xFEFCu }, /* ARABIC LIGATURE LAM WITH ALEF FINAL FORM */
     { 0xFE84u, 0xFEF8u }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA ABOVE FINAL FORM */
+    { 0xFE88u, 0xFEFAu }, /* ARABIC LIGATURE LAM WITH ALEF WITH HAMZA BELOW FINAL FORM */
+    { 0xFE8Eu, 0xFEFCu }, /* ARABIC LIGATURE LAM WITH ALEF FINAL FORM */
   }},
 };
 

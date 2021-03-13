@@ -13,6 +13,8 @@ mkdir -p ../obj
 ./makelibs_freetype.sh
 ./makelibs_hb.sh
 ./makelibs_hbucdn.sh
+./makelibs_drm.sh
+./makelibs_minui.sh
 ./makelibs_minzip.sh
 ./makelibs_png.sh
 ./makelibs_jpeg.sh

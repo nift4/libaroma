@@ -12,7 +12,7 @@ $LIBAROMA_GCC \
   -static \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -Wl,-s -w \
+  -fPIC -DPIC -w -g -ggdb \
   \
     $LIBAROMA_CFLAGS \
   \
@@ -22,7 +22,16 @@ $LIBAROMA_GCC \
     -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
     -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
   \
-    ../obj/*.o ./*.o \
+    ../obj/drm/*.o \
+    ../obj/freetype/*.o \
+    ../obj/hb/*.o \
+    ../obj/hbucdn/*.o \
+    ../obj/jpeg/*.o \
+    ../obj/minui/*.o \
+    ../obj/minzip/*.o \
+    ../obj/png/*.o \
+    ../obj/zlib/*.o \
+    ../libaroma/*.o \
     ../../../examples/$1/*.c \
   \
   -I../../../include \
