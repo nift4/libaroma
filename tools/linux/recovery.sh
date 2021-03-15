@@ -7,7 +7,7 @@ fi
 cd $scriptdir
 
 if [ "$2" != "r" ]; then
-	./build_app.sh $1
+	./app.sh $1
 fi
 echo Waiting for device \(recovery\)
 adb wait-for-recovery
