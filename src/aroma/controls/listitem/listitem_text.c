@@ -18,8 +18,7 @@
  * Description	: text item source
  *
  * + This is part of libaroma, an embedded ui toolkit.
- * + 25/06/15 - Author(s): Ahmad Amarullah
- * + 14/12/20 - Modified by: MLXProjects
+ * + 14/03/21 - Author(s): Michael Jauregui
  *
  */
 #ifndef __libaroma_listitem_text_c__
@@ -39,6 +38,7 @@ void _libaroma_listitem_text_draw(
 	LIBAROMA_CONTROLP,LIBAROMA_CTL_LIST_ITEMP,LIBAROMA_CANVASP,word,byte);
 void _libaroma_listitem_text_destroy(
 	LIBAROMA_CONTROLP,LIBAROMA_CTL_LIST_ITEMP);
+void *_libaroma_listitem_text_loader(void *info);
 static LIBAROMA_CTL_LIST_ITEM_HANDLER _libaroma_listitem_text_handler =
 {
 	message:_libaroma_listitem_text_message,
@@ -50,15 +50,21 @@ static LIBAROMA_CTL_LIST_ITEM_HANDLER _libaroma_listitem_text_handler =
 typedef struct{
 	word textcolor;
 	char * text;
+	LIBAROMA_TEXT cached_text; //used for initial control draw
+	byte updateable;
 	byte redraw;
+	byte isparsing; //useful if parsing takes too long and draw is called meanwhile
 	int vpad;
 	int hpad;
 	int font_id;
 	int font_size;
 	word flags;
+	int w;
 	int h;
+	LIBAROMA_THREAD loader;
+	LIBAROMA_CTL_LIST_ITEMP item;
+	LIBAROMA_CONTROLP ctl;
 } _LIBAROMA_LISTITEM_TEXT, * _LIBAROMA_LISTITEM_TEXTP;
-
 
 /*
  * Function		: _libaroma_listitem_text_message
@@ -90,6 +96,27 @@ byte _libaroma_listitem_text_message(
 } /* End of _libaroma_listitem_text_message */
 
 /*
+ * Function		: _libaroma_listitem_text_loader
+ * Return Value: void*
+ * Descriptions: prepares the text to be drawn
+ */
+void *_libaroma_listitem_text_loader(void *info){
+	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) info;
+
+	mi->cached_text=libaroma_text(mi->text, mi->textcolor, mi->w,
+						LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags, 0);
+
+	int texth=libaroma_text_height(mi->cached_text)+(mi->vpad*2);
+	libaroma_ctl_list_item_setheight(
+				mi->ctl, mi->item, texth
+			);
+
+	mi->isparsing=0;
+	mi->redraw=1;
+	return NULL;
+}
+
+/*
  * Function		: _libaroma_listitem_text_draw
  * Return Value: void
  * Descriptions: item draw routine
@@ -104,53 +131,39 @@ void _libaroma_listitem_text_draw(
 		return;
 	}
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
-
-	if (!(state&LIBAROMA_CTL_LIST_ITEM_DRAW_ADDONS)){
-		int icoh=libaroma_dp(mi->vpad*2);
-		int tx = mi->hpad;//libaroma_dp(16);
-		int tw = cv->w - (tx*2);//libaroma_dp(52);
-		int ty = libaroma_dp(mi->vpad*2);
-		LIBAROMA_TEXT mtextp=NULL;
-
-		/* prepare main text */
-		int txtsh=0;
-		int m_h=0;
-		if (mi->text){
-			mtextp = libaroma_text(
-				mi->text,
-				mi->textcolor,
-				tw,
-				LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags,
-				137
-			);
-			m_h=libaroma_text_height(mtextp);
-			ty+=m_h;
-			txtsh+=m_h;
+	mi->w=cv->w;
+	// calculate max text width
+	int tw = cv->w - (mi->hpad*2);
+	// try to use the cached text, if any
+	LIBAROMA_TEXT text=mi->cached_text;
+	if (text==NULL){ // parse text
+		if (!mi->isparsing){
+			mi->isparsing=1;
+			libaroma_thread_create(&(mi->loader), _libaroma_listitem_text_loader, (voidp) mi);
 		}
-
-
-		int etremsz=0;
-		/* calculate whole height */
-		ty+=libaroma_dp(mi->vpad*2);
-		int my_h = MAX(icoh,ty);
-
-		int txt_sy=((my_h>>1)-((txtsh>>1)+libaroma_dp(2+etremsz)))+libaroma_dp(2);
-
-		/* draw main text */
-		if (mtextp){
-			//libaroma_text_draw(cv,mtextp,tx,txt_sy
-			libaroma_draw_text(cv, mi->text, tx, txt_sy, mi->textcolor, tw, mi->flags, 0);
-			txt_sy+=m_h;
-			libaroma_text_free(mtextp);
-		}
-
-		if (my_h!=mi->h){
-			mi->h=my_h;
-			libaroma_ctl_list_item_setheight(
-				ctl, item, my_h
-			);
-		}
+		libaroma_draw_text(cv, "Loading text...", mi->hpad, mi->vpad, mi->textcolor, cv->w,
+							LIBAROMA_FONT(mi->font_id, mi->font_size)|LIBAROMA_TEXT_SINGLELINE, cv->h);
+		return;
 	}
+	// get text height
+	int texth=libaroma_text_height(text)+(mi->vpad*2);
+	/*if (cv->h!=texth){ //if text is too big (or small) resize control before drawing
+		ALOGI("listitem_text_draw: control height is different, saving text into cache");
+		mi->cached_text=text; //save parsed text to reuse it later (taking less time than parsing text twice)
+		mi->redraw=1;
+		libaroma_ctl_list_item_setheight(
+			ctl, item, texth
+		);
+		ALOGD("listitem_text_draw: height is %d but text height is %d, cv->h is %d", mi->h, texth, cv->h)
+		return;
+	}*/
+	if (mi->cached_text!=NULL){ //if text was cached, delete it (draw event should mean full redraw)
+		mi->cached_text=NULL;
+	}
+	// draw text to control canvas
+	libaroma_text_draw_ex(cv, text, mi->hpad, mi->vpad, 0, 0, cv->h, 0, 0, 0, 0, 0, 0);
+	// free text variable (only needed for drawing)
+	libaroma_text_free(text);
 } /* End of _libaroma_listitem_text_draw */
 
 /*
@@ -160,7 +173,9 @@ void _libaroma_listitem_text_draw(
  */
 void _libaroma_listitem_text_release_internal(
 	_LIBAROMA_LISTITEM_TEXTP mi){
-	if (mi->text){
+	if (mi->cached_text!=NULL)
+		libaroma_text_free(mi->cached_text);
+	if (mi->text!=NULL){
 		free(mi->text);
 	}
 	free(mi);
@@ -190,17 +205,19 @@ void _libaroma_listitem_text_destroy(
 void libaroma_listitem_text_set(
 		LIBAROMA_CTL_LIST_ITEMP item,
 		char *text){
-	if (!item){
+	if (!item || !text){
 		return;
 	}
 	if (item->handler!=&_libaroma_listitem_text_handler){
 		return;
 	}
-	if (!text){
+	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
+	if (!mi->updateable){
+		ALOGW("Cannot set new text to non-updateable item");
 		return;
 	}
-	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
-	mi->text=text;
+	if (mi->text) free(mi->text);
+	mi->text=strdup(text);
 	mi->redraw=1;
 }
 /*
@@ -211,16 +228,17 @@ void libaroma_listitem_text_set(
 void libaroma_listitem_text_add(
 		LIBAROMA_CTL_LIST_ITEMP item,
 		char *text, byte freeold){
-	if (!item){
+	if (!item || !text){
 		return;
 	}
 	if (item->handler!=&_libaroma_listitem_text_handler){
 		return;
 	}
-	if (!text){
+	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
+	if (!mi->updateable){
+		ALOGW("Cannot add text to non-updateable item");
 		return;
 	}
-	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
 	char *newtext=malloc(strlen(mi->text) + strlen(text) +2);
 	strcpy(newtext, mi->text);
 	strcat(newtext, text);
@@ -239,7 +257,7 @@ void libaroma_listitem_text_add(
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		LIBAROMA_CONTROLP ctl,
 		int id,
-		const char * text,
+		char * text,
 		word textcolor,
 		int vpad,
 		int hpad,
@@ -260,37 +278,21 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		return NULL;
 	}
 	if (vpad<0) vpad=0;
-	int h = 0;
+	mi->ctl=ctl;
 	mi->textcolor=textcolor;
-	mi->text=(text?strdup(text):NULL);
+	mi->text=strdup(text);
 	mi->vpad=vpad;
+	mi->updateable=updateable;
 	mi->hpad=hpad;
 	mi->font_id=font_id;
 	mi->font_size=font_size?font_size:3;
-	mi->flags=LIBAROMA_FONT(font_id,font_size)|flags;
-	/* calculate height */
-	int tw = ctl->w-hpad;//-libaroma_dp(52);
-	int th = libaroma_dp(vpad*2);
-	if (tw>0){
-		if (mi->text){
-			LIBAROMA_TEXT mtextp = libaroma_text(
-				mi->text,
-				0,
-				tw,
-				LIBAROMA_FONT(font_id,font_size)|flags,
-				137
-			);
-			th+=libaroma_text_height(mtextp);
-			libaroma_text_free(mtextp);
-		}
-	}
+	mi->flags=flags;
+	int h = ((vpad==0)?16:libaroma_dp(vpad*2));
 
-	h = MAX(h,th)+libaroma_dp(vpad*2);
-	mi->h=h;
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
-		h,updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
+		h,/*updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:*/0,
 		(voidp) mi,
 		&_libaroma_listitem_text_handler,
 		at_index
@@ -299,6 +301,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		ALOGW("listitem_text add_item_internal failed");
 		_libaroma_listitem_text_release_internal(mi);
 	}
+	mi->item=item;
 	return item;
 } /* End of libaroma_listitem_text */
 
@@ -310,7 +313,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
-		const char * text,
+		char * text,
 		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
 		int at_index){
 	return libaroma_listitem_text_color(ctl,id,text,
