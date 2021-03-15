@@ -132,7 +132,7 @@ byte libaroma_lang_set(
 		return 0;
 	}
 	return libaroma_sarray_set_string(
-		_libaroma_language, key, value);
+		_libaroma_language, strdup(key), strdup(value));
 } /* End of libaroma_lang_set */
 
 /*
