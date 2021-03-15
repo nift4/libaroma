@@ -49,6 +49,7 @@ typedef struct{
 	byte onchangeani;
 	char * main_text;
 	char * extra_text;
+	byte font_small;
 	LIBAROMA_CANVASP icon;
 	int h;
 	LIBAROMA_LISTITEM_CB change_cb;
@@ -254,9 +255,9 @@ void _libaroma_listitem_check_draw(
 		}
 
 		int icoh=libaroma_dp(vpad*2+seph);
-		int tw = cv->w-libaroma_dp(
-			(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88
-		);
+		int tw = cv->w-libaroma_dp(32);
+			//(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88
+		//);
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			item->is_leftcontrol=1;
 		} else { item->is_leftcontrol=0; }
@@ -268,8 +269,8 @@ void _libaroma_listitem_check_draw(
 		}
 
 		if ((mi->icon)||(item->flags&LIBAROMA_LISTITEM_CHECK_INDENT_NOICON)){
-			tw-=libaroma_dp(56);
-			tx+=libaroma_dp(56);
+			tw-=libaroma_dp(small_icon?40:56);
+			tx+=libaroma_dp(small_icon?40:56);
 		}
 
 		int ty = libaroma_dp(vpad*2);
@@ -284,10 +285,10 @@ void _libaroma_listitem_check_draw(
 				mi->main_text,
 				textcolor,
 				tw,
-				LIBAROMA_FONT(0,4)|
+				LIBAROMA_FONT(0,mi->font_small?2:4)|
 				LIBAROMA_TEXT_FIXED_INDENT|
 				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR,
+				LIBAROMA_TEXT_NOHR|(mi->font_small?LIBAROMA_TEXT_SINGLELINE:0),
 				137
 			);
 			m_h=libaroma_text_height(mtextp);
@@ -303,13 +304,13 @@ void _libaroma_listitem_check_draw(
 				mi->extra_text,
 				graycolor,
 				tw,
-				LIBAROMA_FONT(0,3)|
+				LIBAROMA_FONT(0,mi->font_small?1:3)|
 				LIBAROMA_TEXT_FIXED_INDENT|
 				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR,
+				LIBAROMA_TEXT_NOHR|(mi->font_small?LIBAROMA_TEXT_SINGLELINE:0),
 				143
 			);
-			e_h=libaroma_text_height(etextp)-(libaroma_font_size_px(3) / 3.5);
+			e_h=libaroma_text_height(etextp)-(libaroma_font_size_px(mi->font_small?1:3) / 3.5);
 			ty+=e_h;
 			txtsh+=e_h;
 			etremsz=2;
@@ -396,7 +397,7 @@ void _libaroma_listitem_check_draw(
 		int xpos = cv->w - libaroma_dp(36);
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			/* left position */
-			xpos = libaroma_dp(36);
+			xpos = libaroma_dp((item->flags&LIBAROMA_LISTITEM_CHECK_SMALL_ICON)?28:36);
 		}
 		int ypos = cv->h>>1;
 		if (is_switch){
@@ -729,7 +730,11 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 			flags&=~LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL;
 		}
 	}
-
+	if (flags&LIBAROMA_LISTITEM_CHECK_SMALL_ICON){
+		mi->font_small=1;
+		//ALOGI("Listitem uses SMALL font");
+	}
+		//else ALOGI("Listitem uses BIG font");
 	/* init icon */
 	int h = 0;
 	if (icon){
@@ -766,7 +771,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 	*/
 	int tw = ctl->w-libaroma_dp((flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88);
 	if ((mi->icon)||(flags&LIBAROMA_LISTITEM_CHECK_INDENT_NOICON)){
-		tw-=libaroma_dp(56);
+		tw-=libaroma_dp((flags&LIBAROMA_LISTITEM_CHECK_SMALL_ICON)?40:56);
 	}
 	int th = libaroma_dp(vpad*2);
 
@@ -776,10 +781,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 				mi->main_text,
 				0,
 				tw,
-				LIBAROMA_FONT(0,4)|
+				LIBAROMA_FONT(0,mi->font_small?2:4)|
 				LIBAROMA_TEXT_FIXED_INDENT|
 				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR,
+				LIBAROMA_TEXT_NOHR|(mi->font_small?LIBAROMA_TEXT_SINGLELINE:0),
 				137
 			);
 			th+=libaroma_text_height(mtextp);
@@ -792,14 +797,14 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 				mi->extra_text,
 				0,
 				tw,
-				LIBAROMA_FONT(0,3)|
+				LIBAROMA_FONT(0,mi->font_small?1:3)|
 				LIBAROMA_TEXT_FIXED_INDENT|
 				LIBAROMA_TEXT_FIXED_COLOR|
-				LIBAROMA_TEXT_NOHR,
+				LIBAROMA_TEXT_NOHR|(mi->font_small?LIBAROMA_TEXT_SINGLELINE:0),
 				143
 			);
 			th+=libaroma_text_height(etextp);
-			th-=(libaroma_font_size_px(3) / 3.5);
+			th-=(libaroma_font_size_px(mi->font_small?1:3) / 3.5);
 			libaroma_text_free(etextp);
 		}
 	}
