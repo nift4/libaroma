@@ -114,7 +114,7 @@ char * libaroma_lang_get(
 		char * key) {
 	if (_libaroma_language == NULL) {
 		ALOGW("libaroma_lang_get - _libaroma_language uninitialized...");
-		return NULL;
+		return key;
 	}
 	return strdup(libaroma_sarray_get_string(_libaroma_language, key));
 } /* End of libaroma_lang_get */

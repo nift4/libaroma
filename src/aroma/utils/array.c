@@ -366,7 +366,7 @@ voidp libaroma_sarray_get(
 		}
 		item = item->next;
 	}
-	return NULL;
+	return (voidp)key;
 } /* End of libaroma_sarray_get */
 
 /*
