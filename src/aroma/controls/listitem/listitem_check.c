@@ -60,6 +60,43 @@ byte _libaroma_ctl_list_dodraw_item(
 		LIBAROMA_CONTROLP ctl,
 		LIBAROMA_CTL_LIST_ITEMP item
 );
+
+int libaroma_listitem_get_selected_index(
+	LIBAROMA_CONTROLP ctl
+){
+	int i;
+	int item_count=libaroma_ctl_list_get_item_count(ctl);
+	for (i=0; i<item_count; i++){
+		LIBAROMA_CTL_LIST_ITEMP item;
+		item=libaroma_ctl_list_get_item_internal(ctl, i, 0);
+		if (item==NULL) continue;
+		if (item->handler!=&_libaroma_listitem_check_handler)
+			continue;
+		_LIBAROMA_LISTITEM_CHECKP mi = (_LIBAROMA_LISTITEM_CHECKP) item->internal;
+		if (mi->selected)
+			return i;
+	}
+	return -1;
+}
+
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_get_selected(
+	LIBAROMA_CONTROLP ctl
+){
+	LIBAROMA_CTL_LIST_ITEMP item;
+	int i;
+	int item_count=libaroma_ctl_list_get_item_count(ctl);
+	for (i=0; i<item_count; i++){
+		item=libaroma_ctl_list_get_item_internal(ctl, i, 0);
+		if (item==NULL) continue;
+		if (item->handler!=&_libaroma_listitem_check_handler)
+			continue;
+		_LIBAROMA_LISTITEM_CHECKP mi = (_LIBAROMA_LISTITEM_CHECKP) item->internal;
+		if (mi->selected)
+			return item;
+	}
+	return NULL;
+}
+
 byte libaroma_listitem_set_selected(
 	LIBAROMA_CONTROLP ctl,
 	LIBAROMA_CTL_LIST_ITEMP item,

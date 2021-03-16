@@ -58,12 +58,22 @@ byte libaroma_listitem_check_set_cb(
     LIBAROMA_LISTITEM_CB cb,
     voidp data);
 
+/* get selected - return index */
+int libaroma_listitem_get_selected_index(
+	LIBAROMA_CONTROLP ctl
+);
+
+/* get selected - return item */
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_get_selected(
+	LIBAROMA_CONTROLP ctl
+);
+
 /* set selected */
 byte libaroma_listitem_set_selected(
   LIBAROMA_CONTROLP ctl,
   LIBAROMA_CTL_LIST_ITEMP item,
   byte selected);
-  
+
 /*
  * Function    : libaroma_listitem_check
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
