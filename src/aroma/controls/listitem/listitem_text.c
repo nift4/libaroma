@@ -173,6 +173,8 @@ void _libaroma_listitem_text_draw(
  */
 void _libaroma_listitem_text_release_internal(
 	_LIBAROMA_LISTITEM_TEXTP mi){
+	if (mi->isparsing)
+		libaroma_thread_kill(mi->loader);
 	if (mi->cached_text!=NULL)
 		libaroma_text_free(mi->cached_text);
 	if (mi->text!=NULL){
