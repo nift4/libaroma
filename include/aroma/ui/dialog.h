@@ -50,6 +50,8 @@ typedef struct{
 	char *message;
 	LIBAROMA_CANVASP image;
 	int imageheight;
+	int text_font;
+	int text_size;
 	byte selected;
 	word flags;
 } LIBAROMA_LISTITEM_TEMPLATE;

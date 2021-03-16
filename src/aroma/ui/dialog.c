@@ -604,6 +604,14 @@ int libaroma_dialog_list(
 						templates[i].imageheight,
 						templates[i].flags, -1);
 				break;
+			case LIBAROMA_LIST_ITEM_KIND_TEXT:
+				itm=libaroma_listitem_text(
+						listc, templates[i].id,
+						templates[i].message, 8, 8,
+						templates[i].text_font,
+						templates[i].text_size,
+						templates[i].flags, 0, -1);
+				break;
 		}
 		if (!itm) {
 			ALOGW("libaroma_dialog_list: invalid item kind");
