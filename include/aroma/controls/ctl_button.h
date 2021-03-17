@@ -34,6 +34,11 @@
 #define LIBAROMA_CTL_BUTTON_CIRCLE		0x8
 #define LIBAROMA_CTL_BUTTON_KEEP_COLOR	0x16
 
+#define LIBAROMA_CTL_BUTTON_ICON_LEFT	0x0
+#define LIBAROMA_CTL_BUTTON_ICON_CENTER	0x1
+#define LIBAROMA_CTL_BUTTON_ICON_RIGHT	0x2
+#define LIBAROMA_CTL_BUTTON_ICON_SMALL	0x4
+
 /*
  * Function		: libaroma_ctl_button
  * Return Value: LIBAROMA_CONTROLP
@@ -59,7 +64,7 @@ LIBAROMA_CONTROLP libaroma_ctl_button_icon(
 		int x, int y, int w, int h,
 		const char * text,
 		LIBAROMA_CANVASP icon,
-		byte draw_atright,
+		byte icon_flags,
 		byte button_style,
 		word button_color
 );

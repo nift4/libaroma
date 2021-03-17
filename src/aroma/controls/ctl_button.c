@@ -59,7 +59,7 @@ struct __LIBAROMA_CTL_BUTTON{
 	word color;
 	byte forcedraw;
 	LIBAROMA_CANVASP icon;
-	byte icon_isleft;
+	byte icon_flags;
 
 	LIBAROMA_RIPPLE ripple;
 	LIBAROMA_MUTEX mutex;
@@ -123,6 +123,11 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 
 	byte is_circle=(me->style&LIBAROMA_CTL_BUTTON_CIRCLE)?1:0;
 	byte has_icon=(me->icon!=NULL)?1:0;
+	byte icon_isleft=1;//(me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_LEFT)?1:0;
+	if ((me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_RIGHT)
+		||(me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_CENTER))
+		icon_isleft=0;
+	int iconsz=libaroma_dp((me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_SMALL)?16:24);
 	int ix = libaroma_dp(is_circle?6:4);
 	int iy = libaroma_dp(6);
 	int iw = ctl->w-ix*2;
@@ -204,11 +209,11 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 		}
 	}
 
-	int textw=iw-libaroma_dp(has_icon?32:16);
+	int textw=iw-libaroma_dp(16)-(has_icon?iconsz:0);
 
 	/* draw text */
 	LIBAROMA_TEXT textp = libaroma_text(
-		me->text,
+		(me->text==NULL)?"":me->text,
 		text_color,
 		textw,
 		LIBAROMA_FONT(0,4)|
@@ -225,12 +230,13 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	if (is_disabled && !keepcolor_disabled){
 		rest_text_color=me->isdark?0xffff:0;
 	}
-	libaroma_text_draw_color(rest_canvas,textp,libaroma_dp(has_icon?(me->icon_isleft?20:8):8)+ix,y,
+	int textx=(ctl->w-textw)/2;//libaroma_dp(16)+(icon_isleft?iconsz:0)+ix;
+	libaroma_text_draw_color(rest_canvas,textp,textx/*libaroma_dp(has_icon?(icon_isleft?20:8):8)+ix*/,y,
 		rest_text_color
 	);
 
 	if (!is_disabled || (is_disabled && keepcolor_disabled)){
-		libaroma_text_draw(push_canvas,textp,libaroma_dp(has_icon?20:8)+ix,y);
+		libaroma_text_draw(push_canvas,textp,textx/*libaroma_dp(has_icon?20:8)+ix*/,y);
 	}
 	else{
 		libaroma_draw_ex(rest_canvas,bg,0,0,0,0,ctl->w,ctl->h,0,
@@ -239,12 +245,25 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	libaroma_text_free(textp);
 
 	if (has_icon) { // draw icon
-		int iconsz=libaroma_dp(16);
-		int iconx=me->icon_isleft?libaroma_dp(8):(ctl->w-libaroma_dp(8));
+		int iconx;
+		//byte centered=0;
+		int allW=libaroma_dp(iconsz+2)+textw;
+		int startX=(ctl->w/2)-(allW/2);
+		if (me->text==NULL || (me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_CENTER)) {
+			iconx=(ctl->w/2)-(iconsz/2); //if no text (or forced), icon is centered
+			//centered=1;
+		}
+		else {
+			if (icon_isleft) iconx=startX;
+			else iconx=startX+textw+libaroma_dp(2);
+		}
 		int icony=(ctl->h/2)-(iconsz/2);
-		libaroma_draw_scale_smooth(rest_canvas, me->icon, libaroma_dp(8), icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
+		/*ALOGI("Going to draw %s icon with %ddp at %d, %d. \n"
+				"Button info: X=%d, W=%d, left=%d and circle=%d",
+						((centered)?"centered":(icon_isleft?"left":"right")), iconsz, iconx, icony, ctl->x, ctl->w, icon_isleft, is_circle);*/
+		libaroma_draw_scale_smooth(rest_canvas, me->icon, iconx, icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
 		if (!is_disabled || (is_disabled && keepcolor_disabled)){
-			libaroma_draw_scale_smooth(push_canvas, me->icon, libaroma_dp(8), icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
+			libaroma_draw_scale_smooth(push_canvas, me->icon, iconx, icony, iconsz, iconsz, 0, 0, me->icon->w, me->icon->h);
 		}
 	}
 
@@ -545,12 +564,12 @@ LIBAROMA_CONTROLP libaroma_ctl_button_icon(
 		int x, int y, int w, int h,
 		const char * text,
 		LIBAROMA_CANVASP icon,
-		byte draw_atright,
+		byte icon_flags,
 		byte button_style,
 		word button_color
 ){
 	LIBAROMA_CONTROLP btn=libaroma_ctl_button(win, id, x, y, w, h, text, button_style, button_color);
-	libaroma_ctl_button_seticon(btn, icon, draw_atright);
+	libaroma_ctl_button_seticon(btn, icon, icon_flags);
 	return btn;
 } /* End of libaroma_ctl_button_icon */
 
@@ -562,7 +581,7 @@ LIBAROMA_CONTROLP libaroma_ctl_button_icon(
 byte libaroma_ctl_button_seticon(
 		LIBAROMA_CONTROLP ctl,
 		LIBAROMA_CANVASP icon,
-		byte draw_atright
+		byte icon_flags
 ){
 	/* internal check */
 	_LIBAROMA_CTL_CHECK(
@@ -570,7 +589,7 @@ byte libaroma_ctl_button_seticon(
 	);
 	libaroma_mutex_lock(me->mutex);
 	me->icon = icon;
-	me->icon_isleft = (draw_atright?0:1);
+	me->icon_flags = icon_flags;
 	libaroma_mutex_unlock(me->mutex);
 	_libaroma_ctl_button_req_internal_draw(ctl);
 	return 1;
