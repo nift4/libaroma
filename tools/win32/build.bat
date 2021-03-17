@@ -1,9 +1,9 @@
 @ECHO OFF
+cd libs
+call build_all.bat
+cd ..
 echo.
-call build_libaroma.bat -f
+call libaroma.bat
 echo.
-pause
+call app.bat test
 echo.
-call build_test.bat -f
-echo.
-pause

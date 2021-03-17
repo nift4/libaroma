@@ -1,7 +1,7 @@
 @ECHO OFF
 cls
 if "%2"=="r" GOTO run
-call build_app.bat %1
+call app.bat %1
 :run
 echo Waiting for device (recovery)
 %LIBAROMA_ADB% wait-for-recovery

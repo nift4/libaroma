@@ -1,5 +1,2 @@
-@ECHO OFF
-cd obj
-del /F /Q *
-cd ..
-pause
+del /F /Q libaroma
+del /F /Q obj
