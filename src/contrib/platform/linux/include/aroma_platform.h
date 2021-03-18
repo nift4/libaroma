@@ -119,8 +119,10 @@ static inline long libaroma_tick(){
 	/* recommended */
 	#define libaroma_thread_join(th) pthread_join(th,NULL)
 	/* optional */
-	#define libaroma_thread_detach(th) pthread_detach(th)
-	#define libaroma_thread_kill(th) pthread_kill(th,0)
+	#define libaroma_thread_detach(th) 			pthread_detach(th)
+	#define libaroma_thread_kill(th) 			pthread_kill(th,0)
+	#define libaroma_thread_kill_ex(th, sig) 	pthread_kill(th, sig)
+	#define libaroma_thread_cancel(th)			pthread_cancel(th)
 	static inline void libaroma_thread_set_hiprio(LIBAROMA_THREAD t){
 		struct sched_param params;
 		params.sched_priority = sched_get_priority_max(SCHED_FIFO);
