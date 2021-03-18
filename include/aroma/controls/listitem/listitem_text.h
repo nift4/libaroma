@@ -44,16 +44,15 @@ void libaroma_listitem_text_set(
 void libaroma_listitem_text_add(
 		LIBAROMA_CTL_LIST_ITEMP item,
 		char *text, byte freeold);
-
 /*
  * Function		: libaroma_listitem_text_color
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
- * Descriptions: create text item with custom text color
+ * Descriptions: create text item with custom color
  */
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		LIBAROMA_CONTROLP ctl,
 		int id,
-		const char * text,
+		char * text,
 		word textcolor,
 		int vpad,
 		int hpad,
@@ -62,16 +61,16 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		word flags,
 		byte updateable,
 		int at_index);
-		
+
 /*
  * Function		: libaroma_listitem_text
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
- * Descriptions: create menu item
+ * Descriptions: create text item
  */
 LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
-		const char * text,
+		char * text,
 		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
 		int at_index);
 

@@ -18,13 +18,12 @@
  * Description	: text item source
  *
  * + This is part of libaroma, an embedded ui toolkit.
- * + 14/03/21 - Author(s): Michael Jauregui
+ * + 16/03/21 - Author(s): Michael Jauregui
  *
  */
 #ifndef __libaroma_listitem_text_c__
 #define __libaroma_listitem_text_c__
 #include <aroma_internal.h>
-
 #include "../../ui/ui_internal.h"
 
 #ifdef __cplusplus
@@ -53,7 +52,7 @@ typedef struct{
 	LIBAROMA_TEXT cached_text; //used for initial control draw
 	byte updateable;
 	byte redraw;
-	byte isparsing; //useful if parsing takes too long and draw is called meanwhile
+	byte isparsing; //useful if draw is called while parsing the text
 	int vpad;
 	int hpad;
 	int font_id;
@@ -102,15 +101,14 @@ byte _libaroma_listitem_text_message(
  */
 void *_libaroma_listitem_text_loader(void *info){
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) info;
-
-	mi->cached_text=libaroma_text(mi->text, mi->textcolor, mi->w,
-						LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags, 0);
-
-	int texth=libaroma_text_height(mi->cached_text)+(mi->vpad*2);
-	libaroma_ctl_list_item_setheight(
-				mi->ctl, mi->item, texth
-			);
-
+	ALOGV("Starting listitem_text loader thread");
+	mi->cached_text=libaroma_text(mi->text, mi->textcolor, mi->w, LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags, 0);
+	if (mi->cached_text==NULL){ //maybe text parser exited before finishing?
+		mi->isparsing=0;
+		return NULL;
+	}
+	int newh=libaroma_text_height(mi->cached_text)+(mi->vpad*2);
+	libaroma_ctl_list_item_setheight(mi->ctl, mi->item, newh);
 	mi->isparsing=0;
 	mi->redraw=1;
 	return NULL;
@@ -133,37 +131,29 @@ void _libaroma_listitem_text_draw(
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
 	mi->w=cv->w;
 	// calculate max text width
-	int tw = cv->w - (mi->hpad*2);
+	int tw = mi->w - (mi->hpad*2);
 	// try to use the cached text, if any
 	LIBAROMA_TEXT text=mi->cached_text;
 	if (text==NULL){ // parse text
 		if (!mi->isparsing){
 			mi->isparsing=1;
 			libaroma_thread_create(&(mi->loader), _libaroma_listitem_text_loader, (voidp) mi);
+			libaroma_thread_detach(mi->loader);
+			//libaroma_thread_set_hiprio(mi->loader); //this seems to hang the window until almost loaded
 		}
-		libaroma_draw_text(cv, "Loading text...", mi->hpad, mi->vpad, mi->textcolor, cv->w,
-							LIBAROMA_FONT(mi->font_id, mi->font_size)|LIBAROMA_TEXT_SINGLELINE, cv->h);
+		libaroma_draw_text(cv, "Please wait...", mi->hpad, mi->vpad, mi->textcolor, cv->w-(mi->hpad*2),
+							LIBAROMA_FONT(mi->font_id, mi->font_size)|LIBAROMA_TEXT_SINGLELINE, cv->h-(mi->vpad*2));
 		return;
 	}
-	// get text height
-	int texth=libaroma_text_height(text)+(mi->vpad*2);
-	/*if (cv->h!=texth){ //if text is too big (or small) resize control before drawing
-		ALOGI("listitem_text_draw: control height is different, saving text into cache");
-		mi->cached_text=text; //save parsed text to reuse it later (taking less time than parsing text twice)
-		mi->redraw=1;
-		libaroma_ctl_list_item_setheight(
-			ctl, item, texth
-		);
-		ALOGD("listitem_text_draw: height is %d but text height is %d, cv->h is %d", mi->h, texth, cv->h)
-		return;
-	}*/
+	// draw text to control canvas
+	if (text!=NULL)
+		libaroma_text_draw_ex(cv, text, mi->hpad, mi->vpad, 0, 0, cv->h-(mi->vpad*2), 0, 0, 0, 0, 0, 0);
 	if (mi->cached_text!=NULL){ //if text was cached, delete it (draw event should mean full redraw)
 		mi->cached_text=NULL;
 	}
-	// draw text to control canvas
-	libaroma_text_draw_ex(cv, text, mi->hpad, mi->vpad, 0, 0, cv->h, 0, 0, 0, 0, 0, 0);
 	// free text variable (only needed for drawing)
-	libaroma_text_free(text);
+	if (text!=NULL)
+		libaroma_text_free(text);
 } /* End of _libaroma_listitem_text_draw */
 
 /*
@@ -173,13 +163,15 @@ void _libaroma_listitem_text_draw(
  */
 void _libaroma_listitem_text_release_internal(
 	_LIBAROMA_LISTITEM_TEXTP mi){
-	if (mi->isparsing)
-		libaroma_thread_kill(mi->loader);
-	if (mi->cached_text!=NULL)
-		libaroma_text_free(mi->cached_text);
+	if (mi->isparsing){
+		libaroma_text_exit_parser();
+		libaroma_sleep(50);
+	}
 	if (mi->text!=NULL){
 		free(mi->text);
 	}
+	if (mi->cached_text!=NULL)
+		libaroma_text_free(mi->cached_text);
 	free(mi);
 } /* End of _libaroma_listitem_text_release_internal */
 
@@ -215,13 +207,14 @@ void libaroma_listitem_text_set(
 	}
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
 	if (!mi->updateable){
-		ALOGW("Cannot set new text to non-updateable item");
+		ALOGE("Cannot set new text to non-updateable item");
 		return;
 	}
 	if (mi->text) free(mi->text);
 	mi->text=strdup(text);
 	mi->redraw=1;
 }
+
 /*
  * Function		: libaroma_listitem_text_add
  * Return Value: void
@@ -238,7 +231,7 @@ void libaroma_listitem_text_add(
 	}
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
 	if (!mi->updateable){
-		ALOGW("Cannot add text to non-updateable item");
+		ALOGE("Cannot add text to non-updateable item");
 		return;
 	}
 	char *newtext=malloc(strlen(mi->text) + strlen(text) +2);
@@ -289,12 +282,12 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 	mi->font_id=font_id;
 	mi->font_size=font_size?font_size:3;
 	mi->flags=flags;
-	int h = ((vpad==0)?16:libaroma_dp(vpad*2));
+	int h = (vpad==0)?16:(vpad*2);
 
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
-		h,/*updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:*/0,
+		h,updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
 		(voidp) mi,
 		&_libaroma_listitem_text_handler,
 		at_index
