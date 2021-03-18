@@ -93,9 +93,18 @@ short libaroma_font_size_px(byte size);
  * Return Value: byte
  * Descriptions: load new font
  */
-byte libaroma_font(
+#define libaroma_font(id, stream) \
+		libaroma_font_ex(id, stream, libaroma_font_size_px(2))
+
+/*
+ * Function		: libaroma_font_ex
+ * Return Value: byte
+ * Descriptions: load new font - extended
+ */
+byte libaroma_font_ex(
 		byte fontid,
-		LIBAROMA_STREAMP stream);
+		LIBAROMA_STREAMP stream,
+		int size);
 
 /*
  * Function		: libaroma_font_exists
@@ -187,6 +196,13 @@ LIBAROMA_TEXT libaroma_text(
  * Descriptions: free text
  */
 byte libaroma_text_free(LIBAROMA_TEXT text);
+
+/*
+ * Function		: libaroma_text_exit_parser
+ * Return Value: void
+ * Descriptions: set parser exit flag
+ */
+void libaroma_text_exit_parser();
 
 /*
  * Function		: libaroma_text_line_info

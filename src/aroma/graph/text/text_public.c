@@ -27,6 +27,17 @@ extern "C" {
 #ifndef __libaroma_text_public_c__
 #define __libaroma_text_public_c__
 
+static byte _text_parser_exit=0;
+
+/*
+ * Function		: libaroma_text_exit_parser
+ * Return Value: void
+ * Descriptions: set parser exit flag
+ */
+void libaroma_text_exit_parser(){
+	_text_parser_exit=1;
+}
+
 /*
  * Function		: libaroma_text_line_count
  * Return Value: int
@@ -123,6 +134,13 @@ LIBAROMA_TEXT libaroma_text(
 	_LIBAROMA_TEXTLINESP last_lines = lines;
 	last_lines->line = NULL;
 	while (chunk->state & _LIBAROMA_TEXTCHUNK_STATE_OK) {
+		if (_text_parser_exit){
+			_text_parser_exit=0;
+			free(txt);
+			free(lines);
+			_libaroma_pubtext_lock(0);
+			return NULL;
+		}
 		_LIBAROMA_TEXTLINEP line = libaroma_textline(chunk);
 		if (line != NULL) {
 			if (last_lines->line != NULL) {
@@ -146,6 +164,14 @@ LIBAROMA_TEXT libaroma_text(
 		last_lines = lines;
 		int i = 0;
 		while (last_lines) {
+			if (_text_parser_exit){
+				_text_parser_exit=0;
+				free(txt->lines);
+				free(txt);
+				free(lines);
+				_libaroma_pubtext_lock(0);
+				return NULL;
+			}
 			txt->lines[i] = last_lines->line;
 			_LIBAROMA_TEXTLINESP prevline = last_lines;
 			last_lines = last_lines->next;
