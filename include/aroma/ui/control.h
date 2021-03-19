@@ -27,6 +27,10 @@
 #ifndef __libaroma_control_h__
 #define __libaroma_control_h__
 
+#define libaroma_control_set_tag(ctl, val) 			ctl->tag=(voidp)val
+#define libaroma_control_get_tag(ctl)				ctl->tag
+#define libaroma_control_get_text_tag(ctl)			((char*)(ctl->tag))
+
 typedef struct {
 	dword (*message)(LIBAROMA_CONTROLP, LIBAROMA_MSGP);
 	void (*draw)(LIBAROMA_CONTROLP, LIBAROMA_CANVASP);
@@ -45,32 +49,32 @@ struct _LIBAROMA_CONTROL{
 	voidp internal;
 	LIBAROMA_WINDOWP window;
 	LIBAROMA_COLORSETP colorset;
-	
+
 	/* px measured */
 	int x;
 	int y;
 	int w;
 	int h;
-	
+
 	/* requested */
 	int rx;
 	int ry;
 	int rw;
 	int rh;
-	
+
 	/* measured size */
 	int left;
 	int top;
 	int width;
 	int height;
-	
+
 	/* minimum control size */
 	int minw;
 	int minh;
-	
+
 	/* if you want to hold any kind of data within a control, use this */
 	void* tag;
-	
+
 	/* callbacks */
 	LIBAROMA_CONTROL_HANDLERP handler;
 };
