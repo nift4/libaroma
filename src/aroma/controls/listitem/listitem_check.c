@@ -241,7 +241,7 @@ byte _libaroma_listitem_check_message(
 			{
 				mi->onchangeani=0;
 				if (param!=LIBAROMA_CTL_LIST_ITEM_MSGPARAM_HOLDED){
-					//printf("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d\n",
+					//ALOGI("Touch up! x: %d, y: %d, checkx: %d, checkwidth: %d",
 					//	  x, y, item->checkx, item->checkwidth);
 					if (item->flags&LIBAROMA_LISTITEM_CHECK_HAS_SUBMENU){
 						if (x >= (item->checkx-(item->checkwidth)) && x<= (item->checkx + (item->checkwidth*1.5))) {
@@ -1192,6 +1192,7 @@ void _libaroma_listitem_check_group_uncheck_others(
 		}
 		if (!libaroma_ctl_list_items_equal(itm, item)){
 			libaroma_listitem_set_selected(group->list, itm, 0);
+			libaroma_ctl_list_invalidate_item(group->list, itm);
 		}
 	}
 }
