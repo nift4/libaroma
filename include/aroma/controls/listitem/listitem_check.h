@@ -110,6 +110,15 @@ byte libaroma_listitem_isoption(
 );
 
 /*
+ * Function		: libaroma_listitem_ischecked
+ * Return Value: byte
+ * Descriptions: check if checkbox is checked
+ */
+byte libaroma_listitem_ischecked(
+	LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
  * Function    : libaroma_listitem_check
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions: create check item
