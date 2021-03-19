@@ -171,6 +171,20 @@ byte _libaroma_text_parse_tag(
 							}
 							return 1;
 						}
+						else { //try parsing it the old stryle (<f[id]>)
+							int font_id=atoi(tag+1);
+							if (font_id>=0){
+								if ((_LIBAROMA_TEXT_FIXED_FONT & rules) == 0) {
+									/* font id */
+									if (font_id > _LIBAROMA_FONT_MAX_FACE-1) {
+										font_id = _LIBAROMA_FONT_MAX_FACE-1;
+									}
+									_LIBAROMA_TEXTCHUNK_SETFONTID(
+										chunk->next_state.font, (byte) font_id);
+								}
+							}
+							return 1;
+						}
 					}
 					break;
 				case 's': {
@@ -237,6 +251,35 @@ byte _libaroma_text_parse_tag(
 									chunk->next_state.lflags, line_flags);
 								return 2;
 							}
+							return 1;
+						}
+					}
+					break;
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':{ //try to parse size the old style (<[size]>)
+						ALOGI("text_tags: Trying to parse size from tag %s", tag);
+						int font_size=atoi(tag);
+						if (font_size>0){
+							if ((_LIBAROMA_TEXT_FIXED_SIZE & rules) == 0) {
+								/* fontsize */
+								if (font_size > _LIBAROMA_FONT_MAX_FONTSIZE) {
+									font_size = _LIBAROMA_FONT_MAX_FONTSIZE;
+								}
+								else if (font_size < 0) {
+									font_size = 0;
+								}
+								_LIBAROMA_TEXTCHUNK_SETFONTSIZE(
+									chunk->next_state.font, (byte) font_size);
+							}
+							ALOGI("text_tags: Parsed, got %d", font_size);
 							return 1;
 						}
 					}
