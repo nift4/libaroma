@@ -50,6 +50,7 @@ typedef struct {
 	int vpad;
 	int itemn;
 	byte flags;
+	LIBAROMA_STACKP opt_groups;
 	LIBAROMA_CTL_LIST_ITEMP first;
 	LIBAROMA_CTL_LIST_ITEMP last;
 	LIBAROMA_CTL_LIST_ITEMP touched;
@@ -116,6 +117,35 @@ byte __libaroma_ctl_list_item_reg_thread(
 	}
 	return 1;
 } /* End of __libaroma_ctl_list_item_reg_thread */
+
+byte libaroma_ctl_list_init_opt_groups(LIBAROMA_CONTROLP ctl){
+	if (ctl==NULL) return 0;
+	LIBAROMA_CTL_SCROLL_CLIENTP client = libaroma_ctl_scroll_get_client(ctl);
+	if (!client){
+		return 0;
+	}
+	if (client->handler!=&_libaroma_ctl_list_handler){
+		return 0;
+	}
+	LIBAROMA_CTL_LISTP list = (LIBAROMA_CTL_LISTP) client->internal;
+	list->opt_groups=libaroma_stack(NULL);
+	if (!list->opt_groups) return 0;
+	return 1;
+}
+
+LIBAROMA_STACKP libaroma_ctl_list_get_groups(LIBAROMA_CONTROLP ctl){
+	if (ctl==NULL) return NULL;
+	LIBAROMA_CTL_SCROLL_CLIENTP client = libaroma_ctl_scroll_get_client(ctl);
+	if (!client){
+		return NULL;
+	}
+	if (client->handler!=&_libaroma_ctl_list_handler){
+		return NULL;
+	}
+	LIBAROMA_CTL_LISTP list = (LIBAROMA_CTL_LISTP) client->internal;
+
+	return list->opt_groups;
+}
 
 /*
  * Function		: __libaroma_ctl_list_item_unreg_thread
@@ -1286,6 +1316,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_add_item_internal(
 	item->flags=flags;
 	item->handler=handler;
 	item->internal=internal;
+	item->list=ctl;
 
 	if (mi->last==NULL){
 		mi->first=mi->last=item;

@@ -50,6 +50,13 @@ typedef byte (*LIBAROMA_LISTITEM_CB)(
   voidp data,
   byte state
 );
+/* group structure */
+typedef struct {
+	int index;
+	int list_index;
+	LIBAROMA_CONTROLP list;
+	LIBAROMA_STACKP items;
+} LIBAROMA_LISITEM_CHECK_GROUP, * LIBAROMA_LISITEM_CHECK_GROUPP;
 
 /* Set callback */
 byte libaroma_listitem_check_set_cb(
@@ -58,21 +65,49 @@ byte libaroma_listitem_check_set_cb(
     LIBAROMA_LISTITEM_CB cb,
     voidp data);
 
-/* get selected - return index */
-int libaroma_listitem_get_selected_index(
-	LIBAROMA_CONTROLP ctl
+#define libaroma_listitem_get_selected(list) \
+		libaroma_listitem_get_selected_from(list, 0)
+#define libaroma_listitem_get_selected_index(list) \
+		libaroma_listitem_get_selected_index_from(list, 0)
+
+/*
+ * Function		: libaroma_listitem_get_selected_index_from
+ * Return Value: int
+ * Descriptions: get selected item index, start searching for items at start_index
+ */
+int libaroma_listitem_get_selected_index_from(
+	LIBAROMA_CONTROLP ctl,
+	int start_index
 );
 
-/* get selected - return item */
-LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_get_selected(
-	LIBAROMA_CONTROLP ctl
+/*
+ * Function		: libaroma_listitem_get_selected_from
+ * Return Value: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions: get selected item, start searching for items at start_index
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_get_selected_from(
+	LIBAROMA_CONTROLP ctl,
+	int start_index
 );
 
-/* set selected */
+/*
+ * Function		: libaroma_listitem_set_selected
+ * Return Value: byte
+ * Descriptions: set item as selected
+ */
 byte libaroma_listitem_set_selected(
   LIBAROMA_CONTROLP ctl,
   LIBAROMA_CTL_LIST_ITEMP item,
   byte selected);
+
+/*
+ * Function		: libaroma_listitem_isoption
+ * Return Value: byte
+ * Descriptions: check if item is option checkbox
+ */
+byte libaroma_listitem_isoption(
+	LIBAROMA_CTL_LIST_ITEMP item
+);
 
 /*
  * Function    : libaroma_listitem_check
@@ -88,5 +123,17 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
     LIBAROMA_CANVASP icon,
     word flags,
     int at_index);
+
+/************GROUPS MANAGEMENT******************/
+
+#define libaroma_listitem_check_create_group(list) \
+		libaroma_listitem_check_create_named_group(list, NULL)
+LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_create_named_group(LIBAROMA_CONTROLP list, char *name);
+void libaroma_listitem_check_add_to_group(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
+LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_get_group_at(LIBAROMA_CONTROLP list, int index);
+int libaroma_listitem_check_get_ingroup_index(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check_get_ingroup_item(LIBAROMA_LISITEM_CHECK_GROUPP group, int index);
+void libaroma_listitem_check_remove_from_group(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
+LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_find_group(LIBAROMA_CONTROLP list, LIBAROMA_CTL_LIST_ITEMP item);
 
 #endif /* __libaroma_listitem_check_h__ */

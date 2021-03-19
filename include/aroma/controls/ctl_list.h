@@ -73,6 +73,10 @@
 #define LIBAROMA_CTL_LIST_ITEM_MSGRET_UNREG_THREAD			0x4
 #define LIBAROMA_CTL_LIST_ITEM_MSGRET_HAVE_ADDONS_DRAW		0x8
 
+/* check if items are the same one (internal is unique) */
+#define libaroma_ctl_list_items_equal(item1, item2) \
+		(item1->internal==item2->internal)
+
 /* list item */
 typedef struct _LIBAROMA_CTL_LIST_ITEM LIBAROMA_CTL_LIST_ITEM;
 typedef struct _LIBAROMA_CTL_LIST_ITEM * LIBAROMA_CTL_LIST_ITEMP;
@@ -117,6 +121,7 @@ struct _LIBAROMA_CTL_LIST_ITEM{
 	LIBAROMA_CTL_LIST_ITEM_STATEP state;
 	LIBAROMA_CTL_LIST_ITEMP next;
 	LIBAROMA_CTL_LIST_ITEMP prev;
+	LIBAROMA_CONTROLP list;
 	byte is_leftcontrol;
 	int checkwidth;
 	int checkx;
@@ -136,6 +141,11 @@ LIBAROMA_CONTROLP libaroma_ctl_list(
 		int vertical_padding,
 		word bg_color, byte flags
 );
+
+byte libaroma_ctl_list_init_opt_groups(LIBAROMA_CONTROLP list);
+LIBAROMA_STACKP libaroma_ctl_list_get_groups(LIBAROMA_CONTROLP ctl);
+#define libaroma_ctl_list_get_group_count(list) \
+		libaroma_ctl_list_get_groups(list)->n
 
 /*
  * Function		: libaroma_ctl_list_get_item_internal
