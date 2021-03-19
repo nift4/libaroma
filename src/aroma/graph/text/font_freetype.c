@@ -289,13 +289,14 @@ void libaroma_font_freecache_cb(
 } /* End of libaroma_font_freecache_cb */
 
 /*
- * Function		: libaroma_font
+ * Function		: libaroma_font_ex
  * Return Value: byte
- * Descriptions: load new font
+ * Descriptions: load new font - extended
  */
-byte libaroma_font(
+byte libaroma_font_ex(
 		byte fontid,
-		LIBAROMA_STREAMP stream) {
+		LIBAROMA_STREAMP stream,
+		int size) {
 	if (!stream) {
 		ALOGW("libaroma_font stream not found");
 		return 0;
@@ -317,8 +318,9 @@ byte libaroma_font(
 			stream->size,
 			0,
 			&tmp_face) == 0) {
+		int def_size = libaroma_dp(size);
 		/* set default face size */
-		int def_size = libaroma_font_size_px(2);
+		if (!size) def_size=libaroma_font_size_px(2);
 
 		if (FT_Set_Pixel_Sizes(tmp_face, 0, def_size) == 0) {
 			/* save it */
