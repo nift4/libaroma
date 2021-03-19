@@ -56,7 +56,7 @@ typedef struct {
 	int list_index;
 	LIBAROMA_CONTROLP list;
 	LIBAROMA_STACKP items;
-} LIBAROMA_LISITEM_CHECK_GROUP, * LIBAROMA_LISITEM_CHECK_GROUPP;
+} LIBAROMA_LISTITEM_CHECK_GROUP, * LIBAROMA_LISTITEM_CHECK_GROUPP;
 
 /* Set callback */
 byte libaroma_listitem_check_set_cb(
@@ -128,12 +128,103 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check(
 
 #define libaroma_listitem_check_create_group(list) \
 		libaroma_listitem_check_create_named_group(list, NULL)
-LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_create_named_group(LIBAROMA_CONTROLP list, char *name);
-void libaroma_listitem_check_add_to_group(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
-LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_get_group_at(LIBAROMA_CONTROLP list, int index);
-int libaroma_listitem_check_get_ingroup_index(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
-LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check_get_ingroup_item(LIBAROMA_LISITEM_CHECK_GROUPP group, int index);
-void libaroma_listitem_check_remove_from_group(LIBAROMA_LISITEM_CHECK_GROUPP group, LIBAROMA_CTL_LIST_ITEMP item);
-LIBAROMA_LISITEM_CHECK_GROUPP libaroma_listitem_check_find_group(LIBAROMA_CONTROLP list, LIBAROMA_CTL_LIST_ITEMP item);
+/*
+ * Function		: libaroma_listitem_check_create_named_group
+ * Return Value: LIBAROMA_LISTITEM_CHECK_GROUPP
+ * Descriptions: create listitem group with optional caption
+ */
+LIBAROMA_LISTITEM_CHECK_GROUPP libaroma_listitem_check_create_named_group(
+	LIBAROMA_CONTROLP list,
+	char *name
+);
+
+/*
+ * Function		: libaroma_listitem_check_add_to_group
+ * Return Value: void
+ * Descriptions: add item to listitem group
+ */
+void libaroma_listitem_check_add_to_group(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group,
+	LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
+ * Function		: libaroma_listitem_check_remove_from_group
+ * Return Value: void
+ * Descriptions: remove item from group
+ */
+void libaroma_listitem_check_remove_from_group(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group,
+	LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_group_at
+ * Return Value: LIBAROMA_LISTITEM_CHECK_GROUPP
+ * Descriptions: get listitem group from list at index
+ */
+LIBAROMA_LISTITEM_CHECK_GROUPP libaroma_listitem_check_get_group_at(
+	LIBAROMA_CONTROLP list,
+	int index
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_ingroup_index
+ * Return Value: int
+ * Descriptions: get item index inside group
+ */
+int libaroma_listitem_check_get_ingroup_index(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group,
+	LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_ingroup_item
+ * Return Value: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions: get item at index inside group
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check_get_ingroup_item(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group,
+	int index
+);
+
+/*
+ * Function		: libaroma_listitem_check_find_group
+ * Return Value: LIBAROMA_LISTITEM_CHECK_GROUPP
+ * Descriptions: get group for item at list
+ */
+LIBAROMA_LISTITEM_CHECK_GROUPP libaroma_listitem_check_find_group(
+	LIBAROMA_CONTROLP list,
+	LIBAROMA_CTL_LIST_ITEMP item
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_group_selected
+ * Return Value: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions: get selected item at group
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_check_get_group_selected(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_selected_group
+ * Return Value: LIBAROMA_LISTITEM_CHECK_GROUPP
+ * Descriptions: get last touched group
+ */
+LIBAROMA_LISTITEM_CHECK_GROUPP libaroma_listitem_check_get_selected_group(
+	LIBAROMA_CONTROLP list
+);
+
+/*
+ * Function		: libaroma_listitem_check_get_group_selected_index
+ * Return Value: int
+ * Descriptions: get selected item index at group
+ */
+int libaroma_listitem_check_get_group_selected_index(
+	LIBAROMA_LISTITEM_CHECK_GROUPP group
+);
+
+
 
 #endif /* __libaroma_listitem_check_h__ */
