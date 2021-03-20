@@ -68,7 +68,16 @@
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_TOP			9
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_BOTTOM		10
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_BOTTOM		11
-#define LIBAROMA_WINDOW_CLOSE_ANIMATION_PAGE_BOTTOM		12
+#define LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE			12
+#define LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_LEFT		13
+#define LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_RIGHT		14
+
+#define libaroma_window_anishow(win, ani, time) \
+		libaroma_window_hideshow_animated(win, ani, time, 0)
+#define libaroma_window_aniclose(win, ani, time) \
+		libaroma_window_hideshow_animated(win, ani, time, 1)
+#define libaroma_window_hideshow(win, close) \
+		libaroma_window_hideshow_animated(win, 0, 0, close)
 
 /*
  * Special Size & Position
@@ -270,20 +279,12 @@ LIBAROMA_CONTROLP libaroma_window_setfocus(
 		LIBAROMA_WINDOWP win, LIBAROMA_CONTROLP ctl);
 
 /*
- * Function		: libaroma_window_anishow
+ * Function		: libaroma_window_hideshow_animated
  * Return Value: byte
- * Descriptions: show window - animated
+ * Descriptions: hide/show window - animated
  */
-byte libaroma_window_anishow(
-	LIBAROMA_WINDOWP win, byte animation, int duration);
-
-/*
- * Function		: libaroma_window_anishow
- * Return Value: byte
- * Descriptions: close window - animated
- */
-byte libaroma_window_aniclose(
-	LIBAROMA_WINDOWP win, LIBAROMA_WINDOWP parent, byte animation, int duration);
+byte libaroma_window_hideshow_animated(
+	LIBAROMA_WINDOWP win, byte anim, int duration, byte close);
 
 /* no animation */
 #define libaroma_window_show(win) \

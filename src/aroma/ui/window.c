@@ -840,217 +840,228 @@ byte libaroma_window_invalidate(LIBAROMA_WINDOWP win, byte sync){
 } /* End of libaroma_window_invalidate */
 
 /*
- * Function		: libaroma_window_anishow
+ * Function		: libaroma_window_hideshow_animated
  * Return Value: byte
- * Descriptions: show window - animated
+ * Descriptions: hide/show window - animated
  */
-byte libaroma_window_anishow(
-		LIBAROMA_WINDOWP win,
-		byte animation,
-		int duration){
-	__CHECK_WM(0);
-	if (!win){
-		return 0;
-	}
-	if (win->parent!=NULL){
-		ALOGW("Child window cannot shown directly...");
-		return 0;
+byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int duration, byte close){
+
+	if ((!anim)||(duration<50)){
+		if (close) {
+			byte ret=libaroma_wm_set_active_window(NULL);
+			libaroma_window_free(win);
+			return ret;
+		}
+		else return libaroma_wm_set_active_window(win);
 	}
 
-	/* set initial focus
-		libaroma_window_setfocus(win, NULL);
-	*/
-
-	if ((!animation)||(duration<50)){
-		return libaroma_wm_set_active_window(win);
-	}
-
-	/* lock and retval */
-	byte retval = 0;
+	/* lock sync */
 	win->lock_sync = 1;
-
-	if (libaroma_wm_set_active_window(win)){
-		win->active=2;
-
+	byte is_active;
+	if (close) is_active=1;
+	else is_active=libaroma_wm_set_active_window(win);
+	if (is_active){
+		if (!close) win->active=2;
+		if (!win->prev_screen->alpha && anim==LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE)
+			libaroma_canvas_fillalpha(win->prev_screen, 0, 0, win->w, win->h, 0xFF); //init alpha for prev screen if it needsthat
 		/* draw window into temp canvas */
-		LIBAROMA_CANVASP wmc = win->dc;
+		LIBAROMA_CANVASP wmc = win->dc; //window had a canvas area of wm, let's grab it
 		LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h);
-		libaroma_draw(tdc,wmc,0,0,0);
-		win->dc=tdc; /* switch dc */
-
-		LIBAROMA_CANVASP back = libaroma_canvas(wmc->w, wmc->h);
-		libaroma_draw(back,wmc,0,0,0);
-
+		if (close) libaroma_draw(tdc,wmc,0,0,0);
+		win->dc=tdc; /* switch dc to temporary */
 		/* invalidate now */
-		libaroma_window_invalidate(win, 10);
-
+		if (!close) libaroma_window_invalidate(win, 10); //draw real window image at temp dc
 		long start = libaroma_tick();
 		int delta = 0;
+		int debug=1;
 		while ((delta=libaroma_tick()-start)<duration){
 			float state = ((float) delta)/((float) duration);
 			if (state>=1.0){
 				break;
 			}
-			switch (animation){
+			switch (anim){
+				case LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE:
+					{
+						float swift_out_state = close?libaroma_cubic_bezier_easeout(state):libaroma_cubic_bezier_easein(state);
+						int bigger=MAX(win->h, win->w);
+						int sz;
+						if (close)
+							sz=(bigger*1.5)-(swift_out_state * (bigger*1.5));
+						else sz=(swift_out_state * (bigger*1.5));
+						if (sz>2){
+							LIBAROMA_CANVASP prev_screen=libaroma_canvas_dup(win->prev_screen);
+							libaroma_draw_alpha_circle(prev_screen, prev_screen->w/2, prev_screen->h/2, sz, 0x0);
+							libaroma_draw(wmc, win->dc, 0, 0, 0);
+							libaroma_draw(wmc, prev_screen, 0, 0, 1);
+							libaroma_wm_sync(win->x, win->y, win->w, win->h);
+							libaroma_canvas_free(prev_screen);
+						}
+					}
+					break;
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_FADE:
 					{
 						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						float bstate = 255.0 * swift_out_state;
+						float bstate=(255.0 * swift_out_state);
 						byte bbstate = (byte) round(bstate);
 						libaroma_draw_opacity(
-							wmc, win->dc,0,0,0,bbstate
+							wmc, (close?win->prev_screen:win->dc), 0, 0, 0, bbstate
 						);
-						//libaroma_window_sync(win, 0, 0, win->w, win->h);
 						libaroma_wm_sync(win->x,win->y,win->w,win->h);
 					}
 					break;
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_TOP:
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_TOP:
 					{
-						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						int y = win->h - (swift_out_state * win->h);
+						float swift_out_state = close?
+							libaroma_cubic_bezier_easeout(state):
+							libaroma_cubic_bezier_easein(state);
+						int y;
+						if (close) y = (swift_out_state * win->h);
+						else y = win->h - (swift_out_state * win->h);
 						int h = win->h - y;
 
 						if (h>0){
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_TOP){
-								if (h<win->h){
-									libaroma_draw_ex(
-										wmc,
-										back,
-										0, 0, 0, win->h - (win->h - h), win->w, win->h-h,
-										0, 0xff
-									);
-								}
-							}
+							libaroma_draw_ex(
+								wmc,
+								win->prev_screen,
+								0, 0, 0, 0, win->w, win->h-h, 0, 0xFF
+							);
 							libaroma_draw_ex(
 								wmc,
 								win->dc,
 								0, y, 0, 0, win->w, h,
 								0, 0xff
 							);
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_TOP){
-								libaroma_wm_sync(win->x,win->y,win->w,win->h);
-							}
-							else{
-								libaroma_wm_sync(win->x,win->y+y,win->w, h);
-							}
+							libaroma_wm_sync(win->x,win->y,win->w, win->h);
 						}
 					}
 					break;
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_BOTTOM:
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_BOTTOM:
-					{
-						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						int y = 0 - (win->h - (swift_out_state * win->h));
-						int h = win->h + y;
-						if (h>0){
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_BOTTOM){
-								if (h<win->h){
-									libaroma_draw_ex(
-										wmc,
-										back,
-										0, h, 0, 0, win->w, win->h-h,
-										0, 0xff
-									);
-								}
-							}
-							libaroma_draw_ex(
-								wmc,
-								win->dc,
-								0, 0, 0, win->h-h, win->w, h,
-								0, 0xff
-							);
-							libaroma_wm_sync(win->x,win->y,win->w,h);
-						}
-					}
-					break;
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_LEFT:
+
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_LEFT:
 					{
-						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						int x = win->w - (swift_out_state * win->w);
+						float swift_out_state = close?
+							libaroma_cubic_bezier_easeout(state):
+							libaroma_cubic_bezier_easein(state);
+						int x;
+						if (close) x = swift_out_state * win->w;
+						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
 						if (w>0){
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_LEFT){
-								if (w<win->w){
-									libaroma_draw_ex(
-										wmc,
-										back,
-										0, 0, win->w - (win->w - w), 0, win->w - w, win->h,
-										0, 0xff
-									);
-								}
-							}
+							libaroma_draw_ex(
+								wmc,
+								win->prev_screen,
+								0, 0, 0, 0, win->w-w, win->h, 0, 0xFF
+							);
 							libaroma_draw_ex(
 								wmc,
 								win->dc,
 								x, 0, 0, 0, w, win->h,
 								0, 0xff
 							);
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_LEFT){
-								libaroma_wm_sync(win->x,win->y,win->w,win->h);
-							}
-							else{
-								libaroma_wm_sync(win->x+x,win->y,w, win->h);
-							}
+							libaroma_wm_sync(win->x,win->y,win->w, win->h);
 						}
 					}
 					break;
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_RIGHT:
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_RIGHT:
 					{
-						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						int x = 0 - (win->w - (swift_out_state * win->w));
-						int w = win->w + x;
+						float swift_out_state = close?
+							libaroma_cubic_bezier_easeout(state):
+							libaroma_cubic_bezier_easein(state);
+						int x;
+						if (close) x = swift_out_state * win->w;
+						else x = win->w - (swift_out_state * win->w);
+						int w = win->w - x;
+						printf("X=%d, W=%d\n", x, w);
 						if (w>0){
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_RIGHT){
-								if (w<win->w){
-									libaroma_draw_ex(
-										wmc,
-										back,
-										w, 0, 0, 0, win->w - w, win->h,
-										0, 0xff
-									);
-								}
-							}
+							//libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
+							libaroma_draw_ex(
+								wmc,
+								win->prev_screen,
+								w, 0, w, 0, win->w-w, win->h, 0, 0xFF
+							);
 							libaroma_draw_ex(
 								wmc,
 								win->dc,
-								0, 0, win->w-w, 0, w, win->h,
+								0, 0, x, 0, w, win->h,
 								0, 0xff
 							);
-							if (animation==LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_RIGHT){
-								libaroma_wm_sync(win->x,win->y,win->w,win->h);
-							}
-							else{
-								libaroma_wm_sync(win->x,win->y,w, win->h);
-							}
+								libaroma_wm_sync(win->x,win->y, win->w, win->h);
+						}
+					}
+					break;
+				case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_LEFT:
+					{
+						float swift_out_state = close?
+							libaroma_cubic_bezier_easeout(state):
+							libaroma_cubic_bezier_easein(state);
+						int x;
+						if (close) x = swift_out_state * win->w;
+						else x = win->w - (swift_out_state * win->w);
+						int w = win->w - x;
+						printf("X=%d, W=%d\n", x, w);
+						if (w>0){
+							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
+							libaroma_draw_ex(
+								wmc,
+								win->prev_screen,
+								0, 0, w, 0, win->w-w, win->h, 0, 0xFF
+							);
+							libaroma_draw_ex(
+								wmc,
+								win->dc,
+								0, 0, x, 0, w, win->h,
+								0, 0xff
+							);
+							libaroma_wm_sync(win->x,win->y, win->w, win->h);
+						}
+					}
+					break;
+				case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_RIGHT:
+					{
+						float swift_out_state = close?
+							libaroma_cubic_bezier_easeout(state):
+							libaroma_cubic_bezier_easein(state);
+						int x;
+						if (close) x = swift_out_state * win->w;
+						else x = win->w - (swift_out_state * win->w);
+						int w = win->w - x;
+						printf("X=%d, W=%d\n", x, w);
+						if (w>0){
+							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
+							libaroma_draw_ex(
+								wmc,
+								win->prev_screen,
+								w, 0, 0, 0, win->w-w, win->h, 0, 0xFF
+							);
+							libaroma_draw_ex(
+								wmc,
+								win->dc,
+								x, 0, 0, 0, w, win->h,
+								0, 0xff
+							);
+								libaroma_wm_sync(win->x,win->y, win->w, win->h);
 						}
 					}
 					break;
 				default:
-					/* invalid animation */
-					start=0;
+					state=1.0;
 					break;
 			}
 		}
+		if (!close) libaroma_draw(wmc,win->dc,0,0,0); //copy real window image to original canvas
 
-		retval = 1;
-		libaroma_draw(wmc,win->dc,0,0,0);
-
-		win->dc=wmc; /* switch dc back */
-
-		/* cleanup */
-		libaroma_canvas_free(back);
+		win->dc=wmc; /* switch dc to wm canvas area */
 		libaroma_canvas_free(tdc);
 	}
-
 	win->lock_sync = 0;
 
 	/* sync view now */
-	if (retval){
+	if (close){
+		libaroma_wm_sync(win->x,win->y,win->w,win->h);
+		libaroma_wm_set_active_window(NULL);
+		libaroma_window_free(win);
+	}
+	else {
 		win->active=1;
-		// libaroma_window_sync(win, 0, 0, win->w, win->h);
 		libaroma_wm_sync(win->x,win->y,win->w,win->h);
 
 		/* send activate */
@@ -1059,61 +1070,7 @@ byte libaroma_window_anishow(
 			&_msg, LIBAROMA_MSG_WIN_ACTIVE, NULL, 10, 0)
 		);
 	}
-	return retval;
-} /* End of libaroma_window_show */
-
-/*
- * Function		: libaroma_window_aniclose
- * Return Value: byte
- * Descriptions: close window - animated
- */
-byte libaroma_window_aniclose(
-		LIBAROMA_WINDOWP win,
-		LIBAROMA_WINDOWP parent,
-		byte animation,
-		int duration){
-
-	LIBAROMA_CANVASP wmc = win->dc;
-	LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h); //temp canvas holding window image
-	libaroma_draw(tdc,wmc,0,0,0);
-	libaroma_window_invalidate(win, 10);
-	long start = libaroma_tick();
-	int delta = 0;
-		while ((delta=libaroma_tick()-start)<duration){
-			float state = ((float) delta)/((float) duration);
-			if (state>=1.0){
-				break;
-			}
-			switch (animation){
-				case LIBAROMA_WINDOW_CLOSE_ANIMATION_PAGE_BOTTOM:
-					{
-						int y=delta+win->h;
-						if (y>0 && y<=(win->h*2)){
-							//printf("Y: %d\n", y);
-							libaroma_draw(wmc, win->prev_screen, -(libaroma_wm()->x), -(libaroma_wm()->y), 0);
-							libaroma_draw_ex(
-								wmc,
-								tdc,
-								0, 0, 0, win->h-y, win->w, y,
-								0, 0xff);
-							libaroma_wm_sync(win->x,win->y,win->w,y);
-						}
-					}
-					break;
-			}
-		}
-
-	libaroma_draw(wmc,win->dc,0,0,0);
-	libaroma_canvas_free(tdc);
-
-	libaroma_wm_sync(win->x,win->y,win->w,win->h);
-
-	libaroma_window_free(win);
-
-	if (parent){
-		libaroma_wm_set_active_window(parent);
-	}
-	return 0;
+	return 1;
 }
 
 /*
