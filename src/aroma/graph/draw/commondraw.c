@@ -646,6 +646,52 @@ byte libaroma_draw_circle(
 } /* End of libaroma_draw_circle */
 
 /*
+ * Function		: libaroma_draw_alpha_circle
+ * Return Value: byte
+ * Descriptions: draw alpha-filled circle
+ */
+byte libaroma_draw_alpha_circle(
+		LIBAROMA_CANVASP dst,
+		int dx, int dy,
+		int sz,
+		byte alpha){
+	if (sz<2){
+		return 1;
+	}
+	int radius = sz/2;
+	int rad2	 = radius * radius;
+	int y;
+
+#ifdef LIBAROMA_CONFIG_OPENMP
+	#pragma omp parallel for
+#endif
+	for(y=-radius; y<=radius; y++){
+		int pdy = dy + y;
+		if ((pdy<dst->h)&&(pdy>=0)){
+			int pos_d = pdy * dst->l;
+			int x	 = sqrt(rad2-y*y);
+			int w	 = x*2;
+			if (dx-x<0){
+				w-=abs(dx-x);
+				x=dx;
+			}
+			int pdx = dx-x;
+			if (pdx+w>dst->w){
+				w=dst->w-pdx;
+			}
+			if (w>0){
+				int curx =pos_d + pdx;
+				int j;
+				for (j=0; j<w; j++){
+					dst->alpha[curx+j]=alpha;
+				}
+			}
+		}
+	}
+	return 1;
+} /* End of libaroma_draw_alpha_circle */
+
+/*
  * Function		: libaroma_draw_line_width
  * Return Value: byte
  * Descriptions: draw line with width

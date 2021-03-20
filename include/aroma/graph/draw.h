@@ -68,9 +68,9 @@ byte libaroma_draw_limited(
  * Descriptions: draw masked circle
  */
 byte libaroma_draw_mask_circle(
-		LIBAROMA_CANVASP dst, 
+		LIBAROMA_CANVASP dst,
 		LIBAROMA_CANVASP src,
-		int dx, int dy, 
+		int dx, int dy,
 		int sx, int sy,
 		int sz,
 		byte alpha);
@@ -81,12 +81,23 @@ byte libaroma_draw_mask_circle(
  * Descriptions: draw filled circle
  */
 byte libaroma_draw_circle(
-		LIBAROMA_CANVASP dst, 
+		LIBAROMA_CANVASP dst,
 		word color,
 		int dx, int dy,
 		int sz,
 		byte alpha);
-		
+
+/*
+ * Function		: libaroma_draw_alpha_circle
+ * Return Value: byte
+ * Descriptions: draw alpha-filled circle
+ */
+byte libaroma_draw_alpha_circle(
+		LIBAROMA_CANVASP dst,
+		int dx, int dy,
+		int sz,
+		byte alpha);
+
 /*
  * Function		: libaroma_draw_ex2
  * Return Value: byte
@@ -204,7 +215,7 @@ byte libaroma_draw_alphapixel(
 		int dx, int dy,
 		byte alpha
 	);
-	
+
 /*
  * Function		: libaroma_draw_line
  * Return Value: byte
@@ -255,7 +266,7 @@ byte libaroma_draw_arc(
 	float start_angle, float end_angle,
 	word color,byte alpha,byte is_mask,float aliasing
 );
-	
+
 /* libaroma_draw_ex1 aliases */
 #define libaroma_draw_mask(dst,src,dx,dy,cl,op) \
 	libaroma_draw_ex2(dst,src,dx,dy,0,0,src->w,src->h,1,op,1,cl)
@@ -272,7 +283,7 @@ byte libaroma_draw_arc(
 
 /* libaroma_gradient_ex1 aliases */
 #define libaroma_gradient_ex(dst,x,y,w,h,sc,ec,rs,rf,sa,ea) \
-	libaroma_gradient_ex1(dst,x,y,w,h,sc,ec,rs,rf,sa,ea,0)		
+	libaroma_gradient_ex1(dst,x,y,w,h,sc,ec,rs,rf,sa,ea,0)
 #define libaroma_gradient(dst,x,y,w,h,sc,ec,rs,rf) \
 	libaroma_gradient_ex(dst,x,y,w,h,sc,ec,rs,rf,0xff,0xff)
 #define libaroma_grad(dst,x,y,w,h,sc,ec) \
@@ -331,7 +342,7 @@ void libaroma_path_curve_calc(
 	float x1, float y1,
 	float x2, float y2,
 	float x3, float y3);
-	
+
 /*
  * Function		: libaroma_path_curve
  * Return Value: byte
