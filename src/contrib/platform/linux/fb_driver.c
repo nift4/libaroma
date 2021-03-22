@@ -213,7 +213,7 @@ byte LINUXDRM_post(
 			"sstride: %d\ndstride: %d (zero is fine)",
 			sstride, dstride);*/
 	aroma_minui_flip();
-	libaroma_sleep(12);
+	//libaroma_sleep(12);
 	return 1;
 }
 
@@ -672,7 +672,9 @@ void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
  * Descriptions: init function for libaroma fb
  */
 byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
-	return LINUXFBDR_init(me);
+	byte ret=LINUXDRM_init(me);
+	if (!ret) ret=LINUXFBDR_init(me);
+	return ret;
 } /* End of libaroma_fb_driver_init */
 
 #ifdef __cplusplus

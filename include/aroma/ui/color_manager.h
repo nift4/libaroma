@@ -47,4 +47,6 @@ byte libaroma_colorset(LIBAROMA_COLORSETP colorset, byte type);
 LIBAROMA_COLORSETP libaroma_colorget(
 	LIBAROMA_CONTROLP ctl, LIBAROMA_WINDOWP win);
 
+extern void LINUXDRM_setrgbpos(LIBAROMA_FBP me, byte r, byte g, byte b);
+
 #endif /* __libaroma_color_manager_h__ */
