@@ -18,10 +18,10 @@ adb push ../../examples/$1/zip/res.zip /tmp/
 #adb wait-for-recovery
 adb shell chmod 755 /tmp/$1
 #adb wait-for-recovery
-adb shell killall -19 recovery
+adb shell pkill -19 recovery
 #adb wait-for-recovery
 adb shell /tmp/$1 0 0 /tmp/res.zip
 #adb wait-for-recovery
-adb shell killall -18 recovery
+adb shell pkill -18 recovery
 # trap
 cd $olddir
