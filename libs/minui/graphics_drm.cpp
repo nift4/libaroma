@@ -390,6 +390,7 @@ GRSurface* MinuiBackendDrm::Flip() {
 
     drmEventContext evctx = {
       .version = DRM_EVENT_CONTEXT_VERSION,
+      .vblank_handler = nullptr, //needed because of stupid g++ requirements
       .page_flip_handler = page_flip_complete
     };
 
