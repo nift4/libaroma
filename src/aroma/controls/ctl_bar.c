@@ -78,7 +78,6 @@ struct __LIBAROMA_CTL_BAR{
 	LIBAROMA_CANVASP icon;
 	byte icon_flags;
 	byte icon_ismask;
-	int icon_y;
 	word menu_id;
 	byte title_touchable;
 
@@ -384,7 +383,6 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 	libaroma_canvas_setcolor(me->tdc, me->bgcolor, 0xff);
 
 	me->title_x = libaroma_dp(16);
-
 	if ((me->icon)||(me->icon_flags)){
 		if (me->icon){
 			/* draw main icon */
@@ -411,7 +409,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 				libaroma_art_arrowdrawer(
 					me->tdc,1,0,
 					libaroma_dp(16),
-					/*libaroma_dp(16)*/me->icon_y,
+					libaroma_dp(16),
 					libaroma_dp(24),
 					me->itemcolor,
 					0xff, 0, 0.5
@@ -422,7 +420,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 				libaroma_art_arrowdrawer(
 					me->tdc,1,1,
 					libaroma_dp(16),
-					/*libaroma_dp(16)*/me->icon_y,
+					libaroma_dp(16),
 					libaroma_dp(24),
 					me->itemcolor,
 					0xff, 0, 0.5
@@ -437,7 +435,7 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 	if (me->menu_id){
 		tools_r+=libaroma_dp(37);
 		LIBAROMA_CANVASP menu_ic = libaroma_canvas_area(
-			me->tdc, (ctl->w-tools_r)+libaroma_dp(13), /*libaroma_dp(16)*/me->icon_y,
+			me->tdc, (ctl->w-tools_r)+libaroma_dp(13), libaroma_dp(16),
 			libaroma_dp(12), libaroma_dp(24)
 		);
 		if (menu_ic){
@@ -508,13 +506,13 @@ void _libaroma_ctl_bar_internal_draw(LIBAROMA_CONTROLP ctl){
 					if(me->icon_ismask){
 						libaroma_draw_mask(
 							me->tdc, ic,
-							x, /*libaroma_dp(16)*/me->icon_y,
+							x, libaroma_dp(16),
 							me->itemcolor, 0xff
 						);
 					}
 					else{
 						libaroma_draw(
-							me->tdc, ic, x, /*libaroma_dp(16)*/me->icon_y, 1
+							me->tdc, ic, x, libaroma_dp(16), 1
 						);
 					}
 				}
@@ -732,14 +730,14 @@ void _libaroma_ctl_bar_draw(
 					if (me->icon_flags==LIBAROMA_CTL_BAR_ICON_DRAWER_TO_ARROW){
 						libaroma_draw_rect(
 							c,
-							libaroma_dp(16), /*libaroma_dp(16)*/me->icon_y,
+							libaroma_dp(16), libaroma_dp(16),
 							libaroma_dp(24),libaroma_dp(24),
 							c->data[0], 0xff
 						);
 						libaroma_art_arrowdrawer(
 							c,xstate,0,
 							libaroma_dp(16),
-							/*libaroma_dp(16)*/me->icon_y,
+							libaroma_dp(16),
 							libaroma_dp(24),
 							me->itemcolor,
 							0xff, 0, 0.5
@@ -748,14 +746,14 @@ void _libaroma_ctl_bar_draw(
 					else if (me->icon_flags==LIBAROMA_CTL_BAR_ICON_ARROW_TO_DRAWER){
 						libaroma_draw_rect(
 							c,
-							libaroma_dp(16), /*libaroma_dp(16)*/me->icon_y,
+							libaroma_dp(16), libaroma_dp(16),
 							libaroma_dp(24),libaroma_dp(24),
 							c->data[0], 0xff
 						);
 						libaroma_art_arrowdrawer(
 							c,xstate,1,
 							libaroma_dp(16),
-							/*libaroma_dp(16)*/me->icon_y,
+							libaroma_dp(16),
 							libaroma_dp(24),
 							me->itemcolor,
 							0xff, 0, 0.5
@@ -769,14 +767,14 @@ void _libaroma_ctl_bar_draw(
 							libaroma_canvas_setcolor(crc,c->data[0],0);
 							if (me->icon_flags==LIBAROMA_CTL_BAR_ICON_DRAWER){
 								libaroma_art_arrowdrawer(
-									crc,1,1,libaroma_dp(16),/*libaroma_dp(16)*/me->icon_y,libaroma_dp(24),
+									crc,1,1,libaroma_dp(16),libaroma_dp(16),libaroma_dp(24),
 									me->itemcolor,
 									0xff, 0, 0.5
 								);
 							}
 							else if (me->icon_flags==LIBAROMA_CTL_BAR_ICON_ARROW){
 								libaroma_art_arrowdrawer(
-									crc,1,0,libaroma_dp(16),/*libaroma_dp(16)*/me->icon_y,libaroma_dp(24),
+									crc,1,0,libaroma_dp(16),libaroma_dp(16),libaroma_dp(24),
 									me->itemcolor,
 									0xff, 0, 0.5
 								);
@@ -806,7 +804,7 @@ void _libaroma_ctl_bar_draw(
 							libaroma_art_arrowdrawer(
 								me->dc,1,0,
 								libaroma_dp(16),
-								/*libaroma_dp(16)*/me->icon_y,
+								libaroma_dp(16),
 								libaroma_dp(24),
 								me->itemcolor,
 								0xff, 0, 0.5
@@ -817,7 +815,7 @@ void _libaroma_ctl_bar_draw(
 							libaroma_art_arrowdrawer(
 								me->dc,1,1,
 								libaroma_dp(16),
-								/*libaroma_dp(16)*/me->icon_y,
+								libaroma_dp(16),
 								libaroma_dp(24),
 								me->itemcolor,
 								0xff, 0, 0.5
@@ -1197,7 +1195,6 @@ LIBAROMA_CONTROLP libaroma_ctl_bar(
 	}
 	me->text_gap = 60;
 	me->bgcolor = bgcolor;
-	me->icon_y=(h-libaroma_dp(24))/2;
 	win->appbar_bg = bgcolor;
 	me->selcolor = selcolor;
 
@@ -1206,7 +1203,7 @@ LIBAROMA_CONTROLP libaroma_ctl_bar(
 		libaroma_control_new(
 			id,
 			x, y, w, h,
-			libaroma_dp(48),libaroma_dp(48), /* min size */
+			libaroma_dp(48),libaroma_dp(56), /* min size */
 			(voidp) me,
 			&_libaroma_ctl_bar_handler,
 			win
