@@ -73,6 +73,14 @@ static inline void LINUXHIDRV_pointer_set_y(LIBAROMA_HIDP me,int y){
 	}
 }
 
+int LINUXHIDRV_get_mouse_x(){
+	return LINUXHIDRV_pointer_current_x;
+}
+
+int LINUXHIDRV_get_mouse_y(){
+	return LINUXHIDRV_pointer_current_y;
+}
+
 /*
  * function : translate raw pointer data
  */
@@ -88,12 +96,14 @@ byte LINUXHIDRV_translate_pointer(LIBAROMA_HIDP me, LINUXHIDRV_DEVICEP dev,
 			case REL_X:
 				{
 					LINUXHIDRV_pointer_set_x(me,ev->value);
+					ALOGI("REL_X RECEIVED WITH NEW COORDS X=%d, Y=%d", LINUXHIDRV_get_mouse_x(), LINUXHIDRV_get_mouse_y());
 					send_msg=1;
 				}
 				break;
 			case REL_Y:
 				{
 					LINUXHIDRV_pointer_set_y(me,ev->value);
+					ALOGI("REL_Y RECEIVED WITH NEW COORDS X=%d, Y=%d", LINUXHIDRV_get_mouse_x(), LINUXHIDRV_get_mouse_y());
 					send_msg=1;
 				}
 				break;
