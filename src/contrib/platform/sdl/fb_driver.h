@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include "SDL.h"
+#include <SDL/SDL.h>
 
 #include <aroma_internal.h>
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -40,7 +40,7 @@
 
 typedef struct _SDLFBDR_INTERNAL SDLFBDR_INTERNAL;
 typedef struct _SDLFBDR_INTERNAL * SDLFBDR_INTERNALP;
-						
+
 /*
  * structure : internal framebuffer data
  */
@@ -53,7 +53,7 @@ struct _SDLFBDR_INTERNAL{
 	byte			depth;											/* color depth */
 	byte			pixsz;											/* memory size per pixel */
 	byte			rgb_pos[6];								 /* framebuffer 32bit rgb position */
-	
+
 	LIBAROMA_MUTEX	mutex;
 };
 

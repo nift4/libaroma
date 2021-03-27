@@ -42,27 +42,17 @@
 
 /* X86 32bit */
 #if defined(__i386) || defined(_M_IX86)
-	#include "contrib/x86/i386.h"
 	#include "contrib/x86_sse/x86_sse.h"
-#endif
-
-/* Android */
-#if 0
-	#ifdef LIBAROMA_CONFIG_SHMEM_PREFIX
-		#undef LIBAROMA_CONFIG_SHMEM_PREFIX
-	#endif
-	/* android wrapper for shm_* */
-	#define LIBAROMA_CONFIG_SHMEM_PREFIX "/tmp/.libaromashm-"
-	#define shm_open open
-	#define shm_unlink unlink
 #endif
 
 /*
  * platform flags
  */
-#define LIBAROMA_PLATFORM_HAS_SHMEM	1
-#define LIBAROMA_PLATFORM_HAS_MMAP	 1
-#define LIBAROMA_PLATFORM_HAS_FD		 1
+#ifdef LIBAROMA_PLATFORM_HAS_SHMEM
+# undef LIBAROMA_PLATFORM_HAS_SHMEM
+#endif
+#define LIBAROMA_PLATFORM_HAS_MMAP	1
+#define LIBAROMA_PLATFORM_HAS_FD	1
 #define LIBAROMA_CONFIG_OS "SDL"
 
 /*

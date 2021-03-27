@@ -27,7 +27,8 @@
 
 /*
  * UNIVERSAL DEVICE - INPUT DRIVER
- *	 Using Linux Input Device for Android & Linux
+ *	 Using SDL Input driver
+ *   TODO: rename LINUXHIDRV with SDLHIDRV
  *	 Prefix : LINUXHIDRV_
  */
 
@@ -40,7 +41,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
-#include "SDL.h"
+#include <SDL/SDL.h>
 
 /*
  * structure : internal driver data
@@ -73,10 +74,10 @@ byte LINUXHIDRV_init(
 	/* allocating internal data */
 	LINUXHIDRV_INTERNALP mi = (LINUXHIDRV_INTERNALP)
 		calloc(sizeof(LINUXHIDRV_INTERNAL),1);
-		
+
 	/* set internal address */
 	me->internal = (voidp) mi;
-		
+
 	/* set driver callbacks */
 	me->release		= &LINUXHIDRV_release;
 	me->getinput	 = &LINUXHIDRV_getinput;
@@ -143,7 +144,7 @@ byte LINUXHIDRV_getinput(
 		}
 	}
 	while (me->internal != NULL);
-	
+
 	/* it was exit message */
 	ALOGV("LINUXHIDRV_getinput Input Driver Already Released");
 	return LIBAROMA_HID_EV_RET_EXIT;

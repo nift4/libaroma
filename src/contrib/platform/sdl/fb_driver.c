@@ -70,12 +70,12 @@ byte SDLFBDR_post(
 		return 0;
 	}
 	SDLFBDR_INTERNALP mi = (SDLFBDR_INTERNALP) me->internal;
-	
+
 	int sstride = (sw - dw) * 2;
 	int dstride = (mi->line - (dw * mi->pixsz));
 	wordp copy_dst =
 		(wordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
-	wordp copy_src = 
+	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	libaroma_blt_align16(
 		copy_dst,
@@ -94,7 +94,7 @@ byte SDLFBDR_post(
  */
 byte SDLFBDR_init(LIBAROMA_FBP me) {
 	ALOGV("SDLFBDR initialized internal data");
-	
+
 	/* allocating internal data */
 	SDLFBDR_INTERNALP mi = (SDLFBDR_INTERNALP)
 											calloc(sizeof(SDLFBDR_INTERNAL),1);
@@ -107,19 +107,24 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 		ALOGE("Couldn't init SDL: %s", SDL_GetError());
 		return 0;
 	}
-	
+
 	/* set internal address */
 	me->internal = (voidp) mi;
-	
+
+	/* set the title bar */
+	SDL_WM_SetCaption("Libaroma", "Libaroma");
+
 	/* set release callback */
 	me->release = &SDLFBDR_release;
-	
+
 	/* init mutex & cond */
 	libaroma_mutex_init(mi->mutex);
 
-	mi->window = SDL_SetVideoMode(360, 600, 16, SDL_HWSURFACE);
-	if(!mi->window)
-		mi->window = SDL_SetVideoMode (360, 600, 16, SDL_SWSURFACE);
+	mi->window = SDL_SetVideoMode(1280, 720, 16, SDL_HWSURFACE);
+	if(!mi->window){
+		ALOGE("SDLFBDR could not create SDL hardware surface");
+		mi->window = SDL_SetVideoMode (1280, 720, 16, SDL_SWSURFACE);
+	}
 	if(!mi->window) {
 		ALOGE("SDLFBDR could not create SDL surface");
 		goto error;
@@ -129,23 +134,23 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 	me->w = mi->window->w;		/* width */
 	me->h = mi->window->h;		/* height */
 	me->sz = me->w * me->h;	 /* width x height */
-	
+
 	/* set internal useful data */
 	mi->buffer		= mi->window->pixels;
 	mi->depth		 = mi->window->format->BitsPerPixel;
 	mi->pixsz		 = mi->depth >> 3;
 	mi->line			= me->w * mi->pixsz;
 	mi->fb_sz		 = (me->w * me->h * mi->pixsz);
-	
+
 	/* swap buffer now */
 	SDLFBDR_flush(me);
- 
+
 	mi->stride = mi->line - (me->w * mi->pixsz);
 	me->start_post	= &SDLFBDR_start_post;
 	me->end_post		= &SDLFBDR_end_post;
 	me->post				= &SDLFBDR_post;
 	me->snapshoot	 = NULL;
-	
+
 	/* ok */
 	goto ok;
 	/* return */
@@ -169,12 +174,12 @@ void SDLFBDR_release(LIBAROMA_FBP me) {
 	if (mi==NULL){
 		return;
 	}
-	
+
 	SDL_Quit();
-	
+
 	/* destroy mutex & cond */
 	libaroma_mutex_free(mi->mutex);
-	
+
 	/* free internal data */
 	ALOGV("SDLFBDR free internal data");
 	free(me->internal);
@@ -190,7 +195,7 @@ byte SDLFBDR_flush(LIBAROMA_FBP me) {
 		return 0;
 	}
 	SDLFBDR_INTERNALP mi = (SDLFBDR_INTERNALP) me->internal;
-	
+
 	// fsync(mi->fb);
 	SDL_Flip(mi->window);
 
