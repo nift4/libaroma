@@ -51,28 +51,28 @@ extern "C" {
 	#include "contrib/x86_sse/x86_sse.h"
 #endif
 
+#ifdef LIBAROMA_CONFIG_SHMEM_PREFIX
+	#undef LIBAROMA_CONFIG_SHMEM_PREFIX
+#endif
+/* android wrapper for shm_* */
+#define LIBAROMA_CONFIG_SHMEM_PREFIX "/tmp/.libaromashm-"
+#define shm_open open
+#define shm_unlink unlink
+
 /* Android */
 #if ANDROID
-	#ifdef LIBAROMA_CONFIG_SHMEM_PREFIX
-		#undef LIBAROMA_CONFIG_SHMEM_PREFIX
-	#endif
-	/* android wrapper for shm_* */
-	#define LIBAROMA_CONFIG_SHMEM_PREFIX "/tmp/.libaromashm-"
-	#define shm_open open
-	#define shm_unlink unlink
-
-#define LIBAROMA_CONFIG_OS "linux/android"
+# define LIBAROMA_CONFIG_OS "linux/android"
 #else
-
-#define LIBAROMA_CONFIG_OS "linux/gnu"
+# define LIBAROMA_CONFIG_OS "linux/gnu"
 #endif
 
 /*
  * platform flags
  */
+
 #define LIBAROMA_PLATFORM_HAS_SHMEM	1
-#define LIBAROMA_PLATFORM_HAS_MMAP	 1
-#define LIBAROMA_PLATFORM_HAS_FD		 1
+#define LIBAROMA_PLATFORM_HAS_MMAP	1
+#define LIBAROMA_PLATFORM_HAS_FD	1
 
 /*
  * common platform wrapper
@@ -173,6 +173,12 @@ static inline long libaroma_tick(){
 int libaroma_filesize(const char * filename);
 int libaroma_filesize_fd(int fd);
 byte libaroma_file_exists(const char * filename);
+
+/*
+ * Pointer coords (if available)
+ */
+extern int LINUXHIDRV_get_mouse_x();
+extern int LINUXHIDRV_get_mouse_y();
 
 #ifdef __cplusplus
 }
