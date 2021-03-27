@@ -1,4 +1,10 @@
 #!/bin/sh
+
+if [ $LIBAROMA_BUILD_MINUI != 1 ]; then
+	echo No need to build minui
+	exit
+fi
+
 mkdir -p ../obj/minui
 cd ../obj/minui
 

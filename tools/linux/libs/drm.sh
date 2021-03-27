@@ -1,3 +1,10 @@
+#!/bin/sh
+
+if [ $LIBAROMA_BUILD_DRM != 1 ]; then
+	echo No need to build libdrm
+	exit
+fi
+
 mkdir -p ../obj/drm
 cd ../obj/drm
 

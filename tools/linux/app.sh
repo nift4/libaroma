@@ -9,10 +9,9 @@ cd $scriptdir/libaroma
 
 echo Building $1
 $LIBAROMA_GCC \
-  -static \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
-  -fPIC -DPIC -w -s \
+  -fPIC -DPIC \
   \
     $LIBAROMA_CFLAGS \
   \
@@ -22,12 +21,12 @@ $LIBAROMA_GCC \
     -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
     -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
   \
-    ../obj/drm/*.o \
+    $LIBAROMA_DRM_OBJ \
     ../obj/freetype/*.o \
     ../obj/hb/*.o \
     ../obj/hbucdn/*.o \
-    ../obj/jpeg/*.o \
-    ../obj/minui/*.o \
+    $LIBAROMA_JPEG_OBJ \
+    $LIBAROMA_MINUI_OBJ \
     ../obj/minzip/*.o \
     ../obj/png/*.o \
     ../obj/zlib/*.o \
@@ -39,8 +38,5 @@ $LIBAROMA_GCC \
   -I../../../src \
   -o ../bin/$1 \
   \
-  -lm -lpthread -lstdc++ -lrt
+  -lm -lpthread -lstdc++ -lrt $LIBAROMA_ADDITIONAL_LIBS
 cd $olddir
-
-# -L../../../libs/minui
-# -lminui

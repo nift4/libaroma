@@ -10,8 +10,9 @@ rm -rf libaroma
 mkdir -p libaroma
 cd libaroma
 
+# build minui wrapper if going to target linux
+if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
 echo Building aroma minui wrapper
-
 $LIBAROMA_GCC -c \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -lstdc++ \
@@ -19,14 +20,15 @@ $LIBAROMA_GCC -c \
  \
   $LIBAROMA_CFLAGS \
  \
-  ../../../src/contrib/platform/linux/aroma_minui.cpp \
+  ../../../src/contrib/platform/$LIBAROMA_PLATFORM/aroma_minui.cpp \
   -I../../../libs/minui \
-  -I../../../src/contrib/platform/linux/include
+  -I../../../src/contrib/platform/$LIBAROMA_PLATFORM/include
+fi
 
 echo Building libaroma
 $LIBAROMA_GCC -c \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
-  -lstdc++ -Wl,s \
+  -lstdc++ \
   -fPIC -DPIC \
  \
   $LIBAROMA_CFLAGS \
@@ -36,11 +38,9 @@ $LIBAROMA_GCC -c \
   -DLIBAROMA_CONFIG_DEBUG_MEMORY=$LIBAROMA_CONFIG_DEBUG_MEMORY \
   -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
   -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
-  -DANDROID=1 -D__ANDROID__ \
  \
-  ../../../src/contrib/platform/linux/fb_driver.c \
-  ../../../src/contrib/platform/linux/hid_driver.c \
-  ../../../src/contrib/platform/linux/platform.c \
+  $LIBAROMA_ARCH_OPTIMIZATIONS \
+  ../../../src/contrib/platform/$LIBAROMA_PLATFORM/*.c \
  \
   ../../../src/aroma/aroma.c \
   ../../../src/aroma/version.c \
@@ -55,7 +55,7 @@ $LIBAROMA_GCC -c \
   ../../../src/aroma/controls/listitem/*.c \
  \
   -I../../../include \
-  -I../../../src/contrib/platform/linux/include \
+  -I../../../src/contrib/platform/$LIBAROMA_PLATFORM/include \
   -I../../../src \
   -I../../../libs/zlib/src \
   -I../../../libs/freetype/builds \
