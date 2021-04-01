@@ -380,8 +380,9 @@ void _libaroma_ctl_pager_draw(
 										me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH){
 										//calculate scaled height/y
 										if (c->w>c->h)
+											scr_ratio=((float)c->h/(float)c->w);
+										else
 											scr_ratio=((float)c->w/(float)c->h);
-										else scr_ratio=((float)c->h/(float)c->w);
 										if (me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STACKIN){
 											//if animation is stackin, only right side is scaled
 											//(and changing the values below doesn't matter as they're unused)
@@ -421,7 +422,6 @@ void _libaroma_ctl_pager_draw(
 										byte bbstate = (byte) round(bstate);
 										//after that, scale into temp canvas
 										if (scr_rw<=0 || scr_rh <=0) break;
-										ALOGI("Drawing scaled cv, w=%d & h=%d", scr_rw, scr_rh);
 										LIBAROMA_CANVASP temp_cv=libaroma_canvas(scr_rw, scr_rh);
 										libaroma_draw_scale_nearest(
 											temp_cv,	//dest
@@ -435,7 +435,6 @@ void _libaroma_ctl_pager_draw(
 											c->w,		//srcw
 											c->h		//srch
 										);
-										ALOGI("Drawing temp cv into main");
 										//then draw scaled canvas into target, but use opacity
 										libaroma_draw_ex(
 											c,			//dest
@@ -449,7 +448,6 @@ void _libaroma_ctl_pager_draw(
 											0,			//usealpha
 											bbstate		//opacity
 										);
-										ALOGI("Freeing temp cv");
 										//finally free temp canvas
 										libaroma_canvas_free(temp_cv);
 									}
@@ -504,8 +502,9 @@ void _libaroma_ctl_pager_draw(
 									int scr_lh=c->h, scr_ly=0, scr_rh=c->h, scr_ry=0;
 									float scr_ratio;
 									if (c->w>c->h)
+										scr_ratio=((float)c->h/(float)c->w);
+									else
 										scr_ratio=((float)c->w/(float)c->h);
-									else scr_ratio=((float)c->h/(float)c->w);
 									scr_lh=scr_lw*scr_ratio;
 									scr_ly=(c->h-scr_lh)/2;
 									scr_rh=scr_rw*scr_ratio;
