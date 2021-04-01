@@ -65,6 +65,8 @@ typedef struct{
 	byte multicore_init_num;
 	color_handler custom_color_handler;
 	byte runtime_monitor;
+	int sdl_wm_width; //startup width for SDL window
+	int sdl_wm_height;//startup height for SDL window
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 
 /*
@@ -73,6 +75,13 @@ typedef struct{
  * Descriptions: get runtime config
  */
 LIBAROMA_CONFIGP libaroma_config();
+
+/*
+ * Function		: libaroma_sdl_startup_size
+ * Return Value: void
+ * Descriptions: set startup width/height for SDL window
+ */
+void libaroma_sdl_startup_size(int width, int height);
 
 /*
  * Function		: libaroma_info

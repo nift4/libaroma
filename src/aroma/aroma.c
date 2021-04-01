@@ -89,9 +89,20 @@ void _libaroma_config_default() {
 	_libaroma_config.multicore_init_num = 8; /* activate core */
 	_libaroma_config.snapshoot_fb = 1; /* snapshoot after graph init */
 	_libaroma_config.runtime_monitor = LIBAROMA_START_UNSAFE;
+	if (_libaroma_config.sdl_wm_width==NULL) _libaroma_config.sdl_wm_width=360;
+	if (_libaroma_config.sdl_wm_height==NULL) _libaroma_config.sdl_wm_height=600;
 	_libaroma_config_ready = 1;
 } /* End of libaroma_config_default */
 
+/*
+ * Function		: libaroma_startup_size
+ * Return Value: void
+ * Descriptions: set startup width/height for SDL window
+ */
+void libaroma_sdl_startup_size(int width, int height){
+	_libaroma_config.sdl_wm_width=width;
+	_libaroma_config.sdl_wm_height=height;
+}
 /*
  * Function		: libaroma_debug_output
  * Return Value: FILE *

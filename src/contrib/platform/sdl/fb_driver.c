@@ -120,10 +120,10 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 	/* init mutex & cond */
 	libaroma_mutex_init(mi->mutex);
 
-	mi->window = SDL_SetVideoMode(1280, 720, 16, SDL_HWSURFACE);
+	mi->window = SDL_SetVideoMode(libaroma_config()->sdl_wm_width, libaroma_config()->sdl_wm_height, 16, SDL_HWSURFACE);
 	if(!mi->window){
 		ALOGE("SDLFBDR could not create SDL hardware surface");
-		mi->window = SDL_SetVideoMode (1280, 720, 16, SDL_SWSURFACE);
+		mi->window = SDL_SetVideoMode (libaroma_config()->sdl_wm_width, libaroma_config()->sdl_wm_height, 16, SDL_SWSURFACE);
 	}
 	if(!mi->window) {
 		ALOGE("SDLFBDR could not create SDL surface");
