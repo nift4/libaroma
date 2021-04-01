@@ -27,6 +27,15 @@
 #ifndef __libaroma_ctl_pager_h__
 #define __libaroma_ctl_pager_h__
 
+#define LIBAROMA_CTL_PAGER_ANIMATION_SLIDE			0x0
+#define LIBAROMA_CTL_PAGER_ANIMATION_SCALE			0x1
+#define LIBAROMA_CTL_PAGER_ANIMATION_STACKIN		0x2
+#define LIBAROMA_CTL_PAGER_ANIMATION_STACKOVER		0x3
+#define LIBAROMA_CTL_PAGER_ANIMATION_REVEAL			0x4
+#define LIBAROMA_CTL_PAGER_ANIMATION_STRETCH		0x5
+#define LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH	0x6
+#define LIBAROMA_CTL_PAGER_ANIMATION_CLEAN			0x7
+
 /* controller handler */
 typedef struct _LIBAROMA_CTL_PAGER_CONTROLLER_HANDLER{
 	void (*onscroll)(
@@ -37,7 +46,7 @@ typedef struct _LIBAROMA_CTL_PAGER_CONTROLLER_HANDLER{
 		int pw,
 		int target_page
 	);
-	
+
 	void (*onscroll_finish)(
 		LIBAROMA_CONTROLP controller,
 		LIBAROMA_CONTROLP pager,
@@ -94,8 +103,18 @@ int libaroma_ctl_pager_get_active_page(LIBAROMA_CONTROLP ctl);
  * Descriptions: set tab controller
  */
 byte libaroma_ctl_pager_set_controller(
-	LIBAROMA_CONTROLP ctl, 
+	LIBAROMA_CONTROLP ctl,
 	LIBAROMA_CTL_PAGER_CONTROLLERP controller);
+
+/*
+ * Function		: libaroma_ctl_pager_set_animation
+ * Return Value: byte
+ * Descriptions: set pager swipe animation
+ */
+byte libaroma_ctl_pager_set_animation(
+	LIBAROMA_CONTROLP ctl,
+	byte animation
+);
 
 /*
  * Function		: libaroma_ctl_pager_get_pages

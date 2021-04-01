@@ -3,6 +3,7 @@ extern "C" {
 #endif
 void bar_test(){
 
+	byte anim=LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE;
   LIBAROMA_WINDOWP win = libaroma_window(
     NULL, 0, 0, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL);
 
@@ -39,7 +40,7 @@ void bar_test(){
 
   LIBAROMA_CONTROLP button_exit = libaroma_ctl_button(
     win2, 5, pw, 0, pw, 60,
-    "Exit Libaroma", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED,
+    "Hold to Exit", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED,
     RGB(880000)
   );
 
@@ -53,8 +54,13 @@ void bar_test(){
     "Change App Bar Text Gap", LIBAROMA_CTL_BUTTON_RAISED, 0
   );
 
+  LIBAROMA_CONTROLP button_panim = libaroma_ctl_button(
+    win2, 8, pw, 180, pw, 60,
+    "Pager: slide", LIBAROMA_CTL_BUTTON_RAISED, 0
+  );
+
   LIBAROMA_CONTROLP button_2 = libaroma_ctl_button(
-    win2, 8, pw*2, 0, pw, 60,
+    win2, 9, pw*2, 0, pw, 60,
     "Second Button", LIBAROMA_CTL_BUTTON_COLORED|LIBAROMA_CTL_BUTTON_RAISED, RGB(008800)
   );
 
@@ -255,7 +261,7 @@ void bar_test(){
   */
   // libaroma_window_layer_init(win);
 
-  libaroma_window_anishow(win, LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_LEFT, 400);
+  libaroma_window_anishow(win, anim, 400);
 
 
 
@@ -266,6 +272,7 @@ void bar_test(){
 
   byte gap_wide = 1;
   int change_id=0;
+  int pager_anim=0;
   byte onpool=1;
   do{
     LIBAROMA_MSG msg;
@@ -288,6 +295,46 @@ void bar_test(){
           printf("Exit Button Pressed...\n");
           onpool = 0;
         }
+        else if (id==8){
+		  pager_anim--;
+		  if (pager_anim<0) pager_anim=7;
+		  byte panim;
+		  switch (pager_anim){
+			  case 0:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_SLIDE;
+			    libaroma_ctl_button_text(button_panim, "Pager: slide");
+				break;
+			  case 1:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH;
+			    libaroma_ctl_button_text(button_panim, "Pager: stretch");
+				break;
+			  case 2:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH;
+			    libaroma_ctl_button_text(button_panim, "Pager: stretch smooth");
+				break;
+			  case 3:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_CLEAN;
+			    libaroma_ctl_button_text(button_panim, "Pager: clean");
+				break;
+			  case 4:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_REVEAL;
+			    libaroma_ctl_button_text(button_panim, "Pager: reveal");
+				break;
+			  case 5:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_SCALE;
+			    libaroma_ctl_button_text(button_panim, "Pager: scale");
+				break;
+			  case 6:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STACKIN;
+			    libaroma_ctl_button_text(button_panim, "Pager: stack in");
+				break;
+			  case 7:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STACKOVER;
+			    libaroma_ctl_button_text(button_panim, "Pager: stack over");
+				break;
+		  }
+		  libaroma_ctl_pager_set_animation(pager, panim);
+		}
       }
       else if (cmd==1){
         if (id==1){
@@ -298,7 +345,51 @@ void bar_test(){
             );
           }
         }
+        else if (id==181){
+			//LINUXDRM_setrgbpos(libaroma_fb(), 0, 8, 16);
+		}
+        else if (id==182){
+			//LINUXDRM_setrgbpos(libaroma_fb(), 16, 8, 0);
+		}
         else if (id==8){
+		  pager_anim++;
+		  if (pager_anim>7) pager_anim=0;
+		  byte panim;
+		  switch (pager_anim){
+			  case 0:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_SLIDE;
+			    libaroma_ctl_button_text(button_panim, "Pager: slide");
+				break;
+			  case 1:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH;
+			    libaroma_ctl_button_text(button_panim, "Pager: stretch");
+				break;
+			  case 2:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH;
+			    libaroma_ctl_button_text(button_panim, "Pager: stretch smooth");
+				break;
+			  case 3:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_CLEAN;
+			    libaroma_ctl_button_text(button_panim, "Pager: clean");
+				break;
+			  case 4:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_REVEAL;
+			    libaroma_ctl_button_text(button_panim, "Pager: reveal");
+				break;
+			  case 5:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_SCALE;
+			    libaroma_ctl_button_text(button_panim, "Pager: scale");
+				break;
+			  case 6:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STACKIN;
+			    libaroma_ctl_button_text(button_panim, "Pager: stack in");
+				break;
+			  case 7:
+			    panim=LIBAROMA_CTL_PAGER_ANIMATION_STACKOVER;
+			    libaroma_ctl_button_text(button_panim, "Pager: stack over");
+				break;
+		  }
+		  libaroma_ctl_pager_set_animation(pager, panim);
         }
         else if (id==7){
           libaroma_ctl_bar_set_textgap(bar,gap_wide,1);
@@ -441,7 +532,7 @@ void bar_test(){
   libaroma_canvas_free(list_icon3);
 
   printf("Free Window\n");
-  libaroma_window_free(win);
+  libaroma_window_aniclose(win, anim, 500);
   printf("FREED\n");
 }
 

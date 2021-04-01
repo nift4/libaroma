@@ -69,25 +69,25 @@ LIBAROMA_STREAMP recovery_stream_uri_cb(char * uri){
  * Descriptions: init libaroma
  */
 void init_libaroma(){
-  /* set libaroma runtime configuration
-    snprintf(libaroma_config()->fb_shm_name,64,"recovery-mainfb");
-    libaroma_config()->runtime_monitor = LIBAROMA_START_UNSAFE;
-  */
+	/* set libaroma runtime configuration
+		snprintf(libaroma_config()->fb_shm_name,64,"recovery-mainfb");
+		libaroma_config()->runtime_monitor = LIBAROMA_START_UNSAFE;
+	*/
 
-  /*snprintf(libaroma_config()->fb_shm_name,64,"");*/
-  libaroma_config()->fb_shm_name[0]=0;
-  libaroma_start();
+	/*snprintf(libaroma_config()->fb_shm_name,64,"");*/
+	libaroma_config()->fb_shm_name[0]=0;
+	libaroma_start();
 
-  /* clean display */
-  libaroma_canvas_blank(libaroma_fb()->canvas);
-  libaroma_sync();
+	/* clean display */
+	//libaroma_canvas_blank(libaroma_fb()->canvas);
+	//libaroma_sync();
 
-  /* load font - id=0 */
-  libaroma_font(0,
-    libaroma_stream(
-      "file:///tmp/Roboto-Regular.ttf"
-    )
-  );
+	/* load font - id=0 */
+	libaroma_font(0,
+		libaroma_stream(
+			"res:///fonts/Roboto-Regular.ttf"
+		)
+	);
 } /* End of init_libaroma */
 
 /*
@@ -96,42 +96,42 @@ void init_libaroma(){
  * Descriptions: main executable function
  */
 int main(int argc, char **argv){
-  /* For recovery Apps:*/
-    int pp = getppid();
-    kill(pp, 19);
+	/* For recovery Apps:*/
+	printf("MLX: ARGC=%d\n", argc);
+	if (argc==4){
+		if (argv[2]!='0') //if parent pipe is zero, we're running from test environment (recovery.sh)
+			libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;
 
-  /*libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;*/
-
-	/* load zip resource */
-/*
-	if (argv[3]!=NULL){
-		printf("Loading zip from received path (%s)\n", argv[3]);
-		zip=libaroma_zip(argv[3]);
+		/* load zip resource */
+		if (argv[3]!=NULL){
+			printf("I/LIBAROMA(): Loading zip from %s\n", argv[3]);
+			zip=libaroma_zip(argv[3]);
+		}
+		if (zip==NULL)
+			zip=libaroma_zip("/tmp/test.zip");
+		if (zip==NULL) printf("E/LIBAROMA(): ZIP load failed\n");
+		else printf("I/LIBAROMA(): ZIP load succeeded\n");
+			/* init stream callback */
+		libaroma_stream_set_uri_callback(recovery_stream_uri_cb);
 	}
-	if (zip==NULL)
-		zip=libaroma_zip("/tmp/test.zip");
-	if (zip==NULL) printf("ZIP load failed\n");
-	else printf("ZIP load succeeded\n");*/
-		//if (zip==NULL)
-			//zip=libaroma_zip("/tmp/test.zip");
-		/* init stream callback */
-	libaroma_stream_set_uri_callback(recovery_stream_uri_cb);
-
-  init_libaroma();
+	init_libaroma();
 
   // tab_test();
+LIBAROMA_CANVASP cv=libaroma_canvas(48, 48);
+libaroma_art_arrowdrawer(cv, 0.5, 0, 8, 8, 32, RGB(FFFFFF), 0xFF, 0, 0.5);
+libaroma_png_save(cv, "/tmp/arrow.png");
+	bar_test();
 
-  bar_test();
+	/* start common test */
+	// common_test();
 
-  /* start common test */
-  // common_test();
+	/* end libaroma process */
+	libaroma_end();
+	system("setprop ctl.start recovery");
+	/* For recovery apps:*/
+	//kill(pp, 18);
 
-  /* end libaroma process */
-  libaroma_end();
-  /* For recovery apps:*/
-    kill(pp, 18);
-
-  return 0;
+	return 0;
 } /* End of main */
 #ifdef __cplusplus
 }

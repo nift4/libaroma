@@ -102,6 +102,9 @@ struct __LIBAROMA_CTL_PAGER{
 	byte allow_scroll;
 	int touch_x;
 	int touch_y;
+
+	byte swipe_anim;
+
 	long client_touch_start;
 	LIBAROMA_MSG pretouched_msg;
 	LIBAROMA_CONTROLP pretouched;
@@ -338,8 +341,237 @@ void _libaroma_ctl_pager_draw(
 	libaroma_mutex_lock(me->mutex);
 	if (!me->on_direct_canvas){
 		if (me->win->dc){
-			libaroma_draw_ex(c,me->win->dc,0,0,me->scroll_x,0,
-			c->w,c->h,0,0xff);
+			switch (me->swipe_anim){
+				case LIBAROMA_CTL_PAGER_ANIMATION_SCALE:
+				case LIBAROMA_CTL_PAGER_ANIMATION_STACKIN:
+				case LIBAROMA_CTL_PAGER_ANIMATION_STACKOVER:
+				case LIBAROMA_CTL_PAGER_ANIMATION_CLEAN:
+				case LIBAROMA_CTL_PAGER_ANIMATION_REVEAL:
+				case LIBAROMA_CTL_PAGER_ANIMATION_STRETCH:
+				case LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH:
+					{
+						int left_x,	//left page x
+							right_x,//right page x
+							scr_lx,	//screen_leftx, x to draw left page on screen
+							scr_lw,	//screen_leftwidth, width for left page on screen
+							scr_rx,	//screen_rightx, x to draw right page on screen
+							scr_rw;	//screen_rightwidth, width for right page on screen
+						int remain=me->scroll_x;
+						//int cur_page=0;
+						while (remain>=c->w) {
+							remain -= c->w;
+							//cur_page++;
+						}
+						left_x=me->scroll_x-remain;
+						right_x=left_x+c->w;
+						scr_lx=0;
+						scr_lw=c->w-remain;
+						scr_rx=scr_lw;
+						scr_rw=remain;
+						switch (me->swipe_anim){
+							case LIBAROMA_CTL_PAGER_ANIMATION_SCALE:
+							case LIBAROMA_CTL_PAGER_ANIMATION_STRETCH:
+							case LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH:
+							case LIBAROMA_CTL_PAGER_ANIMATION_STACKIN:
+								{
+									int scr_lh=c->h, scr_ly=0, scr_rh=c->h, scr_ry=0;
+									float scr_ratio;
+									if (me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH &&
+										me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH){
+										//calculate scaled height/y
+										if (c->w>c->h)
+											scr_ratio=((float)c->w/(float)c->h);
+										else scr_ratio=((float)c->h/(float)c->w);
+										if (me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STACKIN){
+											//if animation is stackin, only right side is scaled
+											//(and changing the values below doesn't matter as they're unused)
+											scr_lh=scr_lw*scr_ratio;
+											scr_ly=(c->h-scr_lh)/2;
+										}
+										scr_rh=scr_rw*scr_ratio;
+										scr_ry=(c->h-scr_rh)/2;
+										//fill with bgcolor/black
+										//libaroma_control_erasebg(ctl,c);
+										libaroma_canvas_setcolor(c, 0, 0xFF);
+									}
+									byte smooth=(me->swipe_anim==LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH)?1:0;
+									//draw left
+									if (me->swipe_anim==LIBAROMA_CTL_PAGER_ANIMATION_STACKIN){
+										libaroma_draw_ex(c, me->win->dc, 0, 0, left_x+remain, 0, c->w-remain, c->h, 0, 0xFF);
+									}
+									else {
+										libaroma_draw_scale(
+											c,			//dest
+											me->win->dc,//src
+											scr_lx,		//destx
+											scr_ly,		//desty
+											scr_lw,		//destw
+											scr_lh,		//desth
+											left_x,		//srcx
+											0,			//srcy
+											c->w,		//srcw
+											c->h,		//srch
+											smooth		//is smooth?
+										);
+									}
+									//draw right
+									if (me->swipe_anim==LIBAROMA_CTL_PAGER_ANIMATION_STACKIN){
+										//first get opacity
+										float bstate=(255.0 * ((float)scr_rw/(float)c->w));
+										byte bbstate = (byte) round(bstate);
+										//after that, scale into temp canvas
+										if (scr_rw<=0 || scr_rh <=0) break;
+										ALOGI("Drawing scaled cv, w=%d & h=%d", scr_rw, scr_rh);
+										LIBAROMA_CANVASP temp_cv=libaroma_canvas(scr_rw, scr_rh);
+										libaroma_draw_scale_nearest(
+											temp_cv,	//dest
+											me->win->dc,//src
+											0,			//destx
+											0,			//desty
+											temp_cv->w,	//destw
+											temp_cv->h,	//desth
+											right_x,	//srcx
+											0,			//srcy
+											c->w,		//srcw
+											c->h		//srch
+										);
+										ALOGI("Drawing temp cv into main");
+										//then draw scaled canvas into target, but use opacity
+										libaroma_draw_ex(
+											c,			//dest
+											temp_cv,	//src
+											scr_rx,		//destx
+											scr_ry,		//desty
+											0,			//srcx
+											0,			//srcy
+											temp_cv->w,	//srcw
+											temp_cv->h,	//srch
+											0,			//usealpha
+											bbstate		//opacity
+										);
+										ALOGI("Freeing temp cv");
+										//finally free temp canvas
+										libaroma_canvas_free(temp_cv);
+									}
+									else {
+										libaroma_draw_scale(
+											c,			//dest
+											me->win->dc,//src
+											scr_rx,		//destx
+											scr_ry,		//desty
+											scr_rw,		//destw
+											scr_rh,		//desth
+											right_x,	//srcx
+											0,			//srcy
+											c->w,		//srcw
+											c->h,		//srch
+											smooth		//is smooth?
+										);
+									}
+								}
+								break;
+							case LIBAROMA_CTL_PAGER_ANIMATION_CLEAN:
+								{
+									libaroma_draw_ex(
+										c, 			//dest
+										me->win->dc,//src
+										0, 			//destx
+										0,			//desty
+										left_x,		//srcx
+										0,			//srcy
+										scr_lw,		//srcw
+										c->h,		//srch
+										0,			//usealpha
+										0xff		//opacity
+									);
+									libaroma_draw_ex(
+										c, 			//dest
+										me->win->dc,//src
+										scr_lw,		//destx
+										0,			//desty
+										(right_x +
+											scr_lw),//srcx
+										0,			//srcy
+										scr_rw,		//srcw
+										c->h,		//srch
+										0,			//usealpha
+										0xff		//opacity
+									);
+								}
+								break;
+							case LIBAROMA_CTL_PAGER_ANIMATION_REVEAL:
+								{
+									int scr_lh=c->h, scr_ly=0, scr_rh=c->h, scr_ry=0;
+									float scr_ratio;
+									if (c->w>c->h)
+										scr_ratio=((float)c->w/(float)c->h);
+									else scr_ratio=((float)c->h/(float)c->w);
+									scr_lh=scr_lw*scr_ratio;
+									scr_ly=(c->h-scr_lh)/2;
+									scr_rh=scr_rw*scr_ratio;
+									scr_rx=(c->w-scr_rw)/2;
+									scr_ry=(c->h-scr_rh)/2;
+
+									libaroma_draw_ex(c, me->win->dc, 0, 0, left_x, 0, c->w, c->h, 0, 0xFF);
+									libaroma_draw_ex(
+										c, 			//dest
+										me->win->dc,//src
+										scr_rx,		//destx
+										scr_ry,		//desty
+										(right_x+
+											scr_rx),//srcx
+										scr_ry,		//srcy
+										scr_rw,		//srcw
+										scr_rh,		//srch
+										0,			//usealpha
+										0xff		//opacity
+									);
+								}
+								break;
+							case LIBAROMA_CTL_PAGER_ANIMATION_STACKOVER:
+								{
+									libaroma_draw_ex(c, me->win->dc, 0, 0, left_x, 0, c->w, c->h, 0, 0xFF);
+
+									libaroma_draw_ex(
+										c, 			//dest
+										me->win->dc,//src
+										scr_lw,		//destx
+										0,			//desty
+										right_x,	//srcx
+										0,			//srcy
+										scr_rw,		//srcw
+										c->h,		//srch
+										0,			//usealpha
+										0xff		//opacity
+									);
+								}
+								break;
+						}
+					}
+					break;
+				default:
+				case LIBAROMA_CTL_PAGER_ANIMATION_SLIDE:
+					{
+						libaroma_draw_ex(
+							c,				//dest
+							me->win->dc,	//src
+							0,				//destx
+							0,				//desty
+							me->scroll_x,	//srcx
+							0,				//srcy
+							c->w,			//srcw
+							c->h,			//srch
+							0,				//usealpha
+							0xff			//opacity (unused if usealpha==0)
+						);
+					}
+					break;
+				/*case :
+					{
+
+					}
+					break;*/
+			}
 		}
 		else{
 			/* just erase background */
@@ -969,7 +1201,25 @@ byte libaroma_ctl_pager_set_controller(
 	return 1;
 } /* End of libaroma_ctl_pager_set_controller */
 
+/*
+ * Function		: libaroma_ctl_pager_set_animation
+ * Return Value: byte
+ * Descriptions: set pager swipe animation
+ */
+byte libaroma_ctl_pager_set_animation(
+	LIBAROMA_CONTROLP ctl,
+	byte animation
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 0
+	);
+	libaroma_mutex_lock(me->mutex);
 
+	me->swipe_anim=animation;
+
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+}
 
 /*
  * Function		: libaroma_ctl_pager
@@ -1003,6 +1253,8 @@ LIBAROMA_CONTROLP libaroma_ctl_pager(
 	}
 	me->win->handler=&_libaroma_ctl_pager_win_handler;
 	me->win->parent=win;
+
+	me->swipe_anim=LIBAROMA_CTL_PAGER_ANIMATION_SLIDE;
 
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
