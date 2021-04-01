@@ -67,6 +67,7 @@ typedef struct{
 	byte runtime_monitor;
 	int sdl_wm_width; //startup width for SDL window
 	int sdl_wm_height;//startup height for SDL window
+	char *sdl_wm_title;
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 
 /*
@@ -82,6 +83,13 @@ LIBAROMA_CONFIGP libaroma_config();
  * Descriptions: set startup width/height for SDL window
  */
 void libaroma_sdl_startup_size(int width, int height);
+
+/*
+ * Function		: libaroma_sdl_window_title
+ * Return Value: void
+ * Descriptions: set startup title for SDL window
+ */
+void libaroma_sdl_window_title(char *title);
 
 /*
  * Function		: libaroma_info

@@ -91,6 +91,7 @@ void _libaroma_config_default() {
 	_libaroma_config.runtime_monitor = LIBAROMA_START_UNSAFE;
 	if (_libaroma_config.sdl_wm_width==NULL) _libaroma_config.sdl_wm_width=360;
 	if (_libaroma_config.sdl_wm_height==NULL) _libaroma_config.sdl_wm_height=600;
+	if (_libaroma_config.sdl_wm_title==NULL) _libaroma_config.sdl_wm_title="Libaroma";
 	_libaroma_config_ready = 1;
 } /* End of libaroma_config_default */
 
@@ -103,6 +104,16 @@ void libaroma_sdl_startup_size(int width, int height){
 	_libaroma_config.sdl_wm_width=width;
 	_libaroma_config.sdl_wm_height=height;
 }
+
+/*
+ * Function		: libaroma_sdl_window_title
+ * Return Value: void
+ * Descriptions: set startup title for SDL window
+ */
+void libaroma_sdl_window_title(char *title){
+	_libaroma_config.sdl_wm_title=title;
+}
+
 /*
  * Function		: libaroma_debug_output
  * Return Value: FILE *

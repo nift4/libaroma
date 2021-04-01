@@ -112,7 +112,7 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 	me->internal = (voidp) mi;
 
 	/* set the title bar */
-	SDL_WM_SetCaption("Libaroma", "Libaroma");
+	SDL_WM_SetCaption(libaroma_config()->sdl_wm_title, libaroma_config()->sdl_wm_title);
 
 	/* set release callback */
 	me->release = &SDLFBDR_release;
