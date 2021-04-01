@@ -555,7 +555,7 @@ void _libaroma_ctl_pager_draw(
 							c->w,			//srcw
 							c->h,			//srch
 							0,				//usealpha
-							0xff			//opacity (unused if usealpha==0)
+							0xff			//opacity
 						);
 					}
 					break;
