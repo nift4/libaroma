@@ -379,10 +379,7 @@ void _libaroma_ctl_pager_draw(
 									if (me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH &&
 										me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STRETCH_SMOOTH){
 										//calculate scaled height/y
-										if (c->w>c->h)
-											scr_ratio=((float)c->h/(float)c->w);
-										else
-											scr_ratio=((float)c->w/(float)c->h);
+										scr_ratio=((float)c->h/(float)c->w);
 										if (me->swipe_anim!=LIBAROMA_CTL_PAGER_ANIMATION_STACKIN){
 											//if animation is stackin, only right side is scaled
 											//(and changing the values below doesn't matter as they're unused)
@@ -501,10 +498,7 @@ void _libaroma_ctl_pager_draw(
 								{
 									int scr_lh=c->h, scr_ly=0, scr_rh=c->h, scr_ry=0;
 									float scr_ratio;
-									if (c->w>c->h)
-										scr_ratio=((float)c->h/(float)c->w);
-									else
-										scr_ratio=((float)c->w/(float)c->h);
+									scr_ratio=((float)c->h/(float)c->w);
 									scr_lh=scr_lw*scr_ratio;
 									scr_ly=(c->h-scr_lh)/2;
 									scr_rh=scr_rw*scr_ratio;
