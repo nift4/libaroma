@@ -9,10 +9,12 @@ fi
 # LIBAROMA_ARCH can be arm, arm64, x86, x86_64 or mips
 # LIBAROMA_PLATFORM can be linux, sdl, qnx or rpi (special for raspberry pi)
 # LIBAROMA_GCC and LIBAROMA_GPP are the C and C++ compilers, use full paths here
-export LIBAROMA_ARCH="arm"
-export LIBAROMA_PLATFORM="linux"
-export LIBAROMA_GCC="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-gcc"
-export LIBAROMA_GPP="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-g++"
+export LIBAROMA_ARCH="x86_64"
+export LIBAROMA_PLATFORM="sdl2"
+#export LIBAROMA_GCC="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-gcc"
+#export LIBAROMA_GPP="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-g++"
+export LIBAROMA_GCC="gcc"
+export LIBAROMA_GPP="g++"
 
 # some default values
 LIBAROMA_ADDITIONAL_LIBS=""
@@ -59,6 +61,8 @@ fi
 # as statically linkable (not possible when using SDL)
 if [ "$LIBAROMA_PLATFORM" = "sdl" ]; then
 	LIBAROMA_ADDITIONAL_LIBS="${LIBAROMA_ADDITIONAL_LIBS} -lSDL"
+elif [ "$LIBAROMA_PLATFORM" = "sdl2" ]; then
+	LIBAROMA_ADDITIONAL_LIBS="${LIBAROMA_ADDITIONAL_LIBS} -lSDL2"
 else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -static"
 	# if platform isn't SDL and is Linux, build minui and drm

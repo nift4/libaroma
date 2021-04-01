@@ -9,7 +9,7 @@ cd $scriptdir
 if [ "$2" != "r" ]; then
 	./app.sh $1
 fi
-if [ "$LIBAROMA_PLATFORM" != "sdl" ]; then
+if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
 	# if target needs to use the entire display, switch to a vt
 	# SDL is the only which can create an X window
 	echo Switching to virtual terminal \(requires su\)
@@ -23,6 +23,6 @@ if [ "$LIBAROMA_PLATFORM" != "sdl" ]; then
 fi
 echo Starting $1
 sudo bin/$1 3 0 ../../examples/$1/zip/res.zip
-if [ "$LIBAROMA_PLATFORM" != "sdl" ]; then
+if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
 	sudo chvt $OLD_VT
 fi
