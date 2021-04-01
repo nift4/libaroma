@@ -6,15 +6,15 @@ if [ "$1" = "d" ]; then
 fi
 
 # these ones should be manually changed:
-# LIBAROMA_ARCH can be arm, arm64, x86, x86_64 or mips
+# LIBAROMA_ARCH can be arm, arm-neon, arm64, x86, x86_64 or mips
 # LIBAROMA_PLATFORM can be linux, sdl, qnx or rpi (special for raspberry pi)
-# LIBAROMA_GCC and LIBAROMA_GPP are the C and C++ compilers, use full paths here
-export LIBAROMA_ARCH="x86_64"
-export LIBAROMA_PLATFORM="sdl2"
-#export LIBAROMA_GCC="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-gcc"
-#export LIBAROMA_GPP="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-g++"
-export LIBAROMA_GCC="gcc"
-export LIBAROMA_GPP="g++"
+# LIBAROMA_TOOLCHAIN_PREFIX is the full path to your toolchain+prefix (if any),
+# or leave empty for use the local (installed) compiler
+export LIBAROMA_ARCH="arm"
+export LIBAROMA_PLATFORM="linux"
+LIBAROMA_TOOLCHAIN_PREFIX="/home/mlx/projects/musl-v6/bin/armv6-linux-musleabi-"
+export LIBAROMA_GCC="${LIBAROMA_TOOLCHAIN_PREFIX}gcc"
+export LIBAROMA_GPP="${LIBAROMA_TOOLCHAIN_PREFIX}g++"
 
 # some default values
 LIBAROMA_ADDITIONAL_LIBS=""
@@ -40,8 +40,8 @@ else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -s -O3 -ftree-vectorize -fprefetch-loop-arrays -funsafe-math-optimizations"
 fi
 
-# enable NEON optimizations if building for arm
-if [ "$LIBAROMA_ARCH" = "arm" ]; then
+# enable NEON optimizations
+if [ "$LIBAROMA_ARCH" = "arm-neon" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -mfloat-abi=hard -mfpu=neon -D__ARM_HAVE_NEON"
 	if [ $LIBAROMA_DEBUG_ENABLED != 1 ]; then
 		LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -mvectorize-with-neon-quad"
@@ -51,7 +51,7 @@ elif [ "$LIBAROMA_ARCH" = "x86" ] || [ "$LIBAROMA_ARCH" = "x86_64" ]; then
 fi
 
 # if not building for ARM, disable JPEG (TODO: make jpeg neon optimizations optional)
-if [ "$LIBAROMA_ARCH" != "arm" ]; then
+if [ "$LIBAROMA_ARCH" != "arm-neon" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -DLIBAROMA_CONFIG_NOJPEG=1"
 	LIBAROMA_BUILD_JPEG=0
 	LIBAROMA_JPEG_OBJ=""
@@ -65,8 +65,8 @@ elif [ "$LIBAROMA_PLATFORM" = "sdl2" ]; then
 	LIBAROMA_ADDITIONAL_LIBS="${LIBAROMA_ADDITIONAL_LIBS} -lSDL2"
 else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -static"
-	# if platform isn't SDL and is Linux, build minui and drm
-	if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
+	# if platform is Linux and architecture isn't arm (without neon), build minui and drm
+	if [ "$LIBAROMA_PLATFORM" = "linux" ] && [ "$LIBAROMA_ARCH" != "arm" ]; then
 		LIBAROMA_BUILD_DRM=1
 		LIBAROMA_BUILD_MINUI=1
 		LIBAROMA_DRM_OBJ="../obj/drm/*.o"
@@ -78,6 +78,8 @@ LIBAROMA_ARCH_OPTIMIZATIONS="../../../src/aroma/arch/$LIBAROMA_ARCH/*.S"
 # MIPS optimizations are in a .c file, not in a .S one
 if [ "$LIBAROMA_ARCH" = "mips" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="../../../src/aroma/arch/mips/*.c"
+elif [ "$LIBAROMA_ARCH" = "arm-neon" ]; then
+	LIBAROMA_ARCH_OPTIMIZATIONS="../../../src/aroma/arch/arm/*.S"
 fi
 
 # set debug levels:
