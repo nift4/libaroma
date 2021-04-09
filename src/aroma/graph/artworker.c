@@ -292,6 +292,169 @@ LIBAROMA_CANVASP libaroma_art_busy_progress(
 	libaroma_canvas_free(load);
 	return load_out;
 } /* End of libaroma_art_busy_progress */
+
+/*
+ * Function		: libaroma_art_draw_switch_animation
+ * Return Value: LIBAROMA_CANVASP
+ * Descriptions: draw switch animation frame into canvas
+ */
+LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
+	byte animation,
+	//byte side,
+	LIBAROMA_CANVASP target_canvas,
+	LIBAROMA_CANVASP from,
+	LIBAROMA_CANVASP to,
+	int fromx, int fromy, int fromw, int fromh,
+	int tox, int toy, int tow, int toh,
+	float state
+){
+	// if no animation, or switching from nothing to nothing, return draw target
+	if (!animation || (!from) && (!to))
+		return target_canvas;
+	if (!from) from=libaroma_canvas(to->w, to->h);
+	if (!to) to=libaroma_canvas(from->w, from->h);
+	if (!target_canvas){
+		libaroma_canvas(MAX(from->w, to->w), MAX(from->h, to->h));
+	}
+	int scr_lx,	//screen_leftx, x to draw left window on screen
+		scr_ly=0,
+		scr_lw,	//screen_leftwidth, width for left window on screen
+		scr_lh=from->h,
+		scr_rx,	//screen_rightx, x to draw right window on screen
+		scr_ry=0,
+		scr_rw,	//screen_rightwidth, width for right window on screen
+		scr_rh=to->h;
+
+	scr_lx=0;
+	scr_rw=((float)target_canvas->w*state);//c->w-remain;
+	scr_lw=target_canvas->w-scr_rw;
+	scr_rx=scr_lw;
+
+	switch (animation){
+		case LIBAROMA_ART_SWITCH_ANIMATION_SCALE:
+		case LIBAROMA_ART_SWITCH_ANIMATION_STACKIN:
+		case LIBAROMA_ART_SWITCH_ANIMATION_STRETCH:{
+			if (animation!=LIBAROMA_ART_SWITCH_ANIMATION_STRETCH){
+				//if animation is scale or stack in, change Y values first
+				float scr_ratio;
+				scr_ratio=((float)target_canvas->h/(float)target_canvas->w);
+				if (animation!=LIBAROMA_ART_SWITCH_ANIMATION_STACKIN){
+					//if animation isn't stack in, set height and y for left image
+					scr_lh=scr_lw*scr_ratio;
+					scr_ly=(target_canvas->h-scr_lh)/2;
+				}
+				scr_rh=scr_rw*scr_ratio;
+				scr_ry=(target_canvas->h-scr_rh)/2;
+				//fill bg with black
+				libaroma_canvas_setcolor(target_canvas, 0, 0xFF);
+			}
+			if (animation==LIBAROMA_ART_SWITCH_ANIMATION_STACKIN){
+				libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx+scr_rw, fromy, scr_lw, scr_lh, 0, 0xFF);
+				float bstate=(255.0 * state);
+				byte bbstate = (byte) round(bstate);
+				LIBAROMA_CANVASP temp_cv=libaroma_canvas(scr_rw, scr_rh);
+				libaroma_draw_scale(temp_cv, to, 0, 0, scr_rw, scr_rh, tox, toy, tow, toh, 0);
+				libaroma_draw_ex(target_canvas, temp_cv, scr_rx, scr_ry, 0, 0, scr_rw, scr_rh, 1, bbstate);
+				libaroma_canvas_free(temp_cv);
+				return target_canvas;
+			}
+			libaroma_draw_scale(
+				target_canvas,	//dest
+				from,			//src
+				scr_lx,			//destx
+				scr_ly,			//desty
+				scr_lw,			//destw
+				scr_lh,			//desth
+				fromx,			//srcx
+				fromy,			//srcy
+				fromw,			//srcw
+				fromh,			//srch
+				0				//is smooth?
+			);
+			libaroma_draw_scale(
+				target_canvas,	//dest
+				to,				//src
+				scr_rx,			//destx
+				scr_ry,			//desty
+				scr_rw,			//destw
+				scr_rh,			//desth
+				tox,			//srcx
+				toy,			//srcy
+				tow,			//srcw
+				toh,			//srch
+				0				//is smooth?
+			);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_FADE:{
+			float bstate=(255.0 * state);
+			byte bbstate = (byte) round(bstate);
+			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
+			if (bbstate>0) libaroma_draw_ex(target_canvas, to, scr_lx, scr_ly, tox, toy, tow, toh, 1, bbstate);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_STACKOVER:
+		case LIBAROMA_ART_SWITCH_ANIMATION_CLEAN:{
+			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, scr_lw, fromh, 0, 0xFF);
+			if (animation==LIBAROMA_ART_SWITCH_ANIMATION_CLEAN) tox += scr_lw;
+			libaroma_draw_ex(target_canvas, from, scr_rx, scr_ry, tox, toy, scr_rw, toh, 0, 0xFF);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_REVEAL:{
+			float scr_ratio;
+			scr_ratio=((float)target_canvas->h/(float)target_canvas->w);
+			scr_lh=scr_lw*scr_ratio;
+			scr_ly=(target_canvas->h-scr_lh)/2;
+			scr_rh=scr_rw*scr_ratio;
+			scr_rx=(target_canvas->w-scr_rw)/2;
+			scr_ry=(target_canvas->h-scr_rh)/2;
+
+			libaroma_draw_ex(target_canvas, from, 0, 0, fromx, fromy, fromw, fromh, 0, 0xFF);
+			libaroma_draw_ex(
+				target_canvas,	//dest
+				to,				//src
+				scr_rx,			//destx
+				scr_ry,			//desty
+				tox+scr_rx,		//srcx
+				scr_ry,			//srcy
+				scr_rw,			//srcw
+				scr_rh,			//srch
+				0,				//usealpha
+				0xff			//opacity
+			);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_SLIDE:{
+			scr_lx=-(fromw-scr_lw);
+			scr_rx=scr_lx+fromw;
+			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
+			libaroma_draw_ex(target_canvas, to, scr_rx, scr_ry, tox, toy, tow, toh, 0, 0xFF);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_CIRCLE:{
+			int bigger=MAX(target_canvas->h, target_canvas->w);
+			int sz;
+			sz=((bigger*1.35)*state);
+
+			LIBAROMA_CANVASP temp_cv=libaroma_canvas(fromw, fromh);
+			libaroma_draw_ex(temp_cv, from, 0, 0, fromx, fromy, fromw, fromh, 0, 0xFF);
+			libaroma_canvas_fillalpha(temp_cv, 0, 0, temp_cv->w, temp_cv->h, 0xFF);
+			libaroma_draw_alpha_circle(temp_cv, temp_cv->w/2, temp_cv->h/2, sz, 0x0);
+			libaroma_draw_ex(target_canvas, to, 0, 0, tox, toy, tow, toh, 0, 0xFF);
+			libaroma_draw_ex(target_canvas, temp_cv, 0, 0, 0, 0, temp_cv->w, temp_cv->h, 1, 0xFF);
+			libaroma_canvas_free(temp_cv);
+		}
+		break;
+		/*
+		case LIBAROMA_ART_SWITCH_ANIMATION_:{
+
+		}
+		break;
+		*/
+	}
+	return target_canvas;
+} /* End of libaroma_art_busy_progress */
+
 #ifdef __cplusplus
 }
 #endif

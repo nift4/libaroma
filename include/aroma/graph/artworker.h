@@ -27,6 +27,26 @@
 #ifndef __libaroma_artworker_h__
 #define __libaroma_artworker_h__
 
+#define LIBAROMA_ART_SWITCH_ANIMATION_SLIDE		1
+#define LIBAROMA_ART_SWITCH_ANIMATION_SCALE		2
+#define LIBAROMA_ART_SWITCH_ANIMATION_STACKIN	3
+#define LIBAROMA_ART_SWITCH_ANIMATION_STACKOVER	4
+#define LIBAROMA_ART_SWITCH_ANIMATION_REVEAL	5
+#define LIBAROMA_ART_SWITCH_ANIMATION_STRETCH	6
+#define LIBAROMA_ART_SWITCH_ANIMATION_CLEAN		7
+#define LIBAROMA_ART_SWITCH_ANIMATION_CIRCLE	8
+#define LIBAROMA_ART_SWITCH_ANIMATION_PAGE		9
+#define LIBAROMA_ART_SWITCH_ANIMATION_FADE		10
+#define LIBAROMA_ART_SWITCH_ANIMATION_SWAP		11
+
+/* TODO: switch animation sides - use in shifting animations (default to horizontal)
+#define LIBAROMA_ART_SWITCH_TOP			0x2
+#define LIBAROMA_ART_SWITCH_LEFT		0x3
+#define LIBAROMA_ART_SWITCH_BOTTOM		0x4
+#define LIBAROMA_ART_SWITCH_RIGHT		0x5
+#define LIBAROMA_ART_SWITCH_VERTICAL	0x6
+#define LIBAROMA_ART_SWITCH_HORIZONTAL	0x8 */
+
 /*
  * Function		: libaroma_art_arrowdrawer
  * Return Value: byte
@@ -44,5 +64,19 @@ byte libaroma_art_arrowdrawer(
 	byte is_mask,
 	float aliasing);
 
+/*
+ * Function		: libaroma_art_draw_switch_animation
+ * Return Value: LIBAROMA_CANVASP
+ * Descriptions: draw switch animation frame into canvas
+ */
+LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
+	byte animation,
+	//byte side,
+	LIBAROMA_CANVASP target_canvas,
+	LIBAROMA_CANVASP from,
+	LIBAROMA_CANVASP to,
+	int fromx, int fromy, int fromw, int fromh,
+	int tox, int toy, int tow, int toh,
+	float state);
 
 #endif /* __libaroma_artworker_h__ */
