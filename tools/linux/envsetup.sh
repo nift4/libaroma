@@ -15,13 +15,19 @@ fi
 export LIBAROMA_BASE="$(readlink -f $PWD/../..)"
 
 # these ones should be manually changed:
-# LIBAROMA_ARCH can be arm, arm-neon, arm64, x86, x86_64 or mips
+# LIBAROMA_ARCH can be arm, arm64, x86, x86_64 or mips
+# LIBAORMA_ARCH_APPEND should be filled only when building for ARM, andit's value
+# should be "neon". If building for armv6 or any other, leave empty.
 # LIBAROMA_PLATFORM can be linux, sdl, qnx or rpi (special for raspberry pi)
+export LIBAROMA_ARCH="arm"
+export LIBAROMA_ARCH_APPEND="neon"
+export LIBAROMA_PLATFORM="linux"
+
 # LIBAROMA_TOOLCHAIN_PREFIX is the full path to your toolchain+prefix (if any),
-# or leave empty for use the local (installed) compiler
-export LIBAROMA_ARCH="x86_64"
-export LIBAROMA_PLATFORM="sdl"
-LIBAROMA_TOOLCHAIN_PREFIX=""
+# use this to automatically find compiler (like gcc at /usr/bin)
+#LIBAROMA_TOOLCHAIN_PREFIX=""
+# or use this and put your toolchain path here, if cross compiling
+LIBAROMA_TOOLCHAIN_PREFIX="/home/mlx/projects/musl-10/bin/arm-linux-musleabihf-"
 export LIBAROMA_GCC="${LIBAROMA_TOOLCHAIN_PREFIX}gcc"
 export LIBAROMA_GPP="${LIBAROMA_TOOLCHAIN_PREFIX}g++"
 
@@ -49,8 +55,8 @@ else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -s -O3 -ftree-vectorize -fprefetch-loop-arrays -funsafe-math-optimizations"
 fi
 
-# enable NEON optimizations
-if [ "${LIBAROMA_ARCH}" = "arm-neon" ]; then
+# enable architecture optimizations
+if [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -mfloat-abi=hard -mfpu=neon -D__ARM_HAVE_NEON"
 	if [ ${LIBAROMA_DEBUG_ENABLED} != 1 ]; then
 		LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -mvectorize-with-neon-quad"
@@ -74,8 +80,8 @@ elif [ "${LIBAROMA_PLATFORM}" = "sdl2" ]; then
 	LIBAROMA_ADDITIONAL_LIBS="${LIBAROMA_ADDITIONAL_LIBS} -lSDL2"
 else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -static"
-	# if platform is Linux and architecture isn't arm (without neon), build minui and drm
-	if [ "${LIBAROMA_PLATFORM}" = "linux" ] && [ "${LIBAROMA_ARCH}" != "arm" ]; then
+	# if platform is Linux and architecture is arm (with neon), build minui and drm
+	if [ "${LIBAROMA_PLATFORM}" = "linux" ] && [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
 		LIBAROMA_BUILD_DRM=1
 		LIBAROMA_BUILD_MINUI=1
 		LIBAROMA_DRM_OBJ="${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/drm/*.o"
@@ -87,7 +93,7 @@ LIBAROMA_ARCH_OPTIMIZATIONS="${LIBAROMA_ARCH}/*.S"
 # MIPS optimizations are in a .c file, not in a .S one
 if [ "${LIBAROMA_ARCH}" = "mips" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="mips/*.c"
-elif [ "${LIBAROMA_ARCH}" = "arm-neon" ]; then
+elif [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="arm/*.S"
 fi
 
@@ -122,7 +128,17 @@ export LIBAROMA_ARCH_OPTIMIZATIONS
 export LIBAROMA_ADDITIONAL_LIBS
 export LIBAROMA_DEBUG_ENABLED
 
-echo Ready to build libaroma$LIBAROMA_DEBUG_PREFIX targeting ${LIBAROMA_PLATFORM} on ${LIBAROMA_ARCH}
+LIBAROMA_DONE_TEXT="Ready to build libaroma$LIBAROMA_DEBUG_PREFIX targeting ${LIBAROMA_PLATFORM} on ${LIBAROMA_ARCH}"
+#if arch is ARM, add optimization info
+if [ "${LIBAROMA_ARCH}" = "arm" ]; then
+	if [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
+		LIBAROMA_DONE_TEXT="${LIBAROMA_DONE_TEXT} (NEON-optimized)"
+	else
+		LIBAROMA_DONE_TEXT="${LIBAROMA_DONE_TEXT} (no optimizations)"
+	fi
+fi
+echo ${LIBAROMA_DONE_TEXT}
+
 # if bash is available, use it. else, use sh
 # TODO: use shell that started the script
 # (not the current one, as it's hardcoded at the top)

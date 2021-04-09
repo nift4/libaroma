@@ -16,11 +16,11 @@ adb push bin/$1-$LIBAROMA_ARCH /tmp
 #adb wait-for-recovery
 adb push ../../examples/$1/zip/res.zip /tmp/
 #adb wait-for-recovery
-adb shell chmod 755 /tmp/$1
+adb shell chmod 755 /tmp/$1-$LIBAROMA_ARCH
 #adb wait-for-recovery
 adb shell pkill -19 recovery
 #adb wait-for-recovery
-adb shell /tmp/$1 0 0 /tmp/res.zip
+adb shell /tmp/$1-$LIBAROMA_ARCH 0 0 /tmp/res.zip
 #adb wait-for-recovery
 adb shell pkill -18 recovery
 # trap
