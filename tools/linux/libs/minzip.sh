@@ -1,20 +1,20 @@
 #!/bin/sh
-mkdir -p ../obj/minzip
-cd ../obj/minzip
+mkdir -p ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/minzip
+cd ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/minzip
 
 echo Compiling minzip
-$LIBAROMA_GCC -c \
+${LIBAROMA_GCC} -c \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
   -fPIC -DPIC -Wl,-s -Doff64_t=off_t \
   \
-    ../../../../libs/minzip/Hash.c \
-    ../../../../libs/minzip/SysUtil.c \
-    ../../../../libs/minzip/DirUtil.c \
-    ../../../../libs/minzip/Inlines.c \
-    ../../../../libs/minzip/Zip.c \
+    ${LIBAROMA_BASE}/libs/minzip/Hash.c \
+    ${LIBAROMA_BASE}/libs/minzip/SysUtil.c \
+    ${LIBAROMA_BASE}/libs/minzip/DirUtil.c \
+    ${LIBAROMA_BASE}/libs/minzip/Inlines.c \
+    ${LIBAROMA_BASE}/libs/minzip/Zip.c \
   \
-    -I../../../../libs/selinux/include \
-    -I../../../../libs/zlib/src
+    -I${LIBAROMA_BASE}/libs/selinux/include \
+    -I${LIBAROMA_BASE}/libs/zlib/src
 
-cd ../../libs
+cd ${LIBAROMA_BASE}/tools/linux/libs

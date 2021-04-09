@@ -12,7 +12,7 @@ fi
 echo Waiting for device \(recovery\)
 adb wait-for-recovery
 adb shell mkdir -p /tmp
-adb push bin/$1 /tmp
+adb push bin/$1-$LIBAROMA_ARCH /tmp
 #adb wait-for-recovery
 adb push ../../examples/$1/zip/res.zip /tmp/
 #adb wait-for-recovery

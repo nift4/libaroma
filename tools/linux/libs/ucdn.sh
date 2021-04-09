@@ -1,15 +1,15 @@
 #!/bin/sh
-mkdir -p ../obj/hbucdn
-cd ../obj/hbucdn
+mkdir -p ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/hbucdn
+cd ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/hbucdn
 
 echo Compiling hbucdn
-$LIBAROMA_GCC -c \
+${LIBAROMA_GCC} -c \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
   -fPIC -DPIC -Wl,-s \
  \
-  ../../../../libs/harfbuzz-ng/src/hb-ucdn/ucdn.c \
+  ${LIBAROMA_BASE}/libs/harfbuzz-ng/src/hb-ucdn/ucdn.c \
  \
-  -I../../../../libs/harfbuzz-ng/src/hb-ucdn
+  -I${LIBAROMA_BASE}/libs/harfbuzz-ng/src/hb-ucdn
 
-cd ../../libs
+cd ${LIBAROMA_BASE}/tools/linux/libs

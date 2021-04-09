@@ -22,7 +22,7 @@ if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
 	sudo chvt 2
 fi
 echo Starting $1
-sudo bin/$1 3 0 ../../examples/$1/zip/res.zip
+sudo bin/$1-$LIBAROMA_ARCH 3 0 ../../examples/$1/zip/res.zip
 if [ "$LIBAROMA_PLATFORM" = "linux" ]; then
 	sudo chvt $OLD_VT
 fi

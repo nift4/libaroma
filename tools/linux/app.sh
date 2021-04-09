@@ -5,38 +5,39 @@ if [ -z "$scriptdir" ]; then
 	echo Unable to get script dir, exiting!
 	exit
 fi
-cd $scriptdir/libaroma
+cd $scriptdir/libaroma/${LIBAROMA_ARCH}
 
-echo Building $1
-$LIBAROMA_GCC \
+echo Building $1 for ${LIBAROMA_ARCH}
+${LIBAROMA_GCC} \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG \
   -fPIC -DPIC \
   \
-    $LIBAROMA_CFLAGS \
+    ${LIBAROMA_CFLAGS} \
   \
-    -DLIBAROMA_CONFIG_DEBUG=$LIBAROMA_CONFIG_DEBUG \
-    -DLIBAROMA_CONFIG_DEBUG_FILE=$LIBAROMA_CONFIG_DEBUG_FILE \
-    -DLIBAROMA_CONFIG_DEBUG_MEMORY=$LIBAROMA_CONFIG_DEBUG_MEMORY \
-    -DLIBAROMA_CONFIG_COMPILER_MESSAGE=$LIBAROMA_CONFIG_COMPILER_MESSAGE \
-    -DLIBAROMA_CONFIG_SHMEMFB=$LIBAROMA_CONFIG_SHMEMFB \
+    -DLIBAROMA_CONFIG_DEBUG=${LIBAROMA_CONFIG_DEBUG} \
+    -DLIBAROMA_CONFIG_DEBUG_FILE=${LIBAROMA_CONFIG_DEBUG_FILE} \
+    -DLIBAROMA_CONFIG_DEBUG_MEMORY=${LIBAROMA_CONFIG_DEBUG_MEMORY} \
+    -DLIBAROMA_CONFIG_COMPILER_MESSAGE=${LIBAROMA_CONFIG_COMPILER_MESSAGE} \
+    -DLIBAROMA_CONFIG_SHMEMFB=${LIBAROMA_CONFIG_SHMEMFB} \
   \
     $LIBAROMA_DRM_OBJ \
-    ../obj/freetype/*.o \
-    ../obj/hb/*.o \
-    ../obj/hbucdn/*.o \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/freetype/*.o \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/hb/*.o \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/hbucdn/*.o \
     $LIBAROMA_JPEG_OBJ \
     $LIBAROMA_MINUI_OBJ \
-    ../obj/minzip/*.o \
-    ../obj/png/*.o \
-    ../obj/zlib/*.o \
-    ../libaroma/*.o \
-    ../../../examples/$1/*.c \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/minzip/*.o \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/png/*.o \
+    ${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/zlib/*.o \
+    ${LIBAROMA_BASE}/tools/linux/libaroma/${LIBAROMA_ARCH}/*.o \
+    ${LIBAROMA_BASE}/examples/$1/*.c \
   \
-  -I../../../include \
-  -I../../../libs/selinux/include \
-  -I../../../src \
-  -o ../bin/$1 \
+  -I${LIBAROMA_BASE}/include \
+  -I${LIBAROMA_BASE}/libs/selinux/include \
+  -I${LIBAROMA_BASE}/src \
+  -o ${LIBAROMA_BASE}/tools/linux/bin/$1-${LIBAROMA_ARCH} \
   \
-  -lm -lpthread -lstdc++ -lrt $LIBAROMA_ADDITIONAL_LIBS
+  -lm -lpthread -lstdc++ -lrt ${LIBAROMA_ADDITIONAL_LIBS}
+
 cd $olddir

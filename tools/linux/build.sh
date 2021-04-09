@@ -1,5 +1,4 @@
 #!/bin/sh
-
 olddir=$PWD
 scriptdir=$(dirname "$(readlink -f -- "$0")")
 if [ -z "$scriptdir" ]; then
@@ -7,6 +6,8 @@ if [ -z "$scriptdir" ]; then
 	exit
 fi
 cd $scriptdir
+
+./clean.sh $LIBAROMA_ARCH
 ./libs/build_all.sh
 ./libaroma.sh
 ./app.sh test

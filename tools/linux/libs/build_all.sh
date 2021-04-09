@@ -7,8 +7,8 @@ if [ -z "$scriptdir" ]; then
 	exit
 fi
 cd $scriptdir
-rm -rf ../obj
-mkdir -p ../obj
+rm -rf ${LIBAROMA_BASE}/tools/linux/obj
+mkdir -p ${LIBAROMA_BASE}/tools/linux/obj
 ./drm.sh
 ./freetype.sh
 ./harfbuzz.sh
