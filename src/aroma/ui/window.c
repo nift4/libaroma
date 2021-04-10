@@ -211,24 +211,41 @@ byte _libaroma_window_ui_thread(LIBAROMA_WINDOWP win) {
 	int i;
 	byte need_sync = 0;
 	if (win->active==1){
+		LIBAROMA_CONTROLP toast_ctl=NULL;
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
 #endif
 		for (i=0;i<win->childn;i++){
 			LIBAROMA_CONTROLP c=win->childs[i];
 			if (c->handler->thread!=NULL){
-				if (c->handler->thread(c)){
-					if (libaroma_control_draw(c,0)){
-						libaroma_wm_updatesync(
-							c->x+win->x,
-							c->y+win->y,
-							c->w,
-							c->h,
-							0
-						);
-						need_sync=1;
+				if (!libaroma_ctl_is_toast(c)){ //if not a toast, draw now
+					if (c->handler->thread(c)){
+						if (libaroma_control_draw(c,0)){
+							libaroma_wm_updatesync(
+								c->x+win->x,
+								c->y+win->y,
+								c->w,
+								c->h,
+								0
+							);
+							need_sync=1;
+						}
 					}
 				}
+				else toast_ctl=c; //else, save it for draw at last
+			}
+		}
+		if (toast_ctl!=NULL){
+			if (libaroma_control_draw(toast_ctl, 0)){
+				libaroma_wm_updatesync(
+								toast_ctl->x+win->x,
+								toast_ctl->y+win->y,
+								toast_ctl->w,
+								toast_ctl->h,
+								0
+							);
+				libaroma_png_save(win->dc, "/tmp/dc.png");
+				if (!need_sync) need_sync=1;
 			}
 		}
 	}
@@ -862,8 +879,9 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 	else is_active=libaroma_wm_set_active_window(win);
 	if (is_active){
 		if (!close) win->active=2;
-		if (!win->prev_screen->alpha && anim==LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE)
-			libaroma_canvas_fillalpha(win->prev_screen, 0, 0, win->w, win->h, 0xFF); //init alpha for prev screen if it needsthat
+		if (win->prev_screen==NULL) win->prev_screen=libaroma_canvas(win->w, win->h); //TODO: MOVE THIS TO WM CODE
+		//if (!win->prev_screen->alpha && anim==LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE)
+			//libaroma_canvas_fillalpha(win->prev_screen, 0, 0, win->w, win->h, 0xFF); //init alpha for prev screen if needed
 		/* draw window into temp canvas */
 		LIBAROMA_CANVASP wmc = win->dc; //window had a canvas area of wm, let's grab it
 		LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h);
@@ -875,42 +893,14 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 		int delta = 0;
 		int debug=1;
 		while ((delta=libaroma_tick()-start)<duration){
-			float state = ((float) delta)/((float) duration);
-			if (state>=1.0){
-				break;
-			}
+			float state = (((float) delta)/((float) duration));
+
 			switch (anim){
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE:
-					{
-						float swift_out_state = close?libaroma_cubic_bezier_easeout(state):libaroma_cubic_bezier_easein(state);
-						int bigger=MAX(win->h, win->w);
-						int sz;
-						if (close)
-							sz=(bigger*1.5)-(swift_out_state * (bigger*1.5));
-						else sz=(swift_out_state * (bigger*1.5));
-						if (sz>2){
-							LIBAROMA_CANVASP prev_screen=libaroma_canvas_dup(win->prev_screen);
-							libaroma_draw_alpha_circle(prev_screen, prev_screen->w/2, prev_screen->h/2, sz, 0x0);
-							libaroma_draw(wmc, win->dc, 0, 0, 0);
-							libaroma_draw(wmc, prev_screen, 0, 0, 1);
-							libaroma_wm_sync(win->x, win->y, win->w, win->h);
-							libaroma_canvas_free(prev_screen);
-						}
-					}
-					break;
-				case LIBAROMA_WINDOW_SHOW_ANIMATION_FADE:
-					{
-						float swift_out_state = libaroma_cubic_bezier_swiftout(state);
-						float bstate=(255.0 * swift_out_state);
-						byte bbstate = (byte) round(bstate);
-						libaroma_draw_opacity(
-							wmc, (close?win->prev_screen:win->dc), 0, 0, 0, bbstate
-						);
-						libaroma_wm_sync(win->x,win->y,win->w,win->h);
-					}
-					break;
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_TOP:
 					{
+						if (state>=1.0){
+							break;
+						}
 						float swift_out_state = close?
 							libaroma_cubic_bezier_easeout(state):
 							libaroma_cubic_bezier_easein(state);
@@ -935,9 +925,11 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						}
 					}
 					break;
-
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_LEFT:
 					{
+						if (state>=1.0){
+							break;
+						}
 						float swift_out_state = close?
 							libaroma_cubic_bezier_easeout(state):
 							libaroma_cubic_bezier_easein(state);
@@ -963,6 +955,9 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 					break;
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_RIGHT:
 					{
+						if (state>=1.0){
+							break;
+						}
 						float swift_out_state = close?
 							libaroma_cubic_bezier_easeout(state):
 							libaroma_cubic_bezier_easein(state);
@@ -990,6 +985,9 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 					break;
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_LEFT:
 					{
+						if (state>=1.0){
+							break;
+						}
 						float swift_out_state = close?
 							libaroma_cubic_bezier_easeout(state):
 							libaroma_cubic_bezier_easein(state);
@@ -1017,6 +1015,9 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 					break;
 				case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_RIGHT:
 					{
+						if (state>=1.0){
+							break;
+						}
 						float swift_out_state = close?
 							libaroma_cubic_bezier_easeout(state):
 							libaroma_cubic_bezier_easein(state);
@@ -1042,8 +1043,21 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						}
 					}
 					break;
-				default:
-					state=1.0;
+				default:{
+					state = close?
+						libaroma_cubic_bezier_easeout(state):
+						libaroma_cubic_bezier_easein(state);
+					if (close) state = (1.0 - state);
+					if ((!close && state>=1.0) || (close && state <=0.0)){
+						break;
+					}
+					//ALOGV("Playing %s animation with state %1.2f", close?"close":"open", state);
+					libaroma_art_draw_switch_animation(libaroma_ani_win_to_art(anim),
+														wmc, win->prev_screen, win->dc,
+														0, 0, win->prev_screen->w, win->prev_screen->h,
+														0, 0, win->w, win->h, state);
+					libaroma_wm_sync(win->x, win->y, win->w, win->h);
+					}
 					break;
 			}
 		}
