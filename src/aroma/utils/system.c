@@ -82,6 +82,17 @@ done:
 	return result;
 } /* End of libaroma_getprop */
 
+/*
+ * Function		: libaroma_random_range
+ * Return Value: int
+ * Descriptions: get random number in range
+ */
+char * libaroma_random_range(
+		int min, int max){
+	return ((rand() %
+   (max - min + 1)) + min);
+}
+
 #ifdef __cplusplus
 }
 #endif

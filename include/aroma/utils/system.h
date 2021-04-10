@@ -27,6 +27,8 @@
 #ifndef __libaroma_system_h__
 #define __libaroma_system_h__
 
+#define libaroma_random() rand()
+
 /*
  * Function		: libaroma_getprop
  * Return Value: char *
@@ -34,5 +36,13 @@
  */
 char * libaroma_getprop(
 		char * key, LIBAROMA_STREAMP stream, byte freeStream);
+
+/*
+ * Function		: libaroma_random_range
+ * Return Value: int
+ * Descriptions: get random number in range
+ */
+char * libaroma_random_range(
+		int min, int max);
 
 #endif /* __libaroma_system_h__ */
