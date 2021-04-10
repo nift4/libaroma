@@ -79,4 +79,18 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 	int tox, int toy, int tow, int toh,
 	float state);
 
+/*
+ * Function		: libaroma_ani_win_to_art
+ * Return Value: byte
+ * Descriptions: translate window show animation to art switch
+ */
+byte libaroma_ani_win_to_art(byte animation);
+
+/*
+ * Function		: libaroma_animation_random
+ * Return Value: byte
+ * Descriptions: get random animation type
+ */
+byte libaroma_animation_random();
+
 #endif /* __libaroma_artworker_h__ */

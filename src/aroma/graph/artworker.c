@@ -397,7 +397,7 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 		case LIBAROMA_ART_SWITCH_ANIMATION_CLEAN:{
 			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, scr_lw, fromh, 0, 0xFF);
 			if (animation==LIBAROMA_ART_SWITCH_ANIMATION_CLEAN) tox += scr_lw;
-			libaroma_draw_ex(target_canvas, from, scr_rx, scr_ry, tox, toy, scr_rw, toh, 0, 0xFF);
+			libaroma_draw_ex(target_canvas, to, scr_rx, scr_ry, tox, toy, scr_rw, toh, 0, 0xFF);
 		}
 		break;
 		case LIBAROMA_ART_SWITCH_ANIMATION_REVEAL:{
@@ -453,7 +453,43 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 		*/
 	}
 	return target_canvas;
-} /* End of libaroma_art_busy_progress */
+} /* End of libaroma_art_draw_switch_animation */
+
+
+byte libaroma_ani_win_to_art(byte animation){
+	switch (animation){
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_BOTTOM:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_LEFT:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_RIGHT:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SLIDE_TOP:
+			return LIBAROMA_ART_SWITCH_ANIMATION_SLIDE;
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_LEFT:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_RIGHT:
+			return LIBAROMA_ART_SWITCH_ANIMATION_SWAP;
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_BOTTOM:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_LEFT:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_RIGHT:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_PAGE_TOP:
+			return LIBAROMA_ART_SWITCH_ANIMATION_STACKOVER;
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE:
+			return LIBAROMA_ART_SWITCH_ANIMATION_CIRCLE;
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_FADE:
+			return LIBAROMA_ART_SWITCH_ANIMATION_FADE;
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_STACKIN:
+		case LIBAROMA_WINDOW_SHOW_ANIMATION_STACKOUT:
+			return LIBAROMA_ART_SWITCH_ANIMATION_STACKIN;
+	}
+}
+
+/*
+ * Function		: libaroma_animation_random
+ * Return Value: byte
+ * Descriptions: get random animation type
+ */
+byte libaroma_animation_random(){
+	//return random value between first and last animation numbers
+	return (byte)libaroma_random_range(1, 11);
+}
 
 #ifdef __cplusplus
 }
