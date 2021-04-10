@@ -356,9 +356,11 @@ void _libaroma_listitem_check_draw(
 		}
 
 		int icoh=libaroma_dp(vpad*2+seph);
+		// give some padding (32dp)...
 		int tw = cv->w-libaroma_dp(32);
-			//(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL)?52:88
-		//);
+		// ..and don't overlap the switch/check (40dp, only if needed)
+		if (!(flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL))
+			tw -= libaroma_dp(40);
 		if (flags&LIBAROMA_LISTITEM_CHECK_LEFT_CONTROL){
 			item->is_leftcontrol=1;
 		} else { item->is_leftcontrol=0; }
@@ -561,7 +563,6 @@ void _libaroma_listitem_check_draw(
 				libaroma_gradient(bmask,0,0,h_sz,h_sz,0,0,h_sz>>1,0x1111);
 				LIBAROMA_CANVASP scv = libaroma_blur_ex(bmask,rsz,1,0);
 				libaroma_canvas_free(bmask);
-
 				libaroma_draw_opacity(cv,scv,h_draw_x-rsz,h_draw_y,3,0x30);
 				if (item->state!=NULL){
 					/* will automatically freed by list control */
