@@ -197,6 +197,7 @@ LIBAROMA_CONFIGP libaroma_config(){
  */
 byte libaroma_start() {
 
+	srand(time(0));
 	/* Welcome Message */
 	ALOGI(
 		"%s Version %s",
