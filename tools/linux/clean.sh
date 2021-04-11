@@ -9,8 +9,10 @@ cd $scriptdir
 if [ "$1" = "all" ]; then
 	echo Removing built files for all architectures
 	rm -rf ./libaroma/*
+	rm -rf ./obj/*
 else
 	echo Removing built files for $LIBAROMA_ARCH
 	rm -rf ./libaroma/$LIBAROMA_ARCH
+	rm -rf ./obj/$LIBAROMA_ARCH
 fi
 cd $olddir
