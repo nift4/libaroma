@@ -42,7 +42,7 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_progress_handler={
 	thread:_libaroma_ctl_progress_thread
 };
 
-#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING    1 //500
+#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING	500
 
 
 
@@ -433,6 +433,52 @@ byte libaroma_ctl_progress_max(
 	_libaroma_ctl_progress_update(ctl,me);
 	return 1;
 } /* End of libaroma_ctl_progress_max */
+
+
+/*
+ * Function		: libaroma_ctl_progress_value
+ * Return Value: int
+ * Descriptions: get progress current value
+ */
+int libaroma_ctl_progress_get_value(
+		LIBAROMA_CONTROLP ctl
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
+	);
+	return me->value;
+} /* End of libaroma_ctl_progress_ */
+
+/*
+ * Function		: libaroma_ctl_progress_get_max
+ * Return Value: int
+ * Descriptions: get progress max value
+ */
+int libaroma_ctl_progress_get_max(
+		LIBAROMA_CONTROLP ctl
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
+	);
+	return me->max;
+} /* End of libaroma_ctl_progress_ */
+
+/*
+ * Function		: libaroma_ctl_progress_get_type
+ * Return Value: byte
+ * Descriptions: get progress type
+ */
+byte libaroma_ctl_progress_get_type(
+		LIBAROMA_CONTROLP ctl
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
+	);
+	return me->type;
+} /* End of libaroma_ctl_progress_ */
 
 #ifdef __cplusplus
 }
