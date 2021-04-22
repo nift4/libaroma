@@ -27,30 +27,30 @@
 #ifndef __libaroma_core_h__
 #define __libaroma_core_h__
 
-#include "types.h"						/* libaroma standard types */
-#include "defs.h"						 /* libaroma defines */
-#include "utils/array.h"			/* array */
-#include "utils/time.h"			 /* time */
-#include "utils/zip.h"				/* zip */
+#include "types.h"				/* libaroma standard types */
+#include "defs.h"				/* libaroma defines */
+#include "utils/array.h"		/* array */
+#include "utils/time.h"			/* time */
+#include "utils/zip.h"			/* zip */
 #include "utils/strings.h"		/* strings */
 #include "utils/minutf8.h"		/* utf8 */
-#include "utils/stream.h"		 /* stream */
-#include "utils/json.h"			 /* json */
-#include "utils/system.h"		 /* system */
+#include "utils/stream.h"		/* stream */
+#include "utils/json.h"			/* json */
+#include "utils/system.h"		/* system */
 #include "utils/motions.h"		/* motion interpolation */
-#include "graph/engine.h"		 /* graph engine */
-#include "graph/canvas.h"		 /* canvas */
-#include "graph/fb.h"				 /* framebuffer */
-#include "graph/draw.h"			 /* common drawing */
-#include "graph/png.h"				/* png */
-#include "graph/jpeg.h"			 /* jpeg */
-#include "graph/svg.h"				/* svg */
-#include "graph/image.h"			/* image */
-#include "graph/text.h"			 /* font & text */
+#include "graph/engine.h"		/* graph engine */
+#include "graph/canvas.h"		/* canvas */
+#include "graph/fb.h"			/* framebuffer */
+#include "graph/draw.h"			/* common drawing */
+#include "graph/png.h"			/* png */
+#include "graph/jpeg.h"			/* jpeg */
+#include "graph/svg.h"			/* svg */
+#include "graph/image.h"		/* image */
+#include "graph/text.h"			/* font & text */
 #include "graph/artworker.h"	/* art drawing */
-#include "hid/hid.h"					/* hid & input handler */
-#include "hid/messages.h"		 /* message queue */
-#include "ui.h"							 /* ui, window & controls */
+#include "hid/hid.h"			/* hid & input handler */
+#include "hid/messages.h"		/* message queue */
+#include "ui.h"					/* ui, window & controls */
 
 typedef word (*color_handler)(const char *color_str);
 
@@ -60,14 +60,15 @@ typedef word (*color_handler)(const char *color_str);
  * Descriptions: libaroma runtime configuration
  */
 typedef struct{
-	char fb_shm_name[64];
-	byte snapshoot_fb;
-	byte multicore_init_num;
-	color_handler custom_color_handler;
-	byte runtime_monitor;
-	int sdl_wm_width; //startup width for SDL window
-	int sdl_wm_height;//startup height for SDL window
-	char *sdl_wm_title;
+	char fb_shm_name[64];				//framebuffer shmem file name
+	byte snapshoot_fb;					//try to get screen contents before start
+	byte multicore_init_num;			//max cpu cores to init (or use?)
+	color_handler custom_color_handler;	//color translator callback for text tags parser
+	byte runtime_monitor;				//enable app runtime monitor (to handle segfaults and such)
+	int sdl_wm_width;					//startup width for SDL window
+	int sdl_wm_height;					//startup height for SDL window
+	char *sdl_wm_title;					//sdl window title
+	byte gfx_first_backend; 			//(linux only) first backend to be used when starting graphics (internal/minui)
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 
 /*

@@ -31,25 +31,29 @@
 #define __PI 3.14159265359
 
 /* LIBAROMA_START_* : Application start runtime type */
-#define LIBAROMA_START_UNSAFE		 0x0
-#define LIBAROMA_START_SAFE			 0x1
-#define LIBAROMA_START_MUTEPARENT 0x2
+#define LIBAROMA_START_UNSAFE		0x0
+#define LIBAROMA_START_SAFE			0x1
+#define LIBAROMA_START_MUTEPARENT 	0x2
 
 /* LIBAROMA_INFO_* : Version & Informations */
-#define LIBAROMA_INFO_NAME				0x0
-#define LIBAROMA_INFO_VERSION		 0x1
-#define LIBAROMA_INFO_BUILD			 0x2
-#define LIBAROMA_INFO_AUTHOR			0x3
-#define LIBAROMA_INFO_OS					0x4
+#define LIBAROMA_INFO_NAME			0x0
+#define LIBAROMA_INFO_VERSION		0x1
+#define LIBAROMA_INFO_BUILD			0x2
+#define LIBAROMA_INFO_AUTHOR		0x3
+#define LIBAROMA_INFO_OS			0x4
 #define LIBAROMA_INFO_CODENAME		0x5
-#define LIBAROMA_INFO_FULLVER		 0x6
-#define LIBAROMA_INFO_COPYRIGHT	 0x7
-#define LIBAROMA_INFO_SIGNATURE	 0x8
+#define LIBAROMA_INFO_FULLVER		0x6
+#define LIBAROMA_INFO_COPYRIGHT	 	0x7
+#define LIBAROMA_INFO_SIGNATURE	 	0x8
 
 /* Windows style dword macros */
 #define LOWORD(l) ((word)(l))
 #define HIWORD(l) ((word)(((dword)(l)>>16)&0xFFFF))
 #define MAKEDWORD(lo,hi) ((dword)(((word)(lo))|((dword)((word)(hi)))<<16))
+
+/* gfx backends */
+#define LIBAROMA_GFX_INTERNAL	0x0
+#define LIBAROMA_GFX_MINUI		0x1
 
 #ifndef __restrict
 #define __restrict
