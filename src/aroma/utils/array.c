@@ -447,8 +447,10 @@ byte libaroma_sarray_free(
 		if (a->cb != NULL) {
 			a->cb(item->val);
 		}
-		free(item->val);
-		free(item->key);
+		if (item->val!=NULL)
+			free(item->val);
+		if (item->key!=NULL)
+			free(item->key);
 		tmp_item = item;
 		item = item->next;
 		free(tmp_item);
