@@ -309,7 +309,7 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 	float state
 ){
 	// if no animation, or switching from nothing to nothing, return draw target
-	if (!animation || (!from) && (!to))
+	if (!animation || ((!from) && (!to)))
 		return target_canvas;
 	if (!from) from=libaroma_canvas(to->w, to->h);
 	if (!to) to=libaroma_canvas(from->w, from->h);
@@ -319,17 +319,25 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 	int scr_lx,	//screen_leftx, x to draw left window on screen
 		scr_ly=0,
 		scr_lw,	//screen_leftwidth, width for left window on screen
-		scr_lh=from->h,
+		scr_lh=target_canvas->h,
 		scr_rx,	//screen_rightx, x to draw right window on screen
 		scr_ry=0,
 		scr_rw,	//screen_rightwidth, width for right window on screen
-		scr_rh=to->h;
+		scr_rh=target_canvas->h;
 
 	scr_lx=0;
 	scr_rw=((float)target_canvas->w*state);//c->w-remain;
 	scr_lw=target_canvas->w-scr_rw;
 	scr_rx=scr_lw;
-
+/*
+	ALOGI("ARTWORKER - CANVAS INFORMATIONS\n"
+			"target: w=%d, h=%d\n"
+			"from: w=%d, h=%d, x=%d, y=%d\n"
+			"to: w=%d, h=%d, x=%d, y=%d",
+			target_canvas->w, target_canvas->h,
+			from->w, from->h, fromx, fromy,
+			to->w, to->h, tox, toy);
+*/
 	switch (animation){
 		case LIBAROMA_ART_SWITCH_ANIMATION_SCALE:
 		case LIBAROMA_ART_SWITCH_ANIMATION_STACKIN:
@@ -384,6 +392,48 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 				toh,			//srch
 				0				//is smooth?
 			);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_STRETCH_IN:{
+			libaroma_canvas_setcolor(target_canvas, 0, 0xFF);
+			if (state<0.5){
+				scr_lw=target_canvas->w-(((float)target_canvas->w)*(state*2.0));
+				scr_lx=(from->w-scr_lw)/2;
+				//ALOGI("Left page: y=%d, h=%d, state=%1.2f", scr_ly, scr_lh, (state*2.0));
+				libaroma_draw_scale(
+					target_canvas,	//dest
+					from,			//src
+					scr_lx,			//destx
+					scr_ly-2,		//desty
+					scr_lw,			//destw
+					scr_lh,			//desth
+					fromx,			//srcx
+					fromy,			//srcy
+					fromw,			//srcw
+					fromh,			//srch
+					0				//is smooth?
+				);
+			}
+			else if (state>0.5){
+				//scr_rw=((float)target_canvas->w)*((state-1.0)*2.0);
+				scr_rw=target_canvas->w*((state*2.0)-1.0);
+				scr_rx=(to->w-scr_rw)/2;
+				//ALOGI("Right page: h=%d, y=%d, state=%1.2f", scr_ry, scr_rh, (state*2.0)-1.0);
+				libaroma_draw_scale(
+					target_canvas,	//dest
+					to,				//src
+					scr_rx,			//destx
+					scr_ry-2,		//desty
+					scr_rw,			//destw
+					scr_rh,			//desth
+					tox,			//srcx
+					toy,			//srcy
+					tow,			//srcw
+					toh,			//srch
+					0				//is smooth?
+				);
+
+			}
 		}
 		break;
 		case LIBAROMA_ART_SWITCH_ANIMATION_FADE:{
