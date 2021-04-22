@@ -50,6 +50,16 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 );
 
 /*
+ * Function		: libaroma_ctl_progress_timing
+ * Return Value: byte
+ * Descriptions: set progress animation timing
+ */
+byte libaroma_ctl_progress_timing(
+		LIBAROMA_CONTROLP ctl,
+		int timing
+);
+
+/*
  * Function		: libaroma_ctl_progress_type
  * Return Value: byte
  * Descriptions: set progress type
@@ -77,6 +87,42 @@ byte libaroma_ctl_progress_value(
 byte libaroma_ctl_progress_max(
 		LIBAROMA_CONTROLP ctl,
 		int max
+);
+
+/*
+ * Function		: libaroma_ctl_progress_get_timing
+ * Return Value: int
+ * Descriptions: get progress current animation timing
+ */
+int libaroma_ctl_progress_get_timing(
+		LIBAROMA_CONTROLP ctl
+);
+
+/*
+ * Function		: libaroma_ctl_progress_get_value
+ * Return Value: int
+ * Descriptions: get progress current value
+ */
+int libaroma_ctl_progress_get_value(
+		LIBAROMA_CONTROLP ctl
+);
+
+/*
+ * Function		: libaroma_ctl_progress_get_max
+ * Return Value: int
+ * Descriptions: get progress max value
+ */
+int libaroma_ctl_progress_get_max(
+		LIBAROMA_CONTROLP ctl
+);
+
+/*
+ * Function		: libaroma_ctl_progress_get_type
+ * Return Value: byte
+ * Descriptions: get progress flags
+ */
+byte libaroma_ctl_progress_get_type(
+		LIBAROMA_CONTROLP ctl
 );
 
 #endif /* __libaroma_ctl_progress_h__ */

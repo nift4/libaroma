@@ -42,10 +42,6 @@ static LIBAROMA_CONTROL_HANDLER _libaroma_ctl_progress_handler={
 	thread:_libaroma_ctl_progress_thread
 };
 
-#define _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING	500
-
-
-
 /*
  * Structure	 : __LIBAROMA_CTL_PROGRESS
  * Typedef		 : _LIBAROMA_CTL_PROGRESS, * _LIBAROMA_CTL_PROGRESSP
@@ -65,6 +61,7 @@ struct __LIBAROMA_CTL_PROGRESS{
 	float state;
 	float currstate;
 	float currfrom;
+	int timing;
 };
 
 /*
@@ -108,7 +105,7 @@ byte _libaroma_ctl_progress_thread(LIBAROMA_CONTROLP ctl) {
 		}
 		else{
 			me->state=libaroma_control_state(
-				me->tick, _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING*4
+				me->tick, me->timing*4
 			);
 			if (me->state!=me->currstate){
 				me->currstate = me->state;
@@ -122,7 +119,7 @@ byte _libaroma_ctl_progress_thread(LIBAROMA_CONTROLP ctl) {
 	}
 	else if (me->state<1.0){
 		me->state =libaroma_control_state(
-			me->tick, _LIBAROMA_CTL_PROGRESS_BEZIER_TIMING
+			me->tick, me->timing
 		);
 		float bzs = libaroma_cubic_bezier_swiftout(me->state);
 		me->curval = me->preval+((me->value - me->preval) * bzs);
@@ -356,6 +353,7 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 	me->preval=value;
 	me->curval=value;
 	me->state= 1;
+	me->timing=500;
 
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
@@ -373,6 +371,23 @@ LIBAROMA_CONTROLP libaroma_ctl_progress(
 	}
 	return ctl;
 } /* End of libaroma_ctl_progress */
+
+/*
+ * Function		: libaroma_ctl_progress_timing
+ * Return Value: byte
+ * Descriptions: set progress animation timing
+ */
+byte libaroma_ctl_progress_timing(
+		LIBAROMA_CONTROLP ctl,
+		int timing
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
+	);
+	me->timing = timing;
+	return 1;
+} /* End of libaroma_ctl_progress_timing */
 
 /*
  * Function		: libaroma_ctl_progress_type
@@ -434,6 +449,20 @@ byte libaroma_ctl_progress_max(
 	return 1;
 } /* End of libaroma_ctl_progress_max */
 
+/*
+ * Function		: libaroma_ctl_progress_timing
+ * Return Value: int
+ * Descriptions: get progress current animation timing
+ */
+int libaroma_ctl_progress_get_timing(
+		LIBAROMA_CONTROLP ctl
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
+	);
+	return me->timing;
+} /* End of libaroma_ctl_progress_get_timing */
 
 /*
  * Function		: libaroma_ctl_progress_value
@@ -448,7 +477,7 @@ int libaroma_ctl_progress_get_value(
 		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
 	);
 	return me->value;
-} /* End of libaroma_ctl_progress_ */
+} /* End of libaroma_ctl_progress_get_value */
 
 /*
  * Function		: libaroma_ctl_progress_get_max
@@ -463,7 +492,7 @@ int libaroma_ctl_progress_get_max(
 		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
 	);
 	return me->max;
-} /* End of libaroma_ctl_progress_ */
+} /* End of libaroma_ctl_progress_get_max */
 
 /*
  * Function		: libaroma_ctl_progress_get_type
@@ -478,7 +507,7 @@ byte libaroma_ctl_progress_get_type(
 		_libaroma_ctl_progress_handler, _LIBAROMA_CTL_PROGRESSP, 0
 	);
 	return me->type;
-} /* End of libaroma_ctl_progress_ */
+} /* End of libaroma_ctl_progress_get_type */
 
 #ifdef __cplusplus
 }
