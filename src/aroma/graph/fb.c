@@ -520,6 +520,20 @@ LIBAROMA_CANVASP libaroma_fb_snapshoot_canvas() {
 	return NULL;
 } /* End of libaroma_fb_snapshoot */
 
+/*
+ * Function		: libaroma_fb_setrgb
+ * Return Value: void
+ * Descriptions: set framebuffer rgb order
+ */
+void libaroma_fb_setrgb(byte r, byte g, byte b) {
+	if (_libaroma_fb == NULL){
+		ALOGW("libaroma_fb_setrgb framebuffer uninitialized");
+		return;
+	}
+	if (_libaroma_fb->setrgb != NULL)
+		_libaroma_fb->setrgb(_libaroma_fb, r, g, b);
+} /* End of libaroma_fb_setrgb */
+
 #ifdef __cplusplus
 }
 #endif

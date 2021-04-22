@@ -60,11 +60,11 @@ byte libaroma_fb_set_initializer(LIBAROMA_FB_INITIALIZER cb);
  */
 struct _LIBAROMA_FB{
 	/* main info */
-	int w;							/* width */
-	int h;							/* height */
-	int sz;						 /* width x height */
+	int w;				/* width */
+	int h;				/* height */
+	int sz;				/* width x height */
 	byte double_buffer; /* is double buffer driver */
-	voidp internal;		 /* driver internal data */
+	voidp internal;		/* driver internal data */
 
 	/* callbacks */
 	void (*release)(LIBAROMA_FBP);
@@ -76,6 +76,9 @@ struct _LIBAROMA_FB{
 	byte (*post)(LIBAROMA_FBP, wordp __restrict,
 		int, int, int, int, int, int, int, int);
 	byte (*end_post)(LIBAROMA_FBP);
+
+	/* rgb setting callback */
+	byte (*setrgb)(LIBAROMA_FBP, byte, byte, byte);
 
 	/* Optional - DPI */
 	int dpi;
