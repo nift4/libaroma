@@ -203,6 +203,12 @@ byte libaroma_wm_init(){
 	_libaroma_wm_onprocessing=0;
 	_libaroma_wm->theme = libaroma_sarray(_libaroma_wm_theme_release);
 	_libaroma_wm->color = libaroma_sarray(NULL);
+	_libaroma_wm->windown=0;
+	_libaroma_wm->_window_list_size=16;
+	_libaroma_wm->windows=malloc(sizeof(LIBAROMA_WINDOWP)*_libaroma_wm->_window_list_size);
+	if (_libaroma_wm->windows==NULL){
+		ALOGW("libaroma_wm_init alloc window list memory failed");
+	}
 	_libaroma_wm->w = libaroma_fb()->w;
 	_libaroma_wm->h = libaroma_fb()->h;
 	_libaroma_wm_default_set(
@@ -588,6 +594,24 @@ byte libaroma_wm_getmessage(LIBAROMA_MSGP msg){
 	return ret;
 } /* End of libaroma_wm_getmessage */
 
+void libaroma_wm_decorate_window(LIBAROMA_WINDOWP win){
+	if (!win) return;
+	//top
+	libaroma_draw_rect(win->canvas, 4, 0, win->w, 24, RGB(00aaff), 0xFF);
+	libaroma_draw_text_ex(win->canvas, (win->title==NULL)?"Libaroma":win->title,
+						5, 5, RGB(FFFFFF), win->w-10, LIBAROMA_TEXT_SINGLELINE, 0,
+						1, 3, RGB(0), 0xFF, 0, 0);
+	//left
+	libaroma_draw_line_width(win->canvas, 2, 2, 2, win->h+26,
+													4.0, RGB(00aaff), 0xFF, 0, 1.0);
+	//right
+	libaroma_draw_line_width(win->canvas, win->w+6, 24, win->w, win->h+26,
+													4.0, RGB(00aaff), 0xFF, 0, 1.0);
+	//bottom
+	libaroma_draw_line_width(win->canvas, 2, win->h+26, win->w+6, win->h+26,
+													4.0, RGB(00aaff), 0xFF, 0, 1.0);
+}
+
 /*
  * Function		: _libaroma_wm_message_thread
  * Return Value: static void *
@@ -595,10 +619,77 @@ byte libaroma_wm_getmessage(LIBAROMA_MSGP msg){
  */
 static void * _libaroma_wm_message_thread(void * cookie) {
 	ALOGV("starting wm messaging");
+	int win_xdragoff = 0, win_ydragoff = 0, win_origw=0, win_origh=0;
+	byte wm_init_drag=0;
+	LIBAROMA_WINDOWP target=NULL;
 	while (_libaroma_wm->client_started){
 		LIBAROMA_MSG msg;
 		byte ret=libaroma_msg(&msg);
 		if (ret){
+			if (msg.msg==LIBAROMA_MSG_TOUCH){
+				//ALOGI("Touch received at %d, %d - checking for drag...", msg.x, msg.y);
+				//TODO: make this in a proper way
+				//get window at position (+24 to fix titlebar positioning)
+				LIBAROMA_WINDOWP win;
+				/*if (target)
+					win=target;
+				else */
+					win=libaroma_window_get_at(msg.x, msg.y);
+				//ALOGI("window is null? %s", (win==NULL)?"yep":"nah");
+				if ((win->flags&LIBAROMA_WINDOW_DECORATE) || target){
+					switch (msg.state){
+						case LIBAROMA_HID_EV_STATE_DOWN:{
+							if (msg.y<win->y+24){
+								win_xdragoff=msg.x-win->x;
+								win_ydragoff=msg.y-win->y;
+								win_origw=win->w;
+								win_origh=win->h;
+								target=win;
+								wm_init_drag=1;
+								ALOGI("init drag window at (%d, %d) with offset (%d, %d)", win->x, win->y, win_xdragoff, win_ydragoff);
+							}
+						}
+						break;
+						case LIBAROMA_HID_EV_STATE_MOVE:{
+							//set new window pos
+							int newx, newy, xoff, yoff;
+							if (wm_init_drag){
+								xoff=(msg.x-target->x);//+win_xdragoff;
+								yoff=(msg.y-target->y);//+win_ydragoff;
+								newx=target->x-(win_xdragoff-xoff);
+								newy=target->y-(win_ydragoff-yoff);
+								if (newx<0) newx=0;
+								if (newy<0) newy=0;
+								ALOGI("moving from (%d, %d) to (%d, %d) (xoff=%d)", target->x, target->y, newx, newy, xoff);
+								libaroma_window_resize(target, newx, newy, target->w, target->h);
+								//libaroma_canvas_setcolor(libaroma_fb()->canvas, RGB(0), 0xFF);
+								/*libaroma_draw_rect(libaroma_fb()->canvas, 0, 0, libaroma_wm()->w, win->y, RGB(0), 0xFF);
+								libaroma_draw_rect(libaroma_fb()->canvas, 0, win->y, win->x, libaroma_wm()->h-win->y, RGB(0), 0xFF);
+								libaroma_draw_rect(libaroma_fb()->canvas, win->x+win->w, win->y, libaroma_wm()->w-(win->x+win->w),
+																			libaroma_wm()->h-win->y, RGB(0), 0xFF);
+								libaroma_draw_rect(libaroma_fb()->canvas, win->x, win->y+win->h, win->w, libaroma_wm()->h-(win->y+win->h), RGB(0), 0xFF);*/
+
+								/* decorate window */
+								//libaroma_wm_decorate_window(win);
+								//draw window itself
+								//libaroma_draw(libaroma_fb()->canvas, win->dc, win->x, win->y, 0);
+								//libaroma_wm_sync(newx-4, newy-24, win->w+8, win->h+28);
+								libaroma_wm_syncarea();
+							}
+						}
+						break;
+						case LIBAROMA_HID_EV_STATE_UP:{
+							if (wm_init_drag){
+								ALOGI("drag finished, final pos is x=%d, y=%d", target->x, target->y);
+								wm_init_drag=0;
+								target=NULL;
+							}
+						}
+						break;
+					}
+					//ALOGI("TOUCH_%s at X=%d, Y=%d", (msg.state==LIBAROMA_HID_EV_STATE_DOWN)?"DOWN":(msg.state==LIBAROMA_HID_EV_STATE_UP)?"UP":"MOVE", msg.x, msg.y);
+				}
+			}
 			if (_libaroma_wm->message_handler!=NULL){
 				ret = _libaroma_wm->message_handler(_libaroma_wm,&msg);
 				if (ret==LIBAROMA_WM_MSG_HANDLED){
@@ -644,12 +735,43 @@ static void * _libaroma_wm_ui_thread(void * cookie) {
 		if (_libaroma_wm->client_started){
 			libaroma_mutex_lock(_libaroma_wm_ui_mutex);
 			if (!_libaroma_wm_onprocessing){
-				if (_libaroma_wm->active_window!=NULL){
-					if (_libaroma_wm->active_window->ui_thread!=NULL){
-						if (_libaroma_wm->active_window->ui_thread(
-							_libaroma_wm->active_window
-						)){
-							need_sync=1;
+				if (_libaroma_wm->windown>0){ //if at least one window exists, render it
+					int i;
+					for (i=0; i<_libaroma_wm->windown; i++){
+						//ALOGI("Trying to get window (%d/%d)", i+1, _libaroma_wm->windown);
+						LIBAROMA_WINDOWP win=_libaroma_wm->windows[i];
+						if (win!=NULL) {
+							if (win->ui_thread!=NULL){
+								/* decorate window */
+								//top
+								if (win->flags&LIBAROMA_WINDOW_DECORATE)
+									libaroma_wm_decorate_window(win);
+								/*libaroma_draw_circle(libaroma_fb()->canvas, RGB(00aaff), win->x, win->y-20, 8, 0xFF);
+								libaroma_draw_circle(libaroma_fb()->canvas, RGB(00aaff), win->x+win->w, win->y-20, 8, 0xFF);
+								//left
+								libaroma_draw_rect(libaroma_fb()->canvas, win->x-4, win->y, 4, win->h, RGB(00aaff), 0xFF);
+								//right
+								libaroma_draw_rect(libaroma_fb()->canvas, win->x+win->w, win->y, 4, win->h, RGB(00aaff), 0xFF);
+								//bottom
+								libaroma_draw_rect(libaroma_fb()->canvas, win->x, win->y+win->h, win->w, 4, RGB(00aaff), 0xFF);
+								libaroma_draw_circle(libaroma_fb()->canvas, RGB(00aaff), win->x, win->y+win->h, 8, 0xFF);
+								libaroma_draw_circle(libaroma_fb()->canvas, RGB(00aaff), win->x+win->w, win->y+win->h, 8, 0xFF);*/
+
+								//draw window
+								if (win->ui_thread(win)){
+									//libaroma_canvas_setcolor(libaroma_fb()->canvas, RGB(0), 0xFF);
+									/*libaroma_draw_rect(libaroma_fb()->canvas, 0, 0, libaroma_wm()->w, win->y, RGB(0), 0xFF);
+									libaroma_draw_rect(libaroma_fb()->canvas, 0, win->y, win->x, libaroma_wm()->h-win->y, RGB(0), 0xFF);
+									libaroma_draw_rect(libaroma_fb()->canvas, win->x+win->w, win->y, libaroma_wm()->w-(win->x+win->w),
+																				libaroma_wm()->h-win->y, RGB(0), 0xFF);
+									libaroma_draw_rect(libaroma_fb()->canvas, win->x, win->y+win->h, win->w, libaroma_wm()->h-(win->y+win->h), RGB(0), 0xFF);
+									*/
+									need_sync=1;
+								}
+							}
+						}
+						else {
+							//ALOGI("Failed to obtain window %d", i+1);
 						}
 					}
 				}
@@ -660,15 +782,20 @@ static void * _libaroma_wm_ui_thread(void * cookie) {
 				}
 			}
 			libaroma_mutex_unlock(_libaroma_wm_ui_mutex);
+			//draw here, just before syncing framebuffer
+			//TODO: add draw callback, for custom user overlays drawing
+			/*
+			LIBAROMA_CANVASP cv=libaroma_canvas_ex(48, 48, 1);
+			libaroma_art_arrowdrawer(cv, 1, 0, 0, 0, 48, RGB(FFFFFF), 0xFF, 0, 0.5);
+			libaroma_draw(libaroma_fb()->canvas, cv, LINUXHIDRV_get_mouse_x(), LINUXHIDRV_get_mouse_y()-24, 1);*/
+			//libaroma_draw_zshadow(
 			if (need_sync){
 				libaroma_wm_syncarea();
 				need_sync=0;
 				continue;
 			}
 		}
-		libaroma_sleep(8);	//lowered due to DRM support, but still useful
-							//TODO: check, if minui graphics not used then
-							//delay should be of 16 (less CPU usage)
+		libaroma_sleep(16); //TODO: check for higher hz displays (90/120hz)
 	}
 	ALOGV("wm ui thread ended");
 	return NULL;
@@ -704,6 +831,7 @@ byte libaroma_wm_client_start(){
 
 		/* high priority thread */
 		libaroma_thread_set_hiprio(_libaroma_wm_ui_thread_var);
+
 		return 1;
 	}
 	return 0;
@@ -732,8 +860,15 @@ byte libaroma_wm_client_stop(){
 		_libaroma_wm_message_thread_var=0;
 		_libaroma_wm_ui_thread_var=0;
 
-		/* cleanup queue */
-		libaroma_stack_free(_libaroma_wm->queue);
+		/* cleanup queue & windows */
+
+		if (_libaroma_wm->windown>0){
+			int i;
+			for (i=_libaroma_wm->windown; i>0; i--){
+				//libaroma_window_aniclose(_libaroma_wm->windows[i-1], LIBAROMA_WINDOW_SHOW_ANIMATION_CIRCLE, 350);
+				libaroma_window_free(_libaroma_wm->windows[i-1]);
+			}
+		}
 
 		/* stop message queue */
 		libaroma_msg_stop();

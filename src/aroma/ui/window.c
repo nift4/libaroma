@@ -145,7 +145,26 @@ int libaroma_window_measure_calculate(
 	return cv;
 } /* End of libaroma_window_measure_calculate */
 
-
+/*
+ * Function		: libaroma_window_get_at
+ * Return Value: LIBAROMA_WINDOWP
+ * Descriptions: get first window at x/y point
+ */
+LIBAROMA_WINDOWP libaroma_window_get_at(int x, int y){
+	int i;
+	for (i=0; i<libaroma_wm()->windown; i++){ //TODO: IMPLEMENT Z ORDER
+		LIBAROMA_WINDOWP win=libaroma_wm()->windows[i];
+		//ALOGI("Looking for window at %d, %d", x, y);
+		if (win){
+			//ALOGI("Window found, checking for same coordinates...");
+			if (win->x<=x && win->x+win->w >=x &&
+				win->y<=y && win->y+win->h >=y){
+				return win;
+			}
+		}
+	}
+	return NULL;
+} /* End of libaroma_window_get_at */
 
 /*
  * Function		: libaroma_window_measure_size
@@ -186,12 +205,12 @@ byte libaroma_window_measure_size(LIBAROMA_WINDOWP win){
 			win->h, win->rh, libaroma_wm()->h, 1, win->y
 		);
 
-		if (win->w+win->x>libaroma_wm()->w){
+		/*if (win->w+win->x>libaroma_wm()->w){
 			win->w = libaroma_wm()->w-win->x;
 		}
 		if (win->h+win->y>libaroma_wm()->h){
 			win->h = libaroma_wm()->h-win->y;
-		}
+		}*/
 		_libaroma_window_measure_save(win,NULL);
 		LIBAROMA_MSG _msg;
 		libaroma_window_process_event(win,libaroma_wm_compose(
@@ -244,7 +263,7 @@ byte _libaroma_window_ui_thread(LIBAROMA_WINDOWP win) {
 								toast_ctl->h,
 								0
 							);
-				libaroma_png_save(win->dc, "/tmp/dc.png");
+				//libaroma_png_save(win->dc, "/tmp/dc.png");
 				if (!need_sync) need_sync=1;
 			}
 		}
@@ -257,9 +276,9 @@ byte _libaroma_window_ui_thread(LIBAROMA_WINDOWP win) {
  * Return Value: LIBAROMA_WINDOWP
  * Descriptions: creates a new window
  */
-LIBAROMA_WINDOWP libaroma_window(
-	char * bg_theme_name,
-	int x, int y, int w, int h
+LIBAROMA_WINDOWP libaroma_window_ex(
+	char * title,
+	int x, int y, int w, int h, byte flags
 ){
 	__CHECK_WM(NULL);
 	LIBAROMA_WINDOWP win = (LIBAROMA_WINDOWP) calloc(sizeof(LIBAROMA_WINDOW),1);
@@ -268,17 +287,48 @@ LIBAROMA_WINDOWP libaroma_window(
 		return NULL;
 	}
 
+	/* add window to wm list */
+	//first, increase window counter
+	libaroma_wm()->windown++;
+	//if window list can't hold new windows, increase the size
+	if (libaroma_wm()->windown>= libaroma_wm()->_window_list_size){
+		libaroma_wm()->_window_list_size +=16;
+		LIBAROMA_WINDOWP *new_list_ptr=realloc(libaroma_wm()->windows, libaroma_wm()->_window_list_size);
+		if (new_list_ptr==NULL){
+			ALOGW("libaroma_window increase wm list size failed");
+			return NULL;
+		}
+		else {
+			libaroma_wm()->windows=new_list_ptr;
+		}
+	}
+	//after ensuring that wm list has enough space, add window to it
+	libaroma_wm()->windows[libaroma_wm()->windown-1]=win;
+	/*
 	if (bg_theme_name){
 		snprintf(win->theme_bg,256,"%s",bg_theme_name);
 	}
 	else{
 		win->theme_bg[0]=0;
-	}
-	win->rx = x;
-	win->ry = y;
-	win->rw = w;
-	win->rh = h;
+	}*/
+	win->rx = (flags&LIBAROMA_WINDOW_FULLSCREEN)?0:x;
+	win->ry = (flags&LIBAROMA_WINDOW_FULLSCREEN)?0:y;
+	win->rw = (flags&LIBAROMA_WINDOW_FULLSCREEN)?LIBAROMA_SIZE_FULL:w;
+	win->rh = (flags&LIBAROMA_WINDOW_FULLSCREEN)?LIBAROMA_SIZE_FULL:h;
+
+	//start setting flags
+	win->flags=LIBAROMA_WINDOW_DECORATE;
+	//fullscreen window cant be decorated (until restored, but that will be added later)
+	if (flags&LIBAROMA_WINDOW_FULLSCREEN)
+		win->flags = LIBAROMA_WINDOW_FULLSCREEN;
+
+	//add the next flags
+	if (flags&LIBAROMA_WINDOW_FIXEDSIZE)
+		win->flags|=LIBAROMA_WINDOW_FIXEDSIZE;
+	if (flags&LIBAROMA_WINDOW_ALPHA)
+		win->flags|=LIBAROMA_WINDOW_ALPHA;
 	win->onpool=1;
+	win->title=title;
 	win->prev_screen = libaroma_fb_snapshoot_canvas();
 	win->ui_thread = _libaroma_window_ui_thread;
 	libaroma_window_measure_size(win);
@@ -302,7 +352,15 @@ byte libaroma_window_free(
 	if (win->parent==NULL){
 		if (libaroma_wm_get_active_window()==win){
 			/* detach active window from window manager */
-			libaroma_wm_set_active_window(NULL);
+			ALOGI("MLX----------- WIN COUNT IS %d-----------", libaroma_wm()->windown);
+			if (libaroma_wm()->windown>1){
+				ALOGI("Setting active window to something, count is %d", libaroma_wm()->windown);
+				libaroma_wm_set_active_window(libaroma_wm()->windows[libaroma_wm()->windown-2]);
+			}
+			else{
+				ALOGI("Setting active window to NULL");
+				libaroma_wm_set_active_window(NULL);
+			}
 		}
 
 		LIBAROMA_MSG _msg;
@@ -315,6 +373,11 @@ byte libaroma_window_free(
 			win->handler->prefree(win);
 		}
 	}
+
+	/* free title */
+	/*if (win->title!=NULL){
+		free(win->title);
+	}*/
 
 	/* delete childs */
 	int i;
@@ -342,6 +405,11 @@ byte libaroma_window_free(
 			win->handler->postfree(win);
 		}
 	}
+	/* remove window from wm list */
+	//unset pointer
+	libaroma_wm()->windows[libaroma_wm()->windown-1]=NULL;
+	//decrease window counter
+	libaroma_wm()->windown--;
 	free(win);
 	return 1;
 } /* End of libaroma_window_free */
@@ -446,12 +514,19 @@ byte _libaroma_window_ready(LIBAROMA_WINDOWP win){
 		h = libaroma_wm()->h;
 		y = 0;
 	}
+
 	/* set position */
 	if (win->dc!=NULL){
 		libaroma_canvas_free(win->dc);
 		win->dc=NULL;
 	}
-	win->dc= libaroma_wm_canvas(x, y, w, h);
+
+	if (win->flags&LIBAROMA_WINDOW_DECORATE){	//if window needs to be decorated (overlappable), create normal canvas
+		win->canvas=libaroma_wm_canvas(x-4, y-4, w+8, h+28);//libaroma_canvas(win->w+8, win->h+28);
+		win->dc=libaroma_canvas_area(win->canvas, 4, 24, w, h);
+	}
+	else				//otherwise, use wm child canvas (auto updated by wm)
+		win->dc=libaroma_wm_canvas(x, y, w, h);
 	if (win->dc==NULL){
 		ALOGW("window_ready cannot allocate workspace drawing canvas");
 		return 0;
@@ -509,6 +584,33 @@ byte libaroma_window_isactive(LIBAROMA_WINDOWP win){
 	}
 	return 0;
 } /* End of libaroma_window_isactive */
+
+/*
+ * Function		: libaroma_window_settitle
+ * Return Value: void
+ * Descriptions: set window title
+ */
+void libaroma_window_settitle(LIBAROMA_WINDOWP win, char *text){
+	if (!win) {
+		ALOGW("window_settitle cannot set title for NULL window");
+		return;
+	}
+	if (!text) win->title=NULL;
+	else win->title=strdup(text);
+}
+
+/*
+ * Function		: libaroma_window_gettitle
+ * Return Value: char *
+ * Descriptions: get window title
+ */
+char *libaroma_window_gettitle(LIBAROMA_WINDOWP win){
+	if (!win){
+		ALOGW("window_gettitle cannot get title from NULL window");
+		return NULL;
+	}
+	return win->title;
+}
 
 /*
  * Function		: libaroma_window_add
@@ -965,7 +1067,6 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							//libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -995,7 +1096,6 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -1025,7 +1125,6 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -1071,7 +1170,7 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 	/* sync view now */
 	if (close){
 		libaroma_wm_sync(win->x,win->y,win->w,win->h);
-		libaroma_wm_set_active_window(NULL);
+		//libaroma_wm_set_active_window(NULL);
 		libaroma_window_free(win);
 	}
 	else {
@@ -1337,6 +1436,8 @@ dword libaroma_window_pool(
 	}
 	LIBAROMA_MSG _msg;
 	LIBAROMA_MSGP cmsg=(msg!=NULL)?msg:&_msg;
+	while (libaroma_wm_get_active_window() != win) {libaroma_sleep(5);}
+	//ALOGI("Window %s is waiting for messages...", libaroma_window_gettitle(win));
 	byte ret = libaroma_wm_getmessage(cmsg);
 	if (ret){
 		return libaroma_window_process_event(win,cmsg);

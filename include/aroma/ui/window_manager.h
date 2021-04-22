@@ -53,7 +53,7 @@ typedef byte (*LIBAROMA_WMCB_MESSAGE_HANDLER) \
 typedef void (*LIBAROMA_WMCB_RESET_HANDLER) \
 	(LIBAROMA_WMP, byte flags);
 typedef byte (*LIBAROMA_WMCB_UI_THREAD)();
-	
+
 /*
  * Structure	 : _LIBAROMA_WM
  * Typedef		 : LIBAROMA_WM, * LIBAROMA_WMP
@@ -61,10 +61,10 @@ typedef byte (*LIBAROMA_WMCB_UI_THREAD)();
  */
 struct _LIBAROMA_WM{
 	LIBAROMA_COLORSET colorset; /* default colorset */
-	
+
 	LIBAROMA_SARRAYP theme; /* themeset */
 	LIBAROMA_SARRAYP color; /* colorset */
-	
+
 	/* hooker callbacks */
 	LIBAROMA_WMCB_MESSAGE_HANDLER message_handler;
 	LIBAROMA_WMCB_RESET_HANDLER reset_handler;
@@ -75,20 +75,26 @@ struct _LIBAROMA_WM{
 	int y;
 	int w;
 	int h;
-	
+
 	/* window sync */
 	byte sync_all;
 	int sync_x;
 	int sync_y;
 	int sync_w;
 	int sync_h;
-	
+
 	/* message state */
 	LIBAROMA_STACKP queue;
-	
+
 	byte client_started;
 	LIBAROMA_WINDOWP active_window;
 	LIBAROMA_CANVASP workspace_bg;
+
+	/* window list */
+	int windown;
+	int _window_list_size;
+	LIBAROMA_WINDOWP *windows;
+	//LIBAROMA_STACKP windows;
 };
 
 /*
@@ -124,6 +130,8 @@ void libaroma_wm_updatesync(int x, int y, int w, int h, byte all);
  * Descriptions: reset sync
  */
 void libaroma_wm_resetsync();
+
+LIBAROMA_WINDOWP _libaroma_wm_get_from_stack(int index);
 
 /*
  * Function		: libaroma_wm_compose

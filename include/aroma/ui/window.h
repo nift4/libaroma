@@ -40,6 +40,12 @@
 #define LIBAROMA_CMD_CLICK			0x1
 #define LIBAROMA_CMD_HOLD			 0x2
 
+/* flags */
+#define LIBAROMA_WINDOW_FULLSCREEN	0x1
+#define LIBAROMA_WINDOW_DECORATE	0x2
+#define LIBAROMA_WINDOW_FIXEDSIZE	0x4
+#define LIBAROMA_WINDOW_ALPHA		0x8
+
 /*
  * Window Messages Queue
  */
@@ -72,6 +78,9 @@
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_LEFT		13
 #define LIBAROMA_WINDOW_SHOW_ANIMATION_SWAP_RIGHT		14
 
+#define libaroma_window(title, x, y, w, h) \
+		libaroma_window_ex(title, x, y, w, h, LIBAROMA_WINDOW_FULLSCREEN)
+
 #define libaroma_window_anishow(win, ani, time) \
 		libaroma_window_hideshow_animated(win, ani, time, 0)
 #define libaroma_window_aniclose(win, ani, time) \
@@ -84,13 +93,13 @@
  */
 #define LIBAROMA_SIZE_FULL		 0
 #define LIBAROMA_SIZE_HALF		-1
-#define LIBAROMA_SIZE_THIRD	 -2
-#define LIBAROMA_SIZE_QUARTER -3
-#define LIBAROMA_POS_HALF		 -4
-#define LIBAROMA_POS_1P3			-5
-#define LIBAROMA_POS_2P3			-6
-#define LIBAROMA_POS_1P4			-7
-#define LIBAROMA_POS_3P4			-8
+#define LIBAROMA_SIZE_THIRD	 	-2
+#define LIBAROMA_SIZE_QUARTER 	-3
+#define LIBAROMA_POS_HALF		-4
+#define LIBAROMA_POS_1P3		-5
+#define LIBAROMA_POS_2P3		-6
+#define LIBAROMA_POS_1P4		-7
+#define LIBAROMA_POS_3P4		-8
 
 #define LIBAROMA_PULLDOWN_SLIDE	0x1
 #define LIBAROMA_PULLDOWN_CLEAN	0x2
@@ -168,8 +177,15 @@ struct _LIBAROMA_WINDOW{
 	/* appbar color */
 	word appbar_bg;
 
+	/* title */
+	char *title;
+
+	/* properties */
+	byte flags;
+
 	/* graphs */
 	char theme_bg[256];
+	LIBAROMA_CANVASP canvas; //full window canvas with decoration
 	LIBAROMA_CANVASP dc;
 	LIBAROMA_CANVASP bg;
 	LIBAROMA_CANVASP prev_screen;
@@ -202,11 +218,11 @@ byte libaroma_window_usedp(byte isdp);
 /*
  * Function		: libaroma_window
  * Return Value: LIBAROMA_WINDOWP
- * Descriptions: new window
+ * Descriptions: new window - extended
  */
-LIBAROMA_WINDOWP libaroma_window(
-	char * bg_theme_name,
-	int x, int y, int w, int h
+LIBAROMA_WINDOWP libaroma_window_ex(
+	char * title,
+	int x, int y, int w, int h, byte flags
 );
 
 /*
@@ -215,6 +231,13 @@ LIBAROMA_WINDOWP libaroma_window(
  * Descriptions: mesure point
  */
 int libaroma_window_measure_point(int x);
+
+/*
+ * Function		: libaroma_window_get_at
+ * Return Value: LIBAROMA_WINDOWP
+ * Descriptions: get first window at x/y point
+ */
+LIBAROMA_WINDOWP libaroma_window_get_at(int x, int y);
 
 /*
  * Function		: libaroma_window_free
@@ -241,6 +264,20 @@ byte libaroma_window_resize(
  * Descriptions: check if window is active
  */
 byte libaroma_window_isactive(LIBAROMA_WINDOWP win);
+
+/*
+ * Function		: libaroma_window_settitle
+ * Return Value: byte
+ * Descriptions: set window title
+ */
+void libaroma_window_settitle(LIBAROMA_WINDOWP win, char *text);
+
+/*
+ * Function		: libaroma_window_gettitle
+ * Return Value: byte
+ * Descriptions: get window title
+ */
+char *libaroma_window_gettitle(LIBAROMA_WINDOWP win); //win->title
 
 /*
  * Function		: libaroma_window_add
