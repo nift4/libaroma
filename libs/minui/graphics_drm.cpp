@@ -293,7 +293,8 @@ GRSurface* MinuiBackendDrm::Init() {
     if (fd == -1) continue;
 
     /* We need dumb buffers. */
-    if (uint64_t cap = 0; drmGetCap(fd.get(), DRM_CAP_DUMB_BUFFER, &cap) != 0 || cap == 0) {
+	uint64_t cap = 0; 
+    if (drmGetCap(fd.get(), DRM_CAP_DUMB_BUFFER, &cap) != 0 || cap == 0) {
       continue;
     }
 
