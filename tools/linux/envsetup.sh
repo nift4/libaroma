@@ -94,8 +94,6 @@ LIBAROMA_ARCH_OPTIMIZATIONS="${LIBAROMA_ARCH}/*.S"
 # MIPS optimizations are in a .c file, not in a .S one
 if [ "${LIBAROMA_ARCH}" = "mips" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="mips/*.c"
-elif [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
-	LIBAROMA_ARCH_OPTIMIZATIONS="arm/*.S"
 fi
 
 # set debug levels:
