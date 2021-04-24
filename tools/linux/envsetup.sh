@@ -80,8 +80,9 @@ elif [ "${LIBAROMA_PLATFORM}" = "sdl2" ]; then
 	LIBAROMA_ADDITIONAL_LIBS="${LIBAROMA_ADDITIONAL_LIBS} -lSDL2"
 else
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -static"
-	# if platform is Linux and architecture is arm (with neon), build minui and drm
-	if [ "${LIBAROMA_PLATFORM}" = "linux" ] && [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
+	# if platform is Linux (and architecture isn't non-neon arm), build minui and drm
+	if [ "${LIBAROMA_PLATFORM}" = "linux" ] || \
+		([ "${LIBAROMA_PLATFORM}" = "linux" ]  && [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]); then
 		LIBAROMA_BUILD_DRM=1
 		LIBAROMA_BUILD_MINUI=1
 		LIBAROMA_DRM_OBJ="${LIBAROMA_BASE}/tools/linux/obj/${LIBAROMA_ARCH}/drm/*.o"

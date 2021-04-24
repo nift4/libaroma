@@ -10,8 +10,8 @@ rm -rf libaroma/${LIBAROMA_ARCH}
 mkdir -p libaroma/${LIBAROMA_ARCH}
 cd libaroma/${LIBAROMA_ARCH}
 
-# build minui wrapper if going to target linux and arch isn't non-neon arm
-if [ "${LIBAROMA_PLATFORM}" = "linux" ] && [ "${LIBAROMA_ARCH}" != "arm" ]; then
+# build minui wrapper if minui was built
+if [ "${LIBAROMA_BUILD_MINUI}" = "1" ]; then
 echo Building aroma minui wrapper
 ${LIBAROMA_GCC} -c \
   -fdata-sections -ffunction-sections -Wl,--gc-sections \
