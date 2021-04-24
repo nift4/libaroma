@@ -66,7 +66,7 @@ elif [ "${LIBAROMA_ARCH}" = "x86" ] || [ "${LIBAROMA_ARCH}" = "x86_64" ]; then
 fi
 
 # if not building for ARM, disable JPEG (TODO: make jpeg neon optimizations optional)
-if [ "${LIBAROMA_ARCH}" != "arm-neon" ]; then
+if [ "${LIBAROMA_ARCH_APPEND}" != "neon" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -DLIBAROMA_CONFIG_NOJPEG=1"
 	LIBAROMA_BUILD_JPEG=0
 	LIBAROMA_JPEG_OBJ=""
