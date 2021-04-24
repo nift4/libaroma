@@ -1,6 +1,7 @@
 @echo off
-mkdir ..\obj\hbucdn
-cd ..\obj\hbucdn
+pushd %~dp0
+mkdir ..\obj\%LIBAROMA_ARCH%\hbucdn
+cd ..\obj\%LIBAROMA_ARCH%\hbucdn
 
 echo Compiling hbucdn
 %LIBAROMA_GCC% -c ^
@@ -8,8 +9,8 @@ echo Compiling hbucdn
   -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
   -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% ^
  ^
-  ..\..\..\..\libs\harfbuzz-ng\src\hb-ucdn\ucdn.c ^
+  %LIBAROMA_BASE%\libs\harfbuzz-ng\src\hb-ucdn\ucdn.c ^
  ^
-  -I..\..\..\..\libs\harfbuzz-ng\src\hb-ucdn
+  -I%LIBAROMA_BASE%\libs\harfbuzz-ng\src\hb-ucdn
 
-cd ..\..\libs
+popd
