@@ -53,7 +53,7 @@
 
 /* gfx backends */
 #define LIBAROMA_GFX_INTERNAL	0x0
-#define LIBAROMA_GFX_MINUI		0x1
+//#define LIBAROMA_GFX_MINUI		0x1
 
 #ifndef __restrict
 #define __restrict

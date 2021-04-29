@@ -29,7 +29,9 @@
 #include "fb_colorspace/fb_16bit.c" /* 16 bit */
 #include "fb_colorspace/fb_32bit.c" /* 32 bit */
 #include "fb_qcom/fb_qcom.c" /* qcom overlay */
+#ifdef LIBAROMA_GFX_MINUI
 #include "aroma_minui.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -92,6 +94,7 @@ byte LINUXFBDR_config(
 	return 0;
 }
 
+#ifdef LIBAROMA_GFX_MINUI
 /*
  * Function		: LINUXDRM_start_post
  * Return Value: byte
@@ -273,9 +276,12 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 	if (mi->is32)
 		me->snapshoot	= &LINUXDRM_snapshoot_32bit;
 	else me->snapshoot	= &LINUXDRM_snapshoot_16bit;
+	me->setrgb			= &LINUXDRM_setrgbpos;
 	ALOGI("Function callbacks set");
 	return 1;
 }
+#endif
+
 /*
  * Function		: LINUXFBDR_init
  * Return Value: byte
@@ -389,6 +395,7 @@ byte LINUXFBDR_init(LIBAROMA_FBP me) {
 
 	/* set config */
 	me->config = &LINUXFBDR_config;
+	me->setrgb = &LINUXFBDR_setrgbpos;
 
 	/* set dpi */
 	LINUXFBDP_set_dpi(me);
@@ -672,8 +679,20 @@ void LINUXFBDR_dump(LINUXFBDR_INTERNALP mi) {
  * Descriptions: init function for libaroma fb
  */
 byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
-	byte ret=LINUXDRM_init(me);
-	if (!ret) ret=LINUXFBDR_init(me);
+	byte ret;
+	#ifdef LIBAROMA_GFX_MINUI
+	if (libaroma_config()->gfx_first_backend == LIBAROMA_GFX_MINUI){
+		ret=LINUXDRM_init(me);
+		if (!ret) ret=LINUXFBDR_init(me);
+	}
+	else {
+	#endif
+		ret=LINUXFBDR_init(me);
+	#ifdef LIBAROMA_GFX_MINUI
+		if (!ret) ret=LINUXDRM_init(me);
+	}
+	#endif
+	if (!ret) ALOGI("Display initialization failed");
 	return ret;
 } /* End of libaroma_fb_driver_init */
 

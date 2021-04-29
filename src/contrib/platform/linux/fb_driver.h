@@ -85,27 +85,27 @@ struct _LINUXDRM_INTERNAL{
  * structure : internal framebuffer data
  */
 struct _LINUXFBDR_INTERNAL{
-	int			 fb;												 /* framebuffer handler */
-	byte			is32;											 /* is 32bit framebuffer? */
+	int			 fb;							/* framebuffer handler */
+	byte			is32;						/* is 32bit framebuffer? */
 	struct		fb_fix_screeninfo	 fix;		/* linux framebuffer fix info */
 	struct		fb_var_screeninfo	 var;		/* linux framebuffer var info */
-	int			 fb_sz;											/* framebuffer memory size */
-	voidp		 buffer;										 /* direct buffer */
-	int			 stride;										 /* stride size */
-	int			 line;											 /* line size */
-	byte			depth;											/* color depth */
-	byte			pixsz;											/* memory size per pixel */
-	byte			rgb_pos[6];								 /* framebuffer 32bit rgb position */
+	int			 fb_sz;							/* framebuffer memory size */
+	voidp		 buffer;						/* direct buffer */
+	int			 stride;						/* stride size */
+	int			 line;							/* line size */
+	byte			depth;						/* color depth */
+	byte			pixsz;						/* memory size per pixel */
+	byte			rgb_pos[6];					/* framebuffer 32bit rgb position */
 
-	byte			double_buffering;					 /* is double buffering? */
-	voidp		 current_buffer;						 /* current buffer to write */
-	voidp		 unswap_buffer;							/* unswapped buffer to write */
+	byte			double_buffering;			/* is double buffering? */
+	voidp		 current_buffer;				/* current buffer to write */
+	voidp		 unswap_buffer;					/* unswapped buffer to write */
 
 	LIBAROMA_MUTEX	mutex;
 
 	int			 last_vsync;
-	byte			is_omap;										/* is omap fb? - vsync */
-	QCOMFB_INTERNALP	qcom;							 /* qcom fb internal data */
+	byte			is_omap;					/* is omap fb? - vsync */
+	QCOMFB_INTERNALP	qcom;					/* qcom fb internal data */
 
 	/* pointer */
 	byte pointered;
