@@ -54,6 +54,17 @@ for /f "tokens=*" %%F in ('dir /b /a:-d "*.o"') do call set libaroma_objs=%%liba
 set target_files=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\..\..\examples\%1\*.c"') do call set target_files=%%target_files%% ..\..\..\..\examples\%1\%%F
 
+REM 
+REM Additional C files list (sources_list.txt)
+REM This allows to build files with C files in subdirectories
+REM (by default, this script just compiles *.c on examples/<appname>)
+REM 
+if exist "..\..\..\..\examples\%1\sources_list.txt" (
+	echo Parsing additional sources
+	for /f "tokens=*" %%F in (..\..\..\..\examples\%1\sources_list.txt) do call set target_files=%%target_files%% ..\..\..\..\examples\%1\%%F
+)
+
+
 if "%LIBAROMA_DEBUG_ENABLED%" == "1" (
 echo Building %1-debug for %LIBAROMA_ARCH% %LIBAROMA_ARCH_APPEND%
 ) else echo Building %1 for %LIBAROMA_ARCH% %LIBAROMA_ARCH_APPEND%
