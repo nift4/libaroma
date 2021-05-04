@@ -12,6 +12,12 @@ if not exist %~dp0\libaroma\%LIBAROMA_ARCH% (
 )
 pushd %~dp0\libaroma\%LIBAROMA_ARCH%
 
+if not exist "%LIBAROMA_BASE%\examples\%1\" (
+	echo Source for %1 not found, exiting! 
+	popd
+	goto :EOF
+)
+
 REM
 REM GET OBJECT/SOURCE FILE PATHS
 REM This is done because some toolchains don't have wildcard support enabled for Windows, and
@@ -21,7 +27,7 @@ REM more than that this will fail to fully set the variables. That should never 
 REM
 set drm_objs= 
 if "%LIBAROMA_BUILD_DRM%" == "1" (
-for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\drm\*.o"') do call set drm_objs=%%drm_objs%% ..\..\obj\%LIBAROMA_ARCH%\drm\%%F
+	for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\drm\*.o"') do call set drm_objs=%%drm_objs%% ..\..\obj\%LIBAROMA_ARCH%\drm\%%F
 )
 set freetype_objs=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\freetype\*.o"') do call set freetype_objs=%%freetype_objs%% ..\..\obj\%LIBAROMA_ARCH%\freetype\%%F
@@ -31,11 +37,11 @@ set hbucdn_objs=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\hbucdn\*.o"') do call set hbucdn_objs=%%hbucdn_objs%% ..\..\obj\%LIBAROMA_ARCH%\hbucdn\%%F
 set jpeg_objs= 
 if "%LIBAROMA_BUILD_JPEG%" == "1" (
-for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\jpeg\*.o"') do call set jpeg_objs=%%jpeg_objs%% ..\..\obj\%LIBAROMA_ARCH%\jpeg\%%F
+	for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\jpeg\*.o"') do call set jpeg_objs=%%jpeg_objs%% ..\..\obj\%LIBAROMA_ARCH%\jpeg\%%F
 )
 set minui_objs= 
 if "%LIBAROMA_BUILD_MINUI%" == "1" (
-for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\minui\*.o"') do call set minui_objs=%%minui_objs%% ..\..\obj\%LIBAROMA_ARCH%\minui\%%F
+	for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\minui\*.o"') do call set minui_objs=%%minui_objs%% ..\..\obj\%LIBAROMA_ARCH%\minui\%%F
 )
 set minzip_objs=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\minzip\*.o"') do call set minzip_objs=%%minzip_objs%% ..\..\obj\%LIBAROMA_ARCH%\minzip\%%F
@@ -44,11 +50,13 @@ for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\png\*.o"') do
 set zlib_objs=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\obj\%LIBAROMA_ARCH%\zlib\*.o"') do call set zlib_objs=%%zlib_objs%% ..\..\obj\%LIBAROMA_ARCH%\zlib\%%F
 set libaroma_objs=
-for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\libaroma\%LIBAROMA_ARCH%\*.o"') do call set libaroma_objs=%%libaroma_objs%% ..\..\libaroma\%LIBAROMA_ARCH%\%%F
+for /f "tokens=*" %%F in ('dir /b /a:-d "*.o"') do call set libaroma_objs=%%libaroma_objs%% %%F
 set target_files=
 for /f "tokens=*" %%F in ('dir /b /a:-d "..\..\..\..\examples\%1\*.c"') do call set target_files=%%target_files%% ..\..\..\..\examples\%1\%%F
 
-echo Building %1 at %cd%
+if "%LIBAROMA_DEBUG_ENABLED%" == "1" (
+echo Building %1-debug for %LIBAROMA_ARCH% %LIBAROMA_ARCH_APPEND%
+) else echo Building %1 for %LIBAROMA_ARCH% %LIBAROMA_ARCH_APPEND%
 %LIBAROMA_GCC% ^
   -static ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
