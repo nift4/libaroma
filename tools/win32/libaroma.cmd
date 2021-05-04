@@ -111,6 +111,6 @@ echo Building libaroma
   -I%LIBAROMA_BASE%\libs\harfbuzz-ng\src ^
   -I%LIBAROMA_BASE%\libs\harfbuzz-ng\src\hb-ucdn 
 
-cd ..
+cd ..\..
 mkdir bin
 popd
