@@ -14,8 +14,8 @@
  * limitations under the License.
  *______________________________________________________________________________
  *
- * Filename    : libaroma_test.c
- * Description : libaroma test file
+ * Filename    : main.c
+ * Description : libaroma main test file
  *
  * + This is part of libaroma, an embedded ui toolkit.
  * + 04/02/15 - Author(s): Ahmad Amarullah
@@ -28,11 +28,9 @@ extern "C" {
 #endif
 /* libaroma header */
 #include <aroma.h>
+#include <time.h>
 
-/* include test modules */
-#include "mods/bar_test.c"
-#include "mods/tab_test.c"
-#include "mods/common_test.c"
+extern void full_test();
 
 LIBAROMA_ZIP zip;
 
@@ -81,6 +79,7 @@ void init_libaroma(){
 	/* clean display */
 	//libaroma_canvas_blank(libaroma_fb()->canvas);
 	//libaroma_sync();
+	//libaroma_fb_setrgb(0, 8, 16);
 
 	/* load font - id=0 */
 	libaroma_font(0,
@@ -96,8 +95,9 @@ void init_libaroma(){
  * Descriptions: main executable function
  */
 int main(int argc, char **argv){
-	/* For recovery Apps:*/
-	printf("MLX: ARGC=%d\n", argc);
+
+	libaroma_sdl_startup_size(800, 480);
+	libaroma_sdl_window_title("Test App");
 	if (argc==4){
 		if (argv[2]!='0') //if parent pipe is zero, we're running from test environment (recovery.sh)
 			libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;
@@ -116,20 +116,12 @@ int main(int argc, char **argv){
 	}
 	init_libaroma();
 
-  // tab_test();
-LIBAROMA_CANVASP cv=libaroma_canvas(48, 48);
-libaroma_art_arrowdrawer(cv, 0.5, 0, 8, 8, 32, RGB(FFFFFF), 0xFF, 0, 0.5);
-libaroma_png_save(cv, "/tmp/arrow.png");
-	bar_test();
+	/* start full test */
+	full_test();
 
-	/* start common test */
-	// common_test();
 
 	/* end libaroma process */
 	libaroma_end();
-	system("setprop ctl.start recovery");
-	/* For recovery apps:*/
-	//kill(pp, 18);
 
 	return 0;
 } /* End of main */
