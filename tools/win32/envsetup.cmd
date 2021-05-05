@@ -1,4 +1,5 @@
 @echo off
+setlocal enableextensions enabledelayedexpansion
 pushd %~dp0
 if %errorlevel% NEQ 0 ( 
 	echo Unable to get script dir, exiting!
@@ -40,7 +41,6 @@ set LIBAROMA_BUILD_JPEG=0
 set LIBAROMA_BUILD_MINUI=0
 set LIBAROMA_CONFIG_DEBUG=3
 set LIBAROMA_CONFIG_DEBUG_FILE=0
-set "LIBAROMA_DEBUG_PREFIX="
 
 rem enable openmp and disable warnings by default
 set LIBAROMA_CFLAGS=-fopenmp -DLIBAROMA_CONFIG_OPENMP=1 -w
@@ -62,10 +62,12 @@ if %LIBAROMA_DEBUG_ENABLED% == 1 (
 )
 
 rem enable architecture optimizations
-if "%LIBAROMA_ARCH%" == "arm" if "%LIBAROMA_ARCH_APPEND%" == "neon" (
-	set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -mfloat-abi=hard -mfpu=neon -D__ARM_HAVE_NEON
-	if not %LIBAROMA_DEBUG_ENABLED% == 1 (
-		set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -mvectorize-with-neon-quad
+if "%LIBAROMA_ARCH%" == "arm" (
+	if "%LIBAROMA_ARCH_APPEND%" == "neon" (
+		set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -mfloat-abi=hard -mfpu=neon -D__ARM_HAVE_NEON
+		if not %LIBAROMA_DEBUG_ENABLED% == 1 (
+			set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -mvectorize-with-neon-quad
+		)
 	)
 ) else (
 	if "%LIBAROMA_ARCH%" == "x86" set i386=1
@@ -76,9 +78,14 @@ if "%LIBAROMA_ARCH%" == "arm" if "%LIBAROMA_ARCH_APPEND%" == "neon" (
 	if defined %i386% set "i386="
 )
 
-rem if targeting ARM with NEON support, build JPEG (TODO: make jpeg neon optimizations optional)
-if "%LIBAROMA_ARCH%" == "arm" if "%LIBAROMA_ARCH_APPEND%" == "neon" (
-	set LIBAROMA_BUILD_JPEG=1
+if "%LIBAROMA_ARCH%" == "arm" (
+	if "%LIBAROMA_ARCH_APPEND%" == "neon" (
+	rem if targeting ARM with NEON support, build JPEG 
+	rem TODO: make jpeg neon optimizations optional
+		set LIBAROMA_BUILD_JPEG=1
+	) else (
+		set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NOJPEG=1
+	)
 ) else (
 rem otherwise, disable jpeg in cflags (it's already disabled in default config)
 	set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NOJPEG=1
@@ -93,15 +100,14 @@ if "%LIBAROMA_PLATFORM%" == "sdl" (
 ) else (
 	set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -static
 	rem if platform is Linux (and architecture isn't non-neon arm), build minui and drm
-	set drm=0
-	if "%LIBAROMA_PLATFORM%" == "linux" set drm=1
+	if "%LIBAROMA_PLATFORM%" == "linux" set LIBAROMA_BUILD_DRM=1
+	if "%LIBAROMA_PLATFORM%" == "android" set LIBAROMA_BUILD_DRM=1
 	if "%LIBAROMA_ARCH%" == "arm" (
-		if not "%LIBAROMA_ARCH_APPEND%" == "neon" set drm=0
+		if not "%LIBAROMA_ARCH_APPEND%" == "neon" set LIBAROMA_BUILD_DRM=0
 	)
-	if "%drm%" == "1" (
-		set LIBAROMA_BUILD_DRM=1
+	if "!LIBAROMA_BUILD_DRM!" == "1" (
 		set LIBAROMA_BUILD_MINUI=1
-		set "drm="
+		set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_GFX_MINUI=1
 	)
 )
 
@@ -129,25 +135,12 @@ if %LIBAROMA_DEBUG_ENABLED% == 1 (
 	set LIBAROMA_CONFIG_DEBUG_FILE=2
 )
 
-rem set the variables so the shell can use them
-rem set LIBAROMA_CFLAGS
-rem set LIBAROMA_BUILD_DRM
-rem set LIBAROMA_BUILD_JPEG
-rem set LIBAROMA_BUILD_MINUI
-rem set LIBAROMA_DRM_OBJ
-rem set LIBAROMA_JPEG_OBJ
-rem set LIBAROMA_MINUI_OBJ
-rem set LIBAROMA_CONFIG_DEBUG
-rem set LIBAROMA_CONFIG_DEBUG_FILE
 set LIBAROMA_CONFIG_DEBUG_MEMORY=0
 set LIBAROMA_CONFIG_COMPILER_MESSAGE=1
 set LIBAROMA_CONFIG_SHMEMFB=0
-rem set LIBAROMA_ARCH_OPTIMIZATIONS
-rem set LIBAROMA_ADDITIONAL_LIBS
-rem set LIBAROMA_DEBUG_ENABLED
 
 set LIBAROMA_DONE_TEXT=Ready to build libaroma
-if "%LIBAROMA_DEBUG_PREFIX%" == "-debug" (
+if defined LIBAROMA_DEBUG_PREFIX (
 	set LIBAROMA_DONE_TEXT=%LIBAROMA_DONE_TEXT%%LIBAROMA_DEBUG_PREFIX%
 )
 set LIBAROMA_DONE_TEXT=%LIBAROMA_DONE_TEXT% targeting %LIBAROMA_PLATFORM% on %LIBAROMA_ARCH%
@@ -166,3 +159,4 @@ rem now go to the original directory
 rem and start a new cmd instance
 popd
 cmd.exe /k "title Libaroma%LIBAROMA_DEBUG_PREFIX% build environment"
+endlocal
