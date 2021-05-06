@@ -59,11 +59,11 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 			ALOGW("libaroma_svg: Could not open SVG image.");
 			goto exit;
 		}
-
+		ALOGV("libaroma_svg: Parsed SVG image (%dx%d)", (int)image->width, (int)image->height);
 
 		NSVGrasterizer *rast =nsvgCreateRasterizer();
 		if (rast == NULL) {
-			printf("libaroma_svg: Could not init rasterizer.");
+			ALOGW("libaroma_svg: Could not init rasterizer.");
 			nsvgDelete(image);
 			goto exit;
 		}
@@ -72,6 +72,11 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 		}
 		else{
 			cv = libaroma_canvas_ex(image->width,image->height,1);
+		}
+		if (cv == NULL){
+			ALOGW("libaroma_svg: Could not create image canvas.");
+			nsvgDelete(image);
+			goto exit;
 		}
 		libaroma_canvas_setcolor(cv,0,0);
 		nsvgRasterize(rast,image,0,0,1,cv);
