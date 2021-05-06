@@ -35,10 +35,11 @@ extern "C" {
 #include "svg/nanosvg.h"
 #include "svg/nanosvgrast_libaroma.h"
 
-LIBAROMA_CANVASP libaroma_svg_ex(
+LIBAROMA_CANVASP libaroma_svg_ex2(
 		LIBAROMA_STREAMP stream,
 		byte freeStream,
-		byte use_px) {
+		byte use_px, 
+		float dpi) {
 
 	LIBAROMA_CANVASP cv = NULL;
 	if (!stream) {
@@ -48,12 +49,7 @@ LIBAROMA_CANVASP libaroma_svg_ex(
 	char * data = libaroma_stream_to_string(stream,0);
 	if (data){
 		NSVGimage *image = NULL;
-		if (!use_px){
-			image=nsvgParse(data, "dp", ((float) libaroma_fb()->dpi));
-		}
-		else{
-			image=nsvgParse(data, "px", ((float) libaroma_fb()->dpi));
-		}
+		image=nsvgParse(data, use_px?"px":"dp", dpi);
 		free(data);
 		if (image == NULL) {
 			ALOGW("libaroma_svg: Could not open SVG image.");

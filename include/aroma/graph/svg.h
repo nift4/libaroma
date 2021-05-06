@@ -28,12 +28,15 @@
 #define __libaroma_svg_h__
 #ifndef LIBAROMA_CONFIG_NOSVG
 
-LIBAROMA_CANVASP libaroma_svg_ex(
+LIBAROMA_CANVASP libaroma_svg_ex2(
 		LIBAROMA_STREAMP stream,
 		byte freeStream,
-		byte use_px);
+		byte use_px, 
+		float dpi);
 		
 /* libaroma_svg_ex aliases */
+#define libaroma_svg_ex(stream, free, usepx) \
+		libaroma_svg_ex2(stream, free, usepx, ((float)libaroma_fb()->dpi))
 #define libaroma_svg(stream, freeStream) \
 	libaroma_svg_ex(stream, freeStream, 0)
 #define libaroma_svg_px(stream, freeStream) \
