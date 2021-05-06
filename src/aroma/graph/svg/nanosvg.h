@@ -2842,9 +2842,6 @@ static void nsvg__scaleToViewbox(NSVGparser* p, const char* units)
 
 	// Guess image size if not set completely.
 	nsvg__imageBounds(p, bounds);
-	printf("I/NANOSVG(): imageBounds got 0, 0, %f, %f\n", bounds[2], bounds[3]);
-	printf("I/NANOSVG(): image size got %f, %f\n", p->viewWidth, p->viewHeight);
-	printf("I/NANOSVG(): parsing viewW/H got %f, %f\n", p->viewWidth, p->viewHeight);
 
 	if (p->viewWidth == 0) {
 		if (p->image->width > 0) {
@@ -2935,26 +2932,16 @@ NSVGimage* nsvgParse(char* input, const char* units, float dpi)
 	if (p == NULL) {
 		return NULL;
 	}
-	printf("I/NANOSVG(): pre-parse parser size got %f, %f\n", p->viewWidth, p->viewHeight);
-	printf("I/NANOSVG(): pre-parse image size got %f, %f\n", p->image->width, p->image->height);
 	p->dpi = dpi;
 
 	nsvg__parseXML(input, nsvg__startElement, nsvg__endElement, nsvg__content, p);
-	
-	printf("I/NANOSVG(): pre-scale parsing got %f, %f\n", p->viewWidth, p->viewHeight);
-	printf("I/NANOSVG(): pre-scale image size got %f, %f\n", p->image->width, p->image->height);
-	
+
 	// Scale to viewBox
 	nsvg__scaleToViewbox(p, units);
 
-	printf("I/NANOSVG(): post-scale parsing got %f, %f\n", p->viewWidth, p->viewHeight);
-	printf("I/NANOSVG(): post-scale image size got %f, %f\n", p->image->width, p->image->height);
-	
 	ret = p->image;
 	p->image = NULL;
 	nsvg__deleteParser(p);
-
-	printf("I/NANOSVG(): post-free image size got %f, %f\n", ret->width, ret->height);
 
 	return ret;
 }
