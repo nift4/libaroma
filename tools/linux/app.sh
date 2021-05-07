@@ -36,6 +36,8 @@ ${LIBAROMA_GCC} \
   -I${LIBAROMA_BASE}/include \
   -I${LIBAROMA_BASE}/libs/selinux/include \
   -I${LIBAROMA_BASE}/src \
+  -I${LIBAROMA_BASE}/libs/selinux/include \
+  -I${LIBAROMA_BASE}/examples/$1 \
   -o ${LIBAROMA_BASE}/tools/linux/bin/$1-${LIBAROMA_ARCH} \
   \
   -lm -lpthread -lstdc++ -lrt ${LIBAROMA_ADDITIONAL_LIBS}

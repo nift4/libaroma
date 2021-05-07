@@ -97,6 +97,7 @@ echo Building %1-debug for %LIBAROMA_ARCH% %LIBAROMA_ARCH_APPEND%
   -I%LIBAROMA_BASE%\include ^
   -I%LIBAROMA_BASE%\libs\selinux\include ^
   -I%LIBAROMA_BASE%\src ^
+  -I%LIBAROMA_BASE%\examples\%1 ^
   -o ..\..\bin\%1-%LIBAROMA_ARCH% ^
   ^
   -lm -lpthread -lstdc++ -lrt
