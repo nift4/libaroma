@@ -117,7 +117,7 @@ byte libaroma_fb_init() {
 	}
 
 	/* check dpi */
-	if ((_libaroma_fb->dpi < 160)||(_libaroma_fb->dpi > 960)) {
+	if ((_libaroma_fb->dpi < 120)||(_libaroma_fb->dpi > 960)) {
 		/* use phone dpi */
 		_libaroma_fb->dpi = floor(MIN(_libaroma_fb->w, _libaroma_fb->h)/160) * 80;
 		ALOGW("libaroma_fb_init driver doesn't set dpi. set as : %i dpi",
@@ -125,7 +125,7 @@ byte libaroma_fb_init() {
 	}
 
 	/* make sure the dpi is valid */
-	if ((_libaroma_fb->dpi < 160)||(_libaroma_fb->dpi > 960)) {
+	if ((_libaroma_fb->dpi < 120)||(_libaroma_fb->dpi > 960)) {
 		_libaroma_fb->dpi = 160;
 	}
 
