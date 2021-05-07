@@ -591,7 +591,7 @@ void LINUXFBDP_set_dpi(LIBAROMA_FBP me) {
 		/* calculate dpi */
 		me->dpi = round(mi->var.xres / (mi->var.width * 0.039370) / 80) * 80;
 	}
-	if ((me->dpi<160)||(me->dpi>960)){
+	if ((me->dpi<120)||(me->dpi>960)){
 		me->dpi = dpi_fallback;
 	}
 #ifdef __ANDROID__
@@ -606,7 +606,7 @@ void LINUXFBDP_set_dpi(LIBAROMA_FBP me) {
 	if (sf_lcd!=NULL){
 		int new_dpi = atoi(sf_lcd);
 		free(sf_lcd);
-		if ((new_dpi>=160)&&(new_dpi<=980)){
+		if ((new_dpi>=120)&&(new_dpi<=980)){
 			ALOGI("android getprop ro.sf.lcd_density: %i - OK",new_dpi);
 			me->dpi=new_dpi;
 		}
