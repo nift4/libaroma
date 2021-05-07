@@ -1054,7 +1054,10 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 					//ALOGV("Playing %s animation with state %1.2f", close?"close":"open", state);
 					libaroma_art_draw_switch_animation(libaroma_ani_win_to_art(anim),
 														wmc, win->prev_screen, win->dc,
-														0, 0, win->prev_screen->w, win->prev_screen->h,
+														//this is needed because snapshots are taken
+														//using fb size, not wm workspace size
+														libaroma_wm()->x, libaroma_wm()->y, 
+														win->prev_screen->w, win->prev_screen->h,
 														0, 0, win->w, win->h, state);
 					libaroma_wm_sync(win->x, win->y, win->w, win->h);
 					}
