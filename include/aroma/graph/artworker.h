@@ -49,6 +49,13 @@
 #define LIBAROMA_ART_SWITCH_HORIZONTAL	0x8 */
 
 /*
+ * Variable		: libaroma_art_svg_logo
+ * Type			: char[]
+ * Descriptions: aroma logo - svg format
+ */
+extern char libaroma_art_svg_logo[];
+
+/*
  * Function		: libaroma_art_arrowdrawer
  * Return Value: byte
  * Descriptions: draw arrow drawer
