@@ -54,5 +54,11 @@ LIBAROMA_CANVASP libaroma_svg_ex2(
 #define libaroma_svg_file_px(filepath) \
 	libaroma_svg_ex(libaroma_stream_file(filepath),1,1)
 	
+//parse svg directly from string
+LIBAROMA_CANVASP libaroma_svg_string(
+		char *data,
+		byte use_px,
+		float dpi);
+	
 #endif /* LIBAROMA_CONFIG_NOSVG */
 #endif /* __libaroma_svg_h__ */
