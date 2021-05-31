@@ -176,8 +176,12 @@ int libaroma_ctl_scroll_get_scroll(LIBAROMA_CONTROLP ctl, int * scroll_h);
  */
 byte libaroma_ctl_scroll_isactive(LIBAROMA_CONTROLP ctl);
 
+/* callbacks */
 typedef void (*LIBAROMA_CTL_SCROLL_MINSCROLL_HANDLER)(
 	LIBAROMA_CONTROLP,LIBAROMA_CANVASP,int);
+	
+typedef void (*LIBAROMA_CTL_SCROLL_OVERSHOOT_EFFECT)(
+	LIBAROMA_CONTROLP,LIBAROMA_CANVASP,byte);
 /*
  * Function		: libaroma_ctl_scroll_set_min_scroll
  * Return Value: byte
@@ -185,6 +189,15 @@ typedef void (*LIBAROMA_CTL_SCROLL_MINSCROLL_HANDLER)(
  */
 byte libaroma_ctl_scroll_set_min_scroll(
 	 LIBAROMA_CONTROLP ctl, LIBAROMA_CTL_SCROLL_MINSCROLL_HANDLER cb, int y
+);
+
+/*
+ * Function		: libaroma_ctl_scroll_set_ovs_callback
+ * Return Value: byte
+ * Descriptions: set overscroll effect callback
+ */
+byte libaroma_ctl_scroll_set_ovs_callback(
+	 LIBAROMA_CONTROLP ctl, LIBAROMA_CTL_SCROLL_OVERSHOOT_EFFECT cb
 );
 
 #endif /* __libaroma_ctl_scroll_h__ */

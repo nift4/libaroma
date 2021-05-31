@@ -116,6 +116,7 @@ struct __LIBAROMA_CTL_SCROLL{
 	long ovs_ustart;
 	int ovs_x;
 	int ovs_y;
+	LIBAROMA_CTL_SCROLL_OVERSHOOT_EFFECT ovs_custom_cb;
 
 	/* fling items */
 	int bounce_velocity;
@@ -961,8 +962,6 @@ void _libaroma_ctl_scroll_draw(
 					if (overshoot_sz>1){
 						LIBAROMA_CANVASP ovshot = libaroma_canvas_ex(
 							c->w, overshoot_sz, 1);
-						libaroma_canvas_setcolor(ovshot,
-							libaroma_colorget(ctl,NULL)->primary,0);
 						int vw = c->w>>2;
 						if (me->ovs_x<0){
 							me->ovs_x=0;
@@ -974,30 +973,40 @@ void _libaroma_ctl_scroll_draw(
 						int ovw= overshoot_sz>>1;
 						int x1 = 0-(vw-vx);
 						int x2 = x1+c->w+vw;
-						if (me->ovs_y<0){
-							LIBAROMA_PATHP path=libaroma_path(x1,0);
-							libaroma_path_curve(
-								path, overshoot_sz,
-								x1+ovw, overshoot_sz,
-								x2-ovw, overshoot_sz,
-								x2, 0
-							);
-							libaroma_path_draw(ovshot, path, 0, 0x60*opacity, 1, 0.33);
-							libaroma_path_free(path);
-							libaroma_draw(c,ovshot,0,0,1);
+						if (me->ovs_custom_cb!=NULL){//use ovs effect callback
+							me->ovs_custom_cb(ctl, ovshot, (me->ovs_y<0));
 						}
-						else{
-							LIBAROMA_PATHP path=libaroma_path(x1,overshoot_sz-1);
-							libaroma_path_curve(
-								path, overshoot_sz,
-								x1+ovw, 0,
-								x2-ovw, 0,
-								x2,overshoot_sz-1
-							);
-							libaroma_path_draw(ovshot, path, 0, 0x60*opacity, 1, 0.33);
-							libaroma_path_free(path);
-							libaroma_draw(c,ovshot,0,c->h-overshoot_sz,1);
+						else { //default ovs effect
+							//fill with primary color (without this it will be black)
+							libaroma_canvas_setcolor(ovshot,
+								libaroma_colorget(ctl,NULL)->primary,0);
+							if (me->ovs_y<0){
+								LIBAROMA_PATHP path=libaroma_path(x1,0);
+								libaroma_path_curve(
+									path, overshoot_sz,
+									x1+ovw, overshoot_sz,
+									x2-ovw, overshoot_sz,
+									x2, 0
+								);
+								libaroma_path_draw(ovshot, path, 0, 0x60*opacity, 1, 0.33);
+								libaroma_path_free(path);
+								
+							}
+							else{
+								LIBAROMA_PATHP path=libaroma_path(x1,overshoot_sz-1);
+								libaroma_path_curve(
+									path, overshoot_sz,
+									x1+ovw, 0,
+									x2-ovw, 0,
+									x2,overshoot_sz-1
+								);
+								libaroma_path_draw(ovshot, path, 0, 0x60*opacity, 1, 0.33);
+								libaroma_path_free(path);
+							}
 						}
+						/* draw overshoot effect canvas on top of control */
+						libaroma_draw(c,ovshot,0,(me->ovs_y<0)?0:c->h-overshoot_sz,1);
+						
 						libaroma_canvas_free(ovshot);
 					}
 				}
@@ -1773,4 +1782,24 @@ byte libaroma_ctl_scroll_set_min_scroll(
 	libaroma_mutex_unlock(me->fmutex);
 	return 1;
 }
+
+/*
+ * Function		: libaroma_ctl_scroll_set_ovs_callback
+ * Return Value: byte
+ * Descriptions: set overscroll effect callback
+ */
+byte libaroma_ctl_scroll_set_ovs_callback(
+	 LIBAROMA_CONTROLP ctl, LIBAROMA_CTL_SCROLL_OVERSHOOT_EFFECT cb
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_scroll_handler, _LIBAROMA_CTL_SCROLLP, 0
+	);
+	
+	libaroma_mutex_lock(me->fmutex);
+	me->ovs_custom_cb=cb;
+	libaroma_mutex_unlock(me->fmutex);
+	return 1;
+}
+
 #endif /* __libaroma_ctl_scroll_c__ */
