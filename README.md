@@ -1,4 +1,4 @@
-
+![libaroma-logo](/logo.png?raw=true "Libaroma logo")
 
 # Libaroma
 
