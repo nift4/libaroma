@@ -313,11 +313,12 @@ byte libaroma_font_ex(
 
 	/* load face */
 	FT_Face tmp_face;
-	if (FT_New_Memory_Face(_libaroma_font_instance,
-			stream->data,
-			stream->size,
-			0,
-			&tmp_face) == 0) {
+	int nmf = FT_New_Memory_Face(_libaroma_font_instance,
+				stream->data,
+				stream->size,
+				0,
+				&tmp_face);
+	if (nmf == 0) {
 		int def_size = libaroma_dp(size);
 		/* set default face size */
 		if (!size) def_size=libaroma_font_size_px(2);
@@ -354,7 +355,7 @@ byte libaroma_font_ex(
 		}
 	}
 	else {
-		ALOGW("libaroma_font FT_New_Memory_Face Error");
+		ALOGW("libaroma_font FT_New_Memory_Face Error %s", FT_Error_String(nmf));
 		libaroma_stream_close(stream);
 	}
 	_libaroma_font_lock(0);
@@ -632,6 +633,9 @@ byte libaroma_font_init() {
 		/* cleanup font face */
 		memset(_libaroma_font_faces, 0,
 			sizeof(_LIBAROMA_FONT_FACE) * _LIBAROMA_FONT_MAX_FACE);
+		#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
+		_libaroma_font_hb_init_callbacks();
+		#endif
 		_libaroma_font_lock(0);
 		return 1;
 	}

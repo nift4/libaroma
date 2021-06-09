@@ -24,6 +24,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <cstring>
+
 #include <memory>
 
 #include <deps/macros.h>
@@ -121,17 +123,19 @@ std::unique_ptr<GRSurfaceDrm> GRSurfaceDrm::Create(int drm_fd, int width, int he
     return nullptr;
   }
 
-  drm_mode_map_dumb map_dumb = {};
+  //drm_mode_map_dumb map_dumb = {};
+  struct drm_mode_map_dumb map_dumb;
+    std::memset(&map_dumb, 0, sizeof(map_dumb));
   map_dumb.handle = create_dumb.handle;
   if (drmIoctl(drm_fd, DRM_IOCTL_MODE_MAP_DUMB, &map_dumb) != 0) {
     perror("Failed to DRM_IOCTL_MODE_MAP_DUMB");
     return nullptr;
   }
-
+  printf("I/MINUI(): going to mmap dumb buffer (%dx%dx%d), fd=%d, offset=%d\n", surface->width, surface->height, surface->row_bytes, drm_fd, map_dumb.offset);
   auto mmapped = mmap(nullptr, surface->height * surface->row_bytes, PROT_READ | PROT_WRITE,
                       MAP_SHARED, drm_fd, map_dumb.offset);
   if (mmapped == MAP_FAILED) {
-    perror("Failed to mmap()");
+    perror("I/MINUI(): Failed to mmap()");
     return nullptr;
   }
   surface->mmapped_buffer_ = static_cast<uint8_t*>(mmapped);

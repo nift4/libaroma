@@ -1,22 +1,24 @@
 @echo off
-if not %LIBAROMA_BUILD_DRM% == 1 (
-	echo Not needed to build libdrm
+
+if not defined LIBAROMA_BASE (
+	echo Libaroma environment not set, please run envsetup.cmd first.
 	goto :eof
 )
-pushd %~dp0
-mkdir ..\obj\%LIBAROMA_ARCH%\drm
-cd ..\obj\%LIBAROMA_ARCH%\drm
 
-echo Compiling libdrm
+if not exist "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0\" (
+	mkdir "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
+)
+pushd "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
+
+echo Building LibDRM
 %LIBAROMA_GCC% -c ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
-  -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
-  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP ^
- ^
+  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP -Dloff_t=int64_t ^
+  ^
   %LIBAROMA_CFLAGS% ^
- ^
-  	%LIBAROMA_BASE%\libs\drm\xf86drm.c ^
-  	%LIBAROMA_BASE%\libs\drm\xf86drmMode.c ^
-  -I%LIBAROMA_BASE%\libs\drm
+	^
+  	"%LIBAROMA_BASE%\libs\drm\xf86drm.c" ^
+  	"%LIBAROMA_BASE%\libs\drm\xf86drmMode.c" ^
+  -I"%LIBAROMA_BASE%\libs\drm"
 
 popd

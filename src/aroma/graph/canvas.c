@@ -24,6 +24,7 @@
 #ifndef __libaroma_canvas_c__
 #define __libaroma_canvas_c__
 #include <aroma_internal.h>
+#include <malloc.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -359,9 +360,9 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 		return NULL;
 	}
 	c->l = c->w = w;
-	c->h				= h;
-	c->s				= w * h;
-	c->data		 = (wordp) calloc(c->s,2);
+	c->h = h;
+	c->s = w * h;
+	c->data = (wordp) calloc(c->s,2);
 	if (!c->data) {
 		ALOGW("CANVAS calloc(c->data) failed");
 		free(c);
@@ -401,6 +402,48 @@ LIBAROMA_CANVASP libaroma_canvas_new_ex(
 	/* memset(c->data, 0, c->s*2); */
 	return c;
 } /* End of libaroma_canvas_new_ex */
+
+/*
+ * Function		: libaroma_canvas_resize
+ * Return Value: byte
+ * Descriptions: resize canvas
+ */
+byte libaroma_canvas_resize(
+		LIBAROMA_CANVASP cv,
+		int w,
+		int h
+){
+	if (!cv) return 0;
+	if (w<1 || h<1){
+		ALOGW("libaroma_canvas_resize invalid width/height (%dx%d)", w, h);
+		return 0;
+	}
+	int new_sz=w*h;
+	int total = malloc_usable_size(cv->data);
+	ALOGI("libaroma_canvas_resize total=%d, old=%d, new=%d", total, cv->s, new_sz);
+	wordp new_data = realloc(cv->data, new_sz*2);
+	if (new_data == NULL) {
+		ALOGW("libaroma_canvas_resize failed to reallocate size");
+		return 0;
+	}
+	cv->data = new_data;
+	cv->l = cv->w = w;
+	cv->h = h;
+	cv->s = new_sz;
+	total = malloc_usable_size(cv->data);
+	ALOGI("libaroma_canvas_resize new total=%d", total);
+	
+	if (cv->alpha!=NULL){
+		bytep new_alpha=realloc(cv->alpha, new_sz);
+		if (new_alpha==NULL){
+			ALOGW("libaroma_canvas_resize failed to reallocate alpha");
+			return 0;
+		}
+		cv->alpha = new_alpha;
+	}
+	
+	return 1;
+}
 
 /*
  * Function		: libaroma_canvas_area_update

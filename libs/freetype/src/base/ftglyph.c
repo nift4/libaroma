@@ -549,24 +549,27 @@
 
 
     /* check argument */
-    if ( !the_glyph )
+    if ( !the_glyph ) {
       goto Bad;
+	}
     glyph = *the_glyph;
-    if ( !glyph )
+    if ( !glyph ){
       goto Bad;
+	}
 
     clazz   = glyph->clazz;
     library = glyph->library;
-    if ( !library || !clazz )
+    if ( !library || !clazz ){
       goto Bad;
+	}
 
     /* when called with a bitmap glyph, do nothing and return successfully */
-    if ( clazz == &ft_bitmap_glyph_class )
+    if ( clazz == &ft_bitmap_glyph_class ){
       goto Exit;
-
-    if ( !clazz->glyph_prepare )
+	}
+    if ( !clazz->glyph_prepare ){
       goto Bad;
-
+	}
     /* we render the glyph into a glyph bitmap using a `dummy' glyph slot */
     /* then calling FT_Render_Glyph_Internal()                            */
 
@@ -578,8 +581,9 @@
 
     /* create result bitmap glyph */
     error = ft_new_glyph( library, &ft_bitmap_glyph_class, &b );
-    if ( error )
+    if ( error ){
       goto Exit;
+	}
     bitmap = (FT_BitmapGlyph)b;
 
 #if 1
@@ -592,8 +596,9 @@
 
     /* prepare dummy slot for rendering */
     error = clazz->glyph_prepare( glyph, &dummy );
-    if ( !error )
+    if ( !error ){
       error = FT_Render_Glyph_Internal( glyph->library, &dummy, render_mode );
+	}
 
 #if 1
     if ( !destroy && origin )
@@ -607,14 +612,14 @@
     }
 #endif
 
-    if ( error )
+    if ( error ){
       goto Exit;
-
+	}
     /* in case of success, copy the bitmap to the glyph bitmap */
     error = ft_bitmap_glyph_init( (FT_Glyph)bitmap, &dummy );
-    if ( error )
+    if ( error ){
       goto Exit;
-
+	}
     /* copy advance */
     bitmap->root.advance = glyph->advance;
 

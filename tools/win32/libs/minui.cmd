@@ -1,29 +1,31 @@
 @echo off
-if not %LIBAROMA_BUILD_MINUI% == 1 (
-	echo Not needed to build minui
+
+if not defined LIBAROMA_BASE (
+	echo Libaroma environment not set, please run envsetup.cmd first.
 	goto :eof
 )
-pushd %~dp0
-mkdir ..\obj\%LIBAROMA_ARCH%\minui
-cd ..\obj\%LIBAROMA_ARCH%\minui
 
-echo Compiling minui
+if not exist "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0\" (
+	mkdir "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
+)
+pushd "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
+
+echo Building MinUI
 %LIBAROMA_GCC% -c ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
-  -D_GLIBCXX_DEBUG_PEDANTIC -D_GLIBCXX_DEBUG ^
   -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP ^
- ^
+  ^
   %LIBAROMA_CFLAGS% ^
- ^
-  	%LIBAROMA_BASE%\libs\minui\events.cpp ^
-    %LIBAROMA_BASE%\libs\minui\graphics.cpp ^
-  	%LIBAROMA_BASE%\libs\minui\graphics_drm.cpp ^
-  	%LIBAROMA_BASE%\libs\minui\graphics_fbdev.cpp ^
-  	%LIBAROMA_BASE%\libs\minui\resources.cpp ^
-  	%LIBAROMA_BASE%\libs\minui\deps\strings.cpp ^
-  	%LIBAROMA_BASE%\libs\minui\deps\stringprintf.cpp ^
-  -I%LIBAROMA_BASE%\libs\minui ^
-  -I%LIBAROMA_BASE%\libs\png ^
-  -I%LIBAROMA_BASE%\libs\drm
+	^
+	"%LIBAROMA_BASE%\libs\minui\events.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\graphics.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\graphics_drm.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\graphics_fbdev.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\resources.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\deps\stringprintf.cpp" ^
+	"%LIBAROMA_BASE%\libs\minui\deps\strings.cpp" ^
+  -I"%LIBAROMA_BASE%\libs\minui" ^
+  -I"%LIBAROMA_BASE%\libs\png" ^
+  -I"%LIBAROMA_BASE%\libs\drm"
 
 popd

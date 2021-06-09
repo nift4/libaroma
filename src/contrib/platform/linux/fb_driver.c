@@ -226,48 +226,55 @@ byte LINUXDRM_post(
  * Descriptions: init framebuffer
  */
 byte LINUXDRM_init(LIBAROMA_FBP me){
-	if (aroma_minui_init()==1){
-		ALOGE("Cannot start DRM subsystem!!! Exiting...")
+	if (!aroma_minui_init()){
+		ALOGE("LINUXDRM: cannot initialize minui wrapper")
 		return 0;
 	}
 	LINUXDRM_INTERNALP mi = (LINUXDRM_INTERNALP) calloc(sizeof(LINUXDRM_INTERNAL), 1);
 	if (mi==NULL) {
-		ALOGE("cannot allocate internal data");
+		ALOGE("LINUXDRM: cannot allocate internal data");
 		return 0;
 	}
-	ALOGI("Trying to get data...");
+	ALOGD("LINUXDRM: Trying to get data...");
 	mi->buffer=aroma_minui_get_data();
-	ALOGI("Got data!");
+	ALOGD("LINUXDRM: Got data!");
 	mi->row_bytes=aroma_minui_row_bytes();
-	ALOGI("Got row bytes!");
+	ALOGD("LINUXDRM: Got row bytes!");
 	mi->pixsz=aroma_minui_pixel_bytes();
-	ALOGI("Got pixel bytes!");
+	ALOGD("LINUXDRM: Got pixel bytes!");
 	mi->bpp=mi->pixsz*8;
 	mi->is32=(mi->bpp==32)?1:0;
-	ALOGI("Got bpp!");
+	ALOGD("LINUXDRM: Got bpp!");
 	me->internal=(voidp) mi;
-	LINUXDRM_setrgbpos(me, 16, 8, 0); // 8, 8, 8 causes green instead of white at lmi
+	LINUXDRM_setrgbpos(me, 16, 8, 0);
+	if (libaroma_config()->gfx_override_rgb){
+		ALOGD("LINUXDRM: CUSTOM RGB VALUES IN USE");
+		LINUXDRM_setrgbpos(me,
+							libaroma_config()->gfx_default_rgb[0],
+							libaroma_config()->gfx_default_rgb[1],
+							libaroma_config()->gfx_default_rgb[2]);
+	}
 	me->w=aroma_minui_get_fb_width();
-	ALOGI("Got width!");
+	ALOGD("LINUXDRM: Got width!");
 	me->h=aroma_minui_get_fb_height();
-	ALOGI("Got height!");
+	ALOGD("LINUXDRM: Got height!");
 	mi->line=(me->w*mi->pixsz);
-	ALOGI("Got line size!");
+	ALOGD("LINUXDRM: Got line size!");
 	mi->stride=(mi->line - (me->w * mi->pixsz));
-	ALOGI("Got stride!");
+	ALOGD("LINUXDRM: Got stride!");
 	me->sz = me->w * me->h;
 	me->dpi=floor(MIN(me->w, me->h)/160) * 80;
-	ALOGI("Calculated DPI!");
-	ALOGI("DRM Framebuffer info that we obtained:");
-	ALOGI("width: %d", me->w);
-	ALOGI("height: %d", me->h);
-	ALOGI("32 bpp: %s", (mi->is32==1)?"true":"false");
-	ALOGI("row_bytes: %d", mi->row_bytes);
-	ALOGI("pixel_bytes: %d", mi->pixsz);
-	ALOGI("bpp: %d", mi->bpp);
-	ALOGI("stride: %d", mi->stride);
-	ALOGI("line size: %d", mi->line);
-	ALOGI("dpi: %d", me->dpi);
+	ALOGD("LINUXDRM: Calculated DPI!");
+	ALOGD("LINUXDRM: Framebuffer info that we obtained:");
+	ALOGD("LINUXDRM: width: %d", me->w);
+	ALOGD("LINUXDRM: height: %d", me->h);
+	ALOGD("LINUXDRM: 32 bpp: %s", (mi->is32==1)?"true":"false");
+	ALOGD("LINUXDRM: row_bytes: %d", mi->row_bytes);
+	ALOGD("LINUXDRM: pixel_bytes: %d", mi->pixsz);
+	ALOGD("LINUXDRM: bpp: %d", mi->bpp);
+	ALOGD("LINUXDRM: stride: %d", mi->stride);
+	ALOGD("LINUXDRM: line size: %d", mi->line);
+	ALOGD("LINUXDRM: dpi: %d", me->dpi);
 
 	me->start_post		= &LINUXDRM_start_post;
 	me->end_post		= &LINUXDRM_end_post;
@@ -277,7 +284,7 @@ byte LINUXDRM_init(LIBAROMA_FBP me){
 		me->snapshoot	= &LINUXDRM_snapshoot_32bit;
 	else me->snapshoot	= &LINUXDRM_snapshoot_16bit;
 	me->setrgb			= &LINUXDRM_setrgbpos;
-	ALOGI("Function callbacks set");
+	ALOGD("LINUXDRM: Function callbacks set");
 	return 1;
 }
 #endif
@@ -692,7 +699,7 @@ byte libaroma_fb_driver_init(LIBAROMA_FBP me) {
 		if (!ret) ret=LINUXDRM_init(me);
 	}
 	#endif
-	if (!ret) ALOGI("Display initialization failed");
+	//if (!ret) ALOGI("Display initialization failed");
 	return ret;
 } /* End of libaroma_fb_driver_init */
 

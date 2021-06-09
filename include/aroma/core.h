@@ -69,6 +69,8 @@ typedef struct{
 	int sdl_wm_height;					//startup height for SDL window
 	char *sdl_wm_title;					//sdl window title
 	byte gfx_first_backend; 			//(linux only) first backend to be used when starting graphics (internal/minui)
+	byte gfx_override_rgb;				//use gfx_default_rgb for framebuffer initialization
+	byte gfx_default_rgb[3];			//display default RGB pixel order
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 
 /*
@@ -91,6 +93,13 @@ void libaroma_sdl_startup_size(int width, int height);
  * Descriptions: set startup title for SDL window
  */
 void libaroma_sdl_window_title(char *title);
+
+/*
+ * Function		: libaroma_sdl_startup_size
+ * Return Value: void
+ * Descriptions: override rgb order when initializing framebuffer
+ */
+void libaroma_gfx_override_rgb(byte override, byte r, byte g, byte b);
 
 /*
  * Function		: libaroma_info

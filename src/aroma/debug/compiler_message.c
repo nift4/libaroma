@@ -32,14 +32,14 @@ extern "C" {
 #define __LIBAROMA_STRINGFY(X) #X
 #define __LIBAROMA_STR(macro) __LIBAROMA_STRINGFY(macro)
 
-/* arm neon */
+/* cpu optimizations */
 #ifdef __ARM_NEON__
-  #define __LIBAROMA_CMSG_NEON "YES"
+  #define __LIBAROMA_CMSG_CPUOPT "ARM NEON"
 #else
   #ifdef __SSSE3__
-    #define __LIBAROMA_CMSG_NEON "YES - SSE Emulated"
+    #define __LIBAROMA_CMSG_CPUOPT "x86 SSE"
   #else
-    #define __LIBAROMA_CMSG_NEON "NO"
+    #define __LIBAROMA_CMSG_CPUOPT "NONE"
   #endif
 #endif
 
@@ -129,6 +129,12 @@ extern "C" {
   #define __LIBAROMA_FB_DRIVER NONE
 #endif
 
+#ifdef LIBAROMA_GFX_MINUI
+  #define __LIBAROMA_CMSG_GFX_BACK "INTERNAL, MINUI (DRM/FBDEV)"
+#else
+  #define __LIBAROMA_CMSG_GFX_BACK "INTERNAL"
+#endif
+
 /* hid driver */
 #ifdef LIBAROMA_HID_INIT_FUNCTION
   #define __LIBAROMA_HID_DRIVER LIBAROMA_HID_INIT_FUNCTION
@@ -141,6 +147,12 @@ extern "C" {
   #define __LIBAROMA_CMSG_SUBPIXEL "Antialias"
 #else
   #define __LIBAROMA_CMSG_SUBPIXEL "Subpixel/Cleartype Like"
+#endif
+
+#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
+  #define __LIBAROMA_CMSG_HARFBUZZ "ENABLED"
+#else
+  #define __LIBAROMA_CMSG_HARFBUZZ "DISABLED"
 #endif
 
 #if LIBAROMA_CONFIG_HICOLOR_BIT > 0
@@ -167,6 +179,7 @@ extern "C" {
     "  Debug Backtrace     : " __LIBAROMA_CMSG_DTRACE "\n"\
     "  Memory Tracking     : " __LIBAROMA_CMSG_DMEM "\n"\
     "  FB Driver           : " __LIBAROMA_STR(__LIBAROMA_FB_DRIVER) "\n"\
+    "  Graphic Backends    : " __LIBAROMA_CMSG_GFX_BACK "\n"\
     "  HID Driver          : " __LIBAROMA_STR(__LIBAROMA_HID_DRIVER) "\n"\
   "______________________________________________________________________\n"\
   "\n\n  FEATURES CONFIG:\n"\
@@ -175,15 +188,16 @@ extern "C" {
     "  Shmem FB            : " __LIBAROMA_FBCANVAS_SHMEM "\n"\
     "  Shmem Prefix        : " LIBAROMA_CONFIG_SHMEM_PREFIX "\n"\
     "  Freetype Rendering  : " __LIBAROMA_CMSG_SUBPIXEL "\n"\
+    "  Harfbuzz Support    : " __LIBAROMA_CMSG_HARFBUZZ "\n"\
     "  32bit highcolor bit : " __LIBAROMA_CMSG_HICOLOR "\n"\
-    "  ARM NEON Optimized  : " __LIBAROMA_CMSG_NEON "\n"\
+    "  CPU Optimizations   : " __LIBAROMA_CMSG_CPUOPT "\n"\
     "  OpenMP Optimized    : " __LIBAROMA_CMSG_OPENMP "\n"\
   "\n______________________________________________________________________\n"\
   "\n"
 
 #undef __LIBAROMA_CMSG_DTRACE
 #undef __LIBAROMA_CMSG_HICOLOR
-#undef __LIBAROMA_CMSG_NEON
+#undef __LIBAROMA_CMSG_CPUOPT
 #undef __LIBAROMA_CMSG_DFILENAME
 #undef __LIBAROMA_CMSG_DMEM
 #undef __LIBAROMA_CMSG_DLEVEL
@@ -195,6 +209,7 @@ extern "C" {
 #undef __LIBAROMA_STR
 #undef __LIBAROMA_CMSG_OPENMP
 #undef __LIBAROMA_CMSG_SUBPIXEL
+#undef __LIBAROMA_CMSG_HARFBUZZ
 #ifdef __cplusplus
 }
 #endif

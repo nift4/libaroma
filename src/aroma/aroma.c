@@ -55,10 +55,8 @@ byte libaroma_lang_init();
 byte libaroma_lang_release();
 byte libaroma_timer_init();
 byte libaroma_timer_release();
-#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
 byte libaroma_font_init();
 byte libaroma_font_release();
-#endif
 
 /*
  * Variable		: _libaroma_config
@@ -112,6 +110,18 @@ void libaroma_sdl_startup_size(int width, int height){
  */
 void libaroma_sdl_window_title(char *title){
 	_libaroma_config.sdl_wm_title=title;
+}
+
+/*
+ * Function		: libaroma_sdl_startup_size
+ * Return Value: void
+ * Descriptions: override rgb order when initializing framebuffer
+ */
+void libaroma_gfx_override_rgb(byte override, byte r, byte g, byte b){
+	_libaroma_config.gfx_override_rgb=override;
+	_libaroma_config.gfx_default_rgb[0]=r;
+	_libaroma_config.gfx_default_rgb[1]=g;
+	_libaroma_config.gfx_default_rgb[2]=b;
 }
 
 /*
@@ -241,12 +251,12 @@ byte libaroma_start() {
 		ALOGE("libaroma_start cannot start framebuffer...");
 		return 0;
 	}
-	#ifndef LIBAROMA_CONFIG_TEXT_NOHARFBUZZ
+	
 	if (!libaroma_font_init()) {
 		ALOGE("libaroma_start cannot start font engine...");
 		return 0;
 	}
-	#endif
+	
 	if (!libaroma_hid_init()) {
 		ALOGE("libaroma_start cannot start hid engine...");
 		return 0;

@@ -1,14 +1,1 @@
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-install_manifest.txt
-
-/tools/win32/bin
-/tools/win32/libaroma
-/tools/win32/libaroma_rt
-/tools/win32/obj.squirrel
-/tools/win32/obj
-/examples/mora
-/examples/fm
-/examples/home
+/out

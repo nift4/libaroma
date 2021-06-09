@@ -342,7 +342,7 @@ void gr_flip() {
 
 GRSurface *gr_init() {
   // pixel_format needs to be set before loading any resources or initializing backends.
-  std::string format = "ABGR_8888";//android::base::GetProperty("ro.minui.pixel_format", "");
+  std::string format = "ARGB_8888";//android::base::GetProperty("ro.minui.pixel_format", "");
   if (format == "ABGR_8888") {
     pixel_format = PixelFormat::ABGR;
   } else if (format == "RGBX_8888") {
@@ -361,15 +361,18 @@ GRSurface *gr_init() {
            ret);
   }*/
 
+  printf("I/MINUI(): %s\n", "Trying to init drm backend");
   auto backend = std::unique_ptr<MinuiBackend>{ std::make_unique<MinuiBackendDrm>() };
+  printf("I/MINUI(): %s\n", "Initializing backend");
   gr_draw = backend->Init();
-
   if (!gr_draw) {
+    printf("I/MINUI(): %s\n", "Failed to init DRM backend, fallback to FBDEV");
     backend = std::make_unique<MinuiBackendFbdev>();
     gr_draw = backend->Init();
   }
 
   if (!gr_draw) {
+    printf("I/MINUI(): %s\n", "FBDEV cannot initialize, RIP");
     return nullptr;//-1;
   }
 
@@ -404,6 +407,7 @@ GRSurface *gr_init() {
     printf("gr_init: Only 4-byte pixel formats supported\n");
   }
 
+  printf("I/MINUI(): %s\n", "backend should be initialized");
   return gr_draw;
 }
 
