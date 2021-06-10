@@ -13,7 +13,7 @@ pushd "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
 echo Building LibDRM
 %LIBAROMA_GCC% -c ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
-  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP -Dloff_t=int64_t ^
+  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP -D_GNU_SOURCE -DMAJOR_IN_SYSMACROS ^
   ^
   %LIBAROMA_CFLAGS% ^
 	^

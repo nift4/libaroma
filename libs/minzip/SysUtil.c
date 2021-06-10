@@ -100,7 +100,7 @@ static int sysMapBlockFile(FILE* mapf, MemMapping* pMap)
     // Reserve enough contiguous address space for the whole file.
     unsigned char* reserve;
     reserve = mmap64(NULL, blocks * blksize, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
-		/* SysUtil.c:102:13: warning: assignment makes pointer from integer without a cast */
+
     if (reserve == MAP_FAILED) {
         LOGE("failed to reserve address space: %s\n", strerror(errno));
         free(pMap->ranges);

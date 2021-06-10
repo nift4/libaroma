@@ -41,7 +41,7 @@ static constexpr uint32_t alpha_mask = 0xff000000;
 // gr_draw is owned by backends.
 static GRSurface* gr_draw = nullptr;
 static GRRotation rotation = GRRotation::NONE;
-static PixelFormat pixel_format = PixelFormat::UNKNOWN;
+static PixelFormat pixel_format = PixelFormat::RGBX;
 
 static bool outside(int x, int y) {
   auto swapped = (rotation == GRRotation::LEFT || rotation == GRRotation::RIGHT);
@@ -342,7 +342,7 @@ void gr_flip() {
 
 GRSurface *gr_init() {
   // pixel_format needs to be set before loading any resources or initializing backends.
-  std::string format = "ARGB_8888";//android::base::GetProperty("ro.minui.pixel_format", "");
+  /*std::string format = "ARGB_8888";//android::base::GetProperty("ro.minui.pixel_format", "");
   if (format == "ABGR_8888") {
     pixel_format = PixelFormat::ABGR;
   } else if (format == "RGBX_8888") {
@@ -353,7 +353,8 @@ GRSurface *gr_init() {
     pixel_format = PixelFormat::BGRA;
   } else {
     pixel_format = PixelFormat::UNKNOWN;
-  }/*
+  }*/
+  /*
 
   int ret = gr_init_font("font", &gr_font);
   if (ret != 0) {

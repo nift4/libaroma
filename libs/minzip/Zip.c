@@ -509,9 +509,9 @@ static bool processDeflatedEntry(const ZipArchive *pArchive,
     unsigned char procBuf[32 * 1024];
     z_stream zstream;
     int zerr;
-    long compRemaining;
+    //long compRemaining;
 
-    compRemaining = pEntry->compLen;
+    //compRemaining = pEntry->compLen;
 
     /*
      * Initialize the zlib stream.

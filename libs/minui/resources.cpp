@@ -415,7 +415,7 @@ int res_create_localized_alpha_surface(const char* name,
     png_read_row(png_ptr, row.data(), nullptr);
     int w = (row[1] << 8) | row[0];
     int h = (row[3] << 8) | row[2];
-     int len = row[4];
+    //int len = row[4];
     char* loc = reinterpret_cast<char*>(&row[5]);
 
     // We need to include one additional line for the metadata of the localized image.

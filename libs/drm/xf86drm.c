@@ -2900,7 +2900,7 @@ static char *drmGetMinorNameForFD(int fd, int type)
     struct stat sbuf;
     const char *name = drmGetMinorName(type);
     int len;
-    char dev_name[64], buf[64];
+    char dev_name[384], buf[384];
     int maj, min;
 
     if (!name)

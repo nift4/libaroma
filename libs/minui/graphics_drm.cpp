@@ -131,7 +131,7 @@ std::unique_ptr<GRSurfaceDrm> GRSurfaceDrm::Create(int drm_fd, int width, int he
     perror("Failed to DRM_IOCTL_MODE_MAP_DUMB");
     return nullptr;
   }
-  printf("I/MINUI(): going to mmap dumb buffer (%dx%dx%d), fd=%d, offset=%d\n", surface->width, surface->height, surface->row_bytes, drm_fd, map_dumb.offset);
+  printf("I/MINUI(): going to mmap dumb buffer (%dx%dx%d), fd=%d, offset=%llu\n", surface->width, surface->height, surface->row_bytes, drm_fd, map_dumb.offset);
   auto mmapped = mmap(nullptr, surface->height * surface->row_bytes, PROT_READ | PROT_WRITE,
                       MAP_SHARED, drm_fd, map_dumb.offset);
   if (mmapped == MAP_FAILED) {
@@ -297,7 +297,7 @@ GRSurface* MinuiBackendDrm::Init() {
     if (fd == -1) continue;
 
     /* We need dumb buffers. */
-	uint64_t cap = 0; 
+	uint64_t cap = 0;
     if (drmGetCap(fd.get(), DRM_CAP_DUMB_BUFFER, &cap) != 0 || cap == 0) {
       continue;
     }

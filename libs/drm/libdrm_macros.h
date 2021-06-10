@@ -42,14 +42,14 @@
       (void) sizeof(char [1 - 2*!(COND)]); \
    } while (0)
 
-
 #include <sys/mman.h>
+#include <stdint.h>
 
 #if defined(ANDROID) && !defined(__LP64__)
 #include <errno.h> /* for EINVAL */
 
 static inline void *drm_mmap(void *addr, size_t length, int prot, int flags,
-                             int fd, loff_t offset)
+                             int fd, off64_t offset)
 {
    /* offset must be aligned to 4096 (not necessarily the page size) */
    if (offset & 4095) {
