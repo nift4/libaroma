@@ -25,7 +25,7 @@
 #define __libaroma_recovery_c__
 
 /* include recovery header */
-#include <recovery.h>
+#include "recovery.h"
 
 /*
  * Function    : main
@@ -33,17 +33,17 @@
  * Descriptions: main executable function
  */
 int main(int argc, char **argv){
-  if (!recovery_init()){
+  if (!recovery_init(argc, argv)){
     return -1;
   }
-  
+
   /* start mainmenu */
   recovery_mainmenu();
-  
+
   if (!recovery_release()){
     return 1;
   }
-  
+
   return 0;
 } /* End of main */
 

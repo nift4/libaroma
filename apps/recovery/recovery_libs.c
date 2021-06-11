@@ -25,7 +25,7 @@
 #define __libaroma_recovery_libs_c__
 
 /* include recovery header */
-#include <recovery.h>
+#include "recovery.h"
 #include <string.h>
 
 /* recovery variable */
@@ -97,12 +97,12 @@ void recovery_statusbar_update(){
   );
   byte isdark = libaroma_color_isdark(bgcolor);
   word text_color = isdark?0xffff:0;
-  
+
   libaroma_canvas_fillcolor(
     _recovery.status_canvas,
     bgcolor
   );
-  
+
   if (recovery_statusbar_side_w){
     if (recovery_statusbar_overlay_canvas){
       libaroma_draw_rect(
@@ -127,7 +127,7 @@ void recovery_statusbar_update(){
       );
     }
   }
-    
+
   libaroma_draw_text(
     _recovery.status_canvas,
     "AROMA Recovery",
@@ -146,7 +146,7 @@ byte recovery_statusbar_ui_thread(){
       libaroma_duration_state(_recovery.status_updatestart, 200)
     );
     if (cstate<1){
-      _recovery.status_bgcolor = 
+      _recovery.status_bgcolor =
         libaroma_alpha(
           _recovery.status_prvcolor,
           _recovery.status_reqcolor,
@@ -194,12 +194,12 @@ byte recovery_init_ui(){
   _recovery.win = libaroma_window(
       NULL, 0, 0, LIBAROMA_SIZE_FULL, LIBAROMA_SIZE_FULL
     );
-  
+
   if (!_recovery.win){
     RLOG("Cannot init main window");
     return 0;
   }
-  
+
   /* appbar */
   _recovery.appbar = libaroma_ctl_bar(
     _recovery.win, ID_APPBAR, 0, 0, LIBAROMA_SIZE_FULL, 56,
@@ -207,13 +207,13 @@ byte recovery_init_ui(){
     libaroma_colorget(NULL,_recovery.win)->primary,
     libaroma_colorget(NULL,_recovery.win)->primary_text
   );
-  
+
   if (!_recovery.appbar){
     return 0;
   }
   libaroma_ctl_bar_set_icon_mask(_recovery.appbar,1,0);
   libaroma_ctl_bar_set_textgap(_recovery.appbar,1,0);
-  
+
   /* fragment */
   _recovery.fragment = libaroma_ctl_fragment(
     _recovery.win, ID_FRAGMENT,
@@ -222,7 +222,7 @@ byte recovery_init_ui(){
   if (!_recovery.fragment){
     return 0;
   }
-  
+
   /* init sidebar */
   _recovery.sidebar = libaroma_window_sidebar(_recovery.win,0);
   if (_recovery.sidebar){
@@ -231,13 +231,13 @@ byte recovery_init_ui(){
       _recovery.sidebar,
       &recovery_sidebar_onslide
     );
-    
+
     word menuflags =
       LIBAROMA_LISTITEM_MENU_INDENT_NOICON|
       LIBAROMA_LISTITEM_MENU_SMALL_ICON|
       LIBAROMA_LISTITEM_MENU_FREE_ICON|
       LIBAROMA_LISTITEM_MENU_SMALL;
-    
+
     /* menu item macro */
     #define _ITEM(id,text,ico,extra) \
       libaroma_listitem_menu(\
@@ -250,7 +250,7 @@ byte recovery_init_ui(){
     #define _DIV(id) \
       libaroma_listitem_divider(_recovery.sidemenu, id, \
         LIBAROMA_LISTITEM_SEPARATOR_TEXTALIGN,-1)
-    
+
     /* create menu list */
     _recovery.sidemenu = libaroma_ctl_list(
       _recovery.sidebar, ID_SIDEMENU,
@@ -259,13 +259,13 @@ byte recovery_init_ui(){
       libaroma_colorget(NULL,_recovery.win)->control_bg,
       0 /*LIBAROMA_CTL_SCROLL_WITH_SHADOW*/
     );
-    
+
     libaroma_ctl_scroll_set_min_scroll(
        _recovery.sidemenu,
-       recovery_statusbar_sidebar_list_cb, 
+       recovery_statusbar_sidebar_list_cb,
        libaroma_dp(24)
     );
-    
+
     /* sidebar image */
     libaroma_listitem_image(
       _recovery.sidemenu, ID_SIDEMENU_IMAGE,
@@ -273,7 +273,7 @@ byte recovery_init_ui(){
       LIBAROMA_LISTITEM_IMAGE_FREE|LIBAROMA_LISTITEM_IMAGE_FILL|
       LIBAROMA_LISTITEM_IMAGE_PROPORTIONAL|LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH,
     -1);
-    
+
     /* ITEMS */
     _TITLE(210,"POWER MENU");
       _ITEM(ID_SIDEMENU_SHUTDOWN,"Shutdown","power",NULL);
@@ -285,10 +285,10 @@ byte recovery_init_ui(){
       _ITEM(ID_SIDEMENU_SETTINGS,"Settings","settings",NULL);
       _ITEM(ID_SIDEMENU_ABOUT,"About","info",NULL);
       _ITEM(ID_SIDEMENU_HELP,"Help","help",NULL);
-    
+
     /*
     _DIV(311);
-    
+
     int u;
     for (u=0;u<20;u++){
       char extraText[100];
@@ -296,7 +296,7 @@ byte recovery_init_ui(){
       _ITEM(501+u,"Dummy Sidebar",NULL,extraText);
     }
   */
-  
+
     /* undef menu item macro */
     #undef _DIV
     #undef _TITLE
@@ -324,24 +324,29 @@ byte recovery_release_ui(){
   }
   return 0;
 }
-    
+
 /* init recovery */
-byte recovery_init(){
-  /* 
+byte recovery_init(int argc, char **argv){
+  /*
     snprintf(libaroma_config()->fb_shm_name,64,"recovery-mainfb");
     libaroma_config()->runtime_monitor = LIBAROMA_START_UNSAFE;
   */
-  
+
   /* disable shared fb */
   libaroma_config()->runtime_monitor = LIBAROMA_START_UNSAFE;
   libaroma_config()->fb_shm_name[0]=0;
-  
+
+  if (argc >= 4){
+    if (atoi(argv[2]) != 0) //if parent pipe is nonzero, asume we're running from a recovery
+      libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;
+  }
+
   /* start libaroma */
   if (!libaroma_start()){
     RLOG("recovery_init: libaroma_start failed");
     return 0;
   }
-  
+
   /*
   LIBAROMA_CANVASP svg1=libaroma_image(
     libaroma_stream(
@@ -358,7 +363,7 @@ byte recovery_init(){
     printf("\n\nSVG RENDER ERROR\n\n\n");
   }
   */
-  
+
   /* set workspace size */
   libaroma_wm_set_workspace(
     0,
@@ -366,10 +371,10 @@ byte recovery_init(){
     libaroma_fb()->w,
     libaroma_fb()->h-libaroma_dp(24)
   );
-  
+
   /* clean display */
   libaroma_canvas_blank(libaroma_fb()->canvas);
-  
+
   /* create statusbar canvas area */
   _recovery.status_canvas=libaroma_canvas_area(
     libaroma_fb()->canvas,
@@ -380,38 +385,43 @@ byte recovery_init(){
     libaroma_end();
     return 0;
   }
-  
+
   /* set wm ui thread */
   libaroma_wm_set_ui_thread(recovery_statusbar_ui_thread);
   recovery_statusbar_setcolor(0);
-  
+
   /* load zip resource */
-  _recovery.zip = libaroma_zip("/sdcard/recovery.zip");
-  if (!_recovery.zip){
-    RLOG("recovery_init: libaroma_zip resource failed");
-    libaroma_canvas_free(_recovery.status_canvas);
-    libaroma_end();
-    return 0;
+  if (argc >= 4){
+    _recovery.zip = libaroma_zip(argv[3]);
   }
-  
+  if (!_recovery.zip){
+    _recovery.zip = libaroma_zip("/sdcard/recovery.zip");
+    if (!_recovery.zip){
+      RLOG("recovery_init: libaroma_zip resource failed");
+      libaroma_canvas_free(_recovery.status_canvas);
+      libaroma_end();
+      return 0;
+	}
+  }
+
   /* init stream callback */
   libaroma_stream_set_uri_callback(recovery_stream_uri_cb);
-  
+
   /* load font id=0 */
   libaroma_font(0,
     libaroma_stream(
       "res:///fonts/Roboto-Regular.ttf"
     )
   );
-  
+
   if (!recovery_init_ui()){
     recovery_release();
     return 0;
   }
-  
+
   /* cleanup display */
   libaroma_sync();
-  
+
   return 1;
 }
 
@@ -419,12 +429,12 @@ byte recovery_init(){
 byte recovery_release(){
   recovery_release_ui();
   libaroma_wm_set_ui_thread(NULL);
-  
+
   if (_recovery.zip){
     libaroma_zip_release(_recovery.zip);
     _recovery.zip=NULL;
   }
-  
+
   return libaroma_end();
 }
 
@@ -448,7 +458,7 @@ LIBAROMA_CANVASP recovery_load_icon_ex(const char * icon_name, word color){
 LIBAROMA_CANVASP recovery_load_icon(const char * icon_name,
   LIBAROMA_WINDOWP win){
   return recovery_load_icon_ex(
-    icon_name, 
+    icon_name,
     libaroma_colorget(NULL,win)->accent
   );
 }

@@ -25,7 +25,7 @@
 #define __libaroma_recovery_mainmenu_c__
 
 /* include recovery header */
-#include <recovery.h>
+#include "recovery.h"
 #include <string.h>
 
 /* control id */
@@ -69,7 +69,7 @@ int libaroma_dialog_list(
   const char * button2,
   LIBAROMA_COLORSETP colorset,
   byte flags);
-  
+
 /* test open dialog */
 byte recovery_open_dialog(LIBAROMA_WINDOWP parent){
   // libaroma_sleep(700);
@@ -85,7 +85,7 @@ byte recovery_open_dialog(LIBAROMA_WINDOWP parent){
     LIBAROMA_DIALOG_DIM_PARENT|LIBAROMA_DIALOG_WITH_SHADOW|
     LIBAROMA_DIALOG_ACCENT_BUTTON|LIBAROMA_DIALOG_CANCELABLE
   );*/
-  
+
   libaroma_dialog_list(
     "Unpatched Boot",
     "OK",
@@ -94,7 +94,7 @@ byte recovery_open_dialog(LIBAROMA_WINDOWP parent){
     LIBAROMA_DIALOG_DIM_PARENT|LIBAROMA_DIALOG_WITH_SHADOW|
     LIBAROMA_DIALOG_ACCENT_BUTTON|LIBAROMA_DIALOG_CANCELABLE
   );
-  
+
   libaroma_window_anishow(parent,0,0);
   recovery_statusbar_setcolor(libaroma_colorget(NULL,parent)->primary);
 }
@@ -107,14 +107,14 @@ byte recovery_mainmenu_pool(LIBAROMA_WINDOWP win, MAINMENU * var){
   byte cmd;
   word id;
   byte param;
-  
+
   do{
     command=libaroma_window_pool(recovery()->win,&msg);
-    
+
     cmd = LIBAROMA_CMD(command);
     id = LIBAROMA_CMD_ID(command);
     param = LIBAROMA_CMD_PARAM(command);
-    
+
     if (msg.msg==LIBAROMA_MSG_KEY_SELECT){
       if (msg.state==0){
         RLOG("SCREENSHOOT AND EXIT");
@@ -176,7 +176,7 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
     libaroma_colorget(NULL,win)->control_bg,
     LIBAROMA_CTL_SCROLL_WITH_SHADOW
   );
-  
+
   /* menu flags */
   word menuflags =
     LIBAROMA_LISTITEM_MENU_INDENT_NOICON|
@@ -189,7 +189,7 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
     LIBAROMA_LISTITEM_MENU_FREE_ICON|
     LIBAROMA_LISTITEM_WITH_SEPARATOR|
     LIBAROMA_LISTITEM_SEPARATOR_TEXTALIGN;
-    
+
   /* menu item macro */
   #define _ITEM(id,text,ico,extra) \
     libaroma_listitem_menu(\
@@ -205,8 +205,8 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
   #define _DIV(id) \
     libaroma_listitem_divider(var->menu, id, \
       LIBAROMA_LISTITEM_DIVIDER_SUBSCREEN,-1)
-  
-  
+
+
   LIBAROMA_CANVASP cphoto=libaroma_image_uri("file:///data/system/users/0/photo.png");
   if (cphoto){
     LIBAROMA_CANVASP dcphoto=libaroma_canvas(
@@ -222,14 +222,14 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
       );
       libaroma_canvas_free(bgside);
     }
-    
+
     libaroma_draw_scale_smooth(
       dcphoto, cphoto,
-      libaroma_dp(16),libaroma_dp(56),libaroma_dp(72), libaroma_dp(72), 
+      libaroma_dp(16),libaroma_dp(56),libaroma_dp(72), libaroma_dp(72),
       0, 0, cphoto->w, cphoto->h
     );
-    
-    
+
+
     char * namexml=libaroma_stream_to_string(libaroma_stream("file:///data/system/users/0.xml"),1);
     if (namexml){
       char * nametag=libaroma_stristr(namexml, "<name>", strlen(namexml))+6;
@@ -267,7 +267,7 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
       LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH|LIBAROMA_LISTITEM_IMAGE_PARALAX,
     -1);
   }
-  
+
   /* ITEMS */
   _TITLE(200,"ROM & SYSTEM");
     _ITEM(ID_MENU_INSTALL,"Install ROM","install",NULL);
@@ -283,8 +283,8 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
   _TITLE(202,"ADVANCE");
     _ITEM(ID_MENU_LOGGING,"Logging","logs",NULL);
     _ITEM(ID_MENU_PARTITION,"Partition Manager","partition",NULL);
-  
-  
+
+
     libaroma_listitem_image(
       var->menu, 400,
       libaroma_image_uri("file:///sdcard/23.svg"),
@@ -293,20 +293,20 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
       LIBAROMA_LISTITEM_IMAGE_FILL|LIBAROMA_LISTITEM_IMAGE_PROPORTIONAL|
       LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH|LIBAROMA_LISTITEM_IMAGE_PARALAX,
     -1);
-  
+
   _TITLE(202,"SVG ITEMS");
     _ITEMB(500,"Loyalty","ic_loyalty_48px.svg","ic_loyalty_48px.svg");
     _ITEMB(501,"Motorcycle","ic_motorcycle_48px.svg","ic_motorcycle_48px.svg");
     _ITEMB(502,"ic_note_add_48px.svg","ic_note_add_48px.svg","ic_note_add_48px.svg");
     _ITEMB(503,"ic_opacity_48px.svg","ic_opacity_48px.svg","ic_opacity_48px.svg");
     _ITEMB(504,"ic_open_in_browser_48px.svg","ic_open_with_48px.svg","ic_open_with_48px.svg");
-  
+
   /*
   LIBAROMA_CANVASP cphoto=libaroma_image_uri("file:///data/system/users/0/photo.png");
   if (!cphoto){
     cphoto=libaroma_image_uri("res:///bg/sidebar.jpg");
   }
-  
+
   char * namexml=libaroma_stream_to_string(libaroma_stream("file:///data/system/users/0.xml"),1);
   if (namexml){
     char * nametag=libaroma_stristr(namexml, "<name>", strlen(namexml))+6;
@@ -321,7 +321,7 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
     }
     free(namexml);
   }
-  
+
   if (cphoto){
     libaroma_listitem_image(
       var->menu, 400,
@@ -342,7 +342,7 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
     _ITEM(401+u,"Dummy Item",NULL,extraText);
   }
   */
-  
+
   /* undef menu item macro */
   #undef _DIV
   #undef _TITLE
@@ -354,12 +354,12 @@ byte recovery_mainmenu_init(LIBAROMA_WINDOWP win, MAINMENU * var){
 /* main menu activity */
 void recovery_mainmenu(){
   MAINMENU mainmenu={0};
-  
+
   /* init window */
   LIBAROMA_WINDOWP win = libaroma_ctl_fragment_new_window(
     recovery()->fragment, ID_MAINMENU_FRAGMENT
   );
-  
+
   if (win){
     /* set appbar tools */
     mainmenu.tools=libaroma_ctl_bar_tools(1);
@@ -369,10 +369,10 @@ void recovery_mainmenu(){
       recovery_load_icon("power",win),
       LIBAROMA_CTL_BAR_TOOL_ICON_FREE
     );
-    
+
     if (recovery_mainmenu_init(win,&mainmenu)){
       recovery_statusbar_setcolor(libaroma_colorget(NULL,win)->primary);
-      
+
       /* show animated */
       libaroma_window_anishow(
         recovery()->win,
@@ -385,22 +385,22 @@ void recovery_mainmenu(){
         1, 500, 0,
         NULL, NULL, NULL
       );
-      
+
       /*
       libaroma_control_resize(
         mainmenu.menu,
         0, 0, LIBAROMA_SIZE_FULL, 200
       );
       */
-      
+
       printf("Scroll Height: %i\n",libaroma_ctl_scroll_get_height(mainmenu.menu));
-      
+
       recovery_mainmenu_pool(win,&mainmenu);
     }
     else{
       RLOG("recovery_mainmenu: init window control failed");
     }
-    
+
     libaroma_ctl_bar_tools_free(mainmenu.tools);
   }
   else{

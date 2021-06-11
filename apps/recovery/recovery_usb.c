@@ -25,7 +25,7 @@
 #define __libaroma_recovery_usb_c__
 
 /* include recovery header */
-#include <recovery.h>
+#include "recovery.h"
 
 /* control id */
 #define ID_MENULIST             2
@@ -68,7 +68,7 @@ byte recovery_usb_pool(LIBAROMA_WINDOWP win, USBMENU * var){
     cmd = LIBAROMA_CMD(command);
     id = LIBAROMA_CMD_ID(command);
     param = LIBAROMA_CMD_PARAM(command);
-    
+
     if (msg.msg==LIBAROMA_MSG_KEY_SELECT){
       if (msg.state==0){
         RLOG("SCREENSHOOT AND EXIT");
@@ -110,7 +110,7 @@ byte recovery_usb_init(LIBAROMA_WINDOWP win, USBMENU * var){
     libaroma_colorget(NULL,win)->control_bg,
     LIBAROMA_CTL_SCROLL_WITH_SHADOW
   );
-  
+
   /* menu flags */
   word menuflags =
     LIBAROMA_LISTITEM_MENU_INDENT_NOICON|
@@ -118,7 +118,7 @@ byte recovery_usb_init(LIBAROMA_WINDOWP win, USBMENU * var){
     LIBAROMA_LISTITEM_MENU_FREE_ICON|
     LIBAROMA_LISTITEM_WITH_SEPARATOR|
     LIBAROMA_LISTITEM_SEPARATOR_TEXTALIGN;
-  
+
   /* menu item macro */
   #define _ITEM(id,text,ico,extra) \
     libaroma_listitem_menu(\
@@ -130,18 +130,18 @@ byte recovery_usb_init(LIBAROMA_WINDOWP win, USBMENU * var){
   #define _DIV(id) \
     libaroma_listitem_divider(var->menu, id, \
       LIBAROMA_LISTITEM_DIVIDER_SUBSCREEN,-1)
-  
+
   /* ITEMS */
   _TITLE(200,"SELECT USB MODE");
     _ITEM(ID_MENU_MTP,"MTP","usb",NULL);
     _ITEM(ID_MENU_MASS,"Mass Storage","usb",NULL);
     _ITEM(ID_MENU_NONE,"None","delete",NULL);
-  
+
   /* undef menu item macro */
   #undef _DIV
   #undef _TITLE
   #undef _ITEM
-  
+
   return 1;
 }
 
@@ -177,7 +177,7 @@ void recovery_usb_transition_cb(
   byte vopa=255-(220*state);
   libaroma_draw_ex(
     dst, bottom,
-    0, 0, 
+    0, 0,
     0, r1->y-y1,
     dst->w, y3,
     0,
@@ -200,7 +200,7 @@ void recovery_usb_transition_cb(
     0, y1, 0, 0, dst->w, y2,
     0, 255 * statef
   );
-  
+
 }
 
 
@@ -209,12 +209,12 @@ void recovery_usb_transition_cb(
 /* main menu activity */
 void recovery_usb(int parent_id,LIBAROMA_RECTP rect){
   USBMENU var={0};
-  
+
   /* init window */
   LIBAROMA_WINDOWP win = libaroma_ctl_fragment_new_window(
     recovery()->fragment, ID_USB_FRAGMENT
   );
-  
+
   if (win){
     if (recovery_usb_init(win,&var)){
       libaroma_ctl_fragment_set_active_window(
@@ -223,25 +223,25 @@ void recovery_usb(int parent_id,LIBAROMA_RECTP rect){
         recovery_usb_transition_cb, rect, NULL
       );
       libaroma_ctl_bar_set_color(
-        recovery()->appbar, 
+        recovery()->appbar,
         RGB(555555),
         RGB(ffffff),
         0
       );
       recovery_usb_reset_appbar(win,&var);
       recovery_statusbar_setcolor(RGB(555555));
-      
+
       recovery_usb_pool(win,&var);
-      
+
       /* restore parent and delete usb fragment */
       libaroma_ctl_fragment_set_active_window(
         recovery()->fragment, parent_id,
         1, 300, 1,
         recovery_usb_transition_cb, NULL, rect
       );
-      
+
       libaroma_ctl_bar_set_color(
-        recovery()->appbar, 
+        recovery()->appbar,
         libaroma_colorget(NULL,recovery()->win)->primary,
         libaroma_colorget(NULL,recovery()->win)->primary_text,
         0
