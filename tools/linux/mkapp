@@ -10,34 +10,34 @@ if [ -z "$1" ] || [ "$1" = "/?" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; the
 	exit
 fi
 
-for lib in aroma drm freetype hb jpeg minui minzip png squirrel ucdn zlib
+for lib in aroma aromart drm freetype hb jpeg minui minzip png squirrel ucdn zlib
 do
 	# if folder doesn't exist because it's not needed, ignore the warning
 	if [ ! -d "${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/$l/" ]; then
 		should_build=1
-		if [ "$lib" = "drm" ] && [ "${LIBAROMA_BUILD_DRM}" = "0" ]; then
+		if [ "$lib" = "aromart" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
 		should_build=0
-		fi
-		if [ "$lib" = "hb" ]; then
+		elif [ "$lib" = "drm" ] && [ "${LIBAROMA_BUILD_DRM}" = "0" ]; then
+		should_build=0
+		elif [ "$lib" = "hb" ]; then
 			if [ "${LIBAROMA_BUILD_HARFBUZZ}" = "0" ]; then
 				should_build=0
 			else
 				lib="harfbuzz"
 			fi
-		fi
-		if [ "$lib" = "jpeg" ] && [ "${LIBAROMA_BUILD_JPEG}" = "0" ]; then
+		elif [ "$lib" = "jpeg" ] && [ "${LIBAROMA_BUILD_JPEG}" = "0" ]; then
 		should_build=0
-		fi
-		if [ "$lib" = "minui" ] && [ "${LIBAROMA_BUILD_MINUI}" = "0" ]; then
+		elif [ "$lib" = "minui" ] && [ "${LIBAROMA_BUILD_MINUI}" = "0" ]; then
 		should_build=0
-		fi
-		if [ "$lib" = "squirrel" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
+		elif [ "$lib" = "squirrel" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
 		should_build=0
 		fi
 		if [ "${should_build}" = "1" ]; then
-			#if library $l is not found, try to build it
+			#if library $l is not found and is needed, try to build it
 			if [ "$lib" = "aroma" ]; then
 				sh "${LIBAROMA_BASE}/tools/linux/mkaroma nodetect"
+			elif [ "$lib" = "aromart" ]; then
+				sh "${LIBAROMA_BASE}/tools/linux/mkaromart"
 			else
 				sh "${LIBAROMA_BASE}/tools/linux/mkalibs" $lib
 			fi
@@ -72,6 +72,9 @@ if [ "${LIBAROMA_BUILD_JPEG}" = "1" ]; then
 fi
 if [ "${LIBAROMA_BUILD_MINUI}" = "1" ]; then
 	minui_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/minui/"
+fi
+if [ "${LIBAROMA_BUILD_RUNTIME}" = "1" ]; then
+	aromart_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/aromart/"
 fi
 
 # parse sourcelist.txt
@@ -111,6 +114,7 @@ target_name=$1-${LIBAROMA_TARGET_NAME}
 	"${hb_objs}"*.o \
 	"${jpeg_objs}"*.o \
 	"${minui_objs}"*.o \
+	"${aromart_objs}"*.o \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/freetype/"*.o \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/minzip/"*.o \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/png/"*.o \
