@@ -13,12 +13,14 @@ fi
 dep_detect()
 {
 should_warn=1
-for lib in drm freetype hb jpeg minui minzip png squirrel ucdn zlib
+for lib in aromart drm freetype hb jpeg minui minzip png squirrel ucdn zlib
 do
 	# if folder doesn't exist because it's not needed, ignore the warning
 	if [ ! -d "${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/$lib" ]; then
 		should_build=1
-		if [ "$lib" = "drm" ] && [ "${LIBAROMA_BUILD_DRM}" = "0" ]; then
+		if [ "$lib" = "aromart" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
+			should_build=0
+		elif [ "$lib" = "drm" ] && [ "${LIBAROMA_BUILD_DRM}" = "0" ]; then
 			should_build=0
 		elif [ "$lib" = "hb" ]; then
 			if [ "${LIBAROMA_BUILD_HARFBUZZ}" = "0" ]; then
@@ -30,16 +32,20 @@ do
 			should_build=0
 		elif [ "$lib" = "minui" ] && [ "${LIBAROMA_BUILD_MINUI}" = "0" ]; then
 			should_build=0
-		elif [ "$lib" = "squirrel" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
-			should_build=0
+		#elif [ "$lib" = "squirrel" ] && [ "${LIBAROMA_BUILD_RUNTIME}" = "0" ]; then
+		#	should_build=0
 		fi
 		if [ "${should_build}" = "1" ]; then
 			if [ "${should_warn}" = "1" ]; then
 				echo "Building missing dependencies"
 				should_warn=0
 			fi
-			#if library $l is not found, try to build it
-			sh "${LIBAROMA_BASE}/tools/linux/mkalibs" $lib
+			#if library $lib is not found, try to build it
+			if [ "$lib" = "aromart" ]; then
+				sh "${LIBAROMA_BASE}/tools/linux/mkaromart"
+			else
+				sh "${LIBAROMA_BASE}/tools/linux/mkalibs" $lib
+			fi
 		fi
 	fi
 done
