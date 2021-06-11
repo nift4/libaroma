@@ -42,7 +42,7 @@ byte LINUXFBDR_post_16bit(
 	int dstride = (mi->line - (dw * mi->pixsz));
 	wordp copy_dst =
 		(wordp) (((bytep) mi->current_buffer)+(mi->line * dy)+(dx * mi->pixsz));
-	wordp copy_src = 
+	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	libaroma_blt_align16(
 		copy_dst,
@@ -85,7 +85,14 @@ void LINUXFBDR_init_16bit(LIBAROMA_FBP me) {
 		mi->line = mi->line / 2;
 	}
 	mi->stride = mi->line - (me->w * 2); /* calculate stride size */
-	
+
+	if (libaroma_config()->gfx_override_rgb){
+		ALOGD("LINUXDRM: CUSTOM RGB VALUES IN USE");
+		LINUXFBDR_setrgbpos(me,
+							libaroma_config()->gfx_default_rgb[0],
+							libaroma_config()->gfx_default_rgb[1],
+							libaroma_config()->gfx_default_rgb[2]);
+	}
 	/* set sync callbacks */
 	me->start_post	= &LINUXFBDR_start_post;
 	me->end_post		= &LINUXFBDR_end_post;

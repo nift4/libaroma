@@ -190,7 +190,8 @@ byte LINUXDRM_post(
 	int sstride = (sw - dw) * 2;
 	int dstride = mi->stride;
 	dwordp copy_dst =
-		(dwordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
+		(dwordp) (((bytep) mi->buffer) + (mi->line * dy) + (dx * mi->pixsz));
+		//(dwordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
 	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	if (mi->is32){
@@ -205,7 +206,7 @@ byte LINUXDRM_post(
 	}
 	else { //using 16bpp
 		libaroma_blt_align16(
-			(wordp)copy_dst,
+			(wordp) copy_dst,
 			copy_src,
 			dw, dh,
 			dstride,

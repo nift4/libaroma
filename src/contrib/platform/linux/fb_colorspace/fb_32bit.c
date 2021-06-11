@@ -61,13 +61,13 @@ byte LINUXFBDR_post_32bit(
 	int dstride = (mi->line - (dw * mi->pixsz));
 	dwordp copy_dst =
 		(dwordp) (((bytep) mi->current_buffer)+(mi->line * dy)+(dx * mi->pixsz));
-	wordp copy_src = 
+	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	libaroma_blt_align_to32_pos(
 		copy_dst,
 		copy_src,
 		dw, dh,
-		dstride, 
+		dstride,
 		sstride,
 		mi->rgb_pos
 	);
@@ -101,18 +101,28 @@ void LINUXFBDR_init_32bit(LIBAROMA_FBP me) {
 	}
 	ALOGS("LINUXFBDR Init 32bit Colorspace");
 	LINUXFBDR_INTERNALP mi = (LINUXFBDR_INTERNALP) me->internal;
-	
+
 	/* calculate stride size */
 	mi->stride = mi->line - (me->w * mi->pixsz);
 
 	/* gralloc framebuffer subpixel position style */
-	if (mi->var.transp.offset){
-		LINUXFBDR_setrgbpos(me,16,8,0);
+
+	if (libaroma_config()->gfx_override_rgb){
+		ALOGD("LINUXDRM: CUSTOM RGB VALUES IN USE");
+		LINUXFBDR_setrgbpos(me,
+							libaroma_config()->gfx_default_rgb[0],
+							libaroma_config()->gfx_default_rgb[1],
+							libaroma_config()->gfx_default_rgb[2]);
 	}
-	else{
-		LINUXFBDR_setrgbpos(me,0,8,16);
+	else {
+		if (mi->var.transp.offset){
+			LINUXFBDR_setrgbpos(me,16,8,0);
+		}
+		else{
+			LINUXFBDR_setrgbpos(me,0,8,16);
+		}
 	}
-	
+
 	/* set sync callbacks */
 	me->start_post	= &LINUXFBDR_start_post;
 	me->end_post		= &LINUXFBDR_end_post;
@@ -120,4 +130,4 @@ void LINUXFBDR_init_32bit(LIBAROMA_FBP me) {
 	me->snapshoot	 = &LINUXFBDR_snapshoot_32bit;
 }
 
-#endif /* __libaroma_linux_fb32bit_driver_c__ */ 
+#endif /* __libaroma_linux_fb32bit_driver_c__ */
