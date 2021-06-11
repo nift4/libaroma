@@ -27,11 +27,11 @@
 #include <aromart.h>
 
 #include <pthread.h>		/* pthread_ */
-#include <signal.h>		 /* pthread_kill */
-#include <time.h>			 /* clock_gettime */
-#include <sys/param.h>	/* MIN,MAX */
-#include <sys/mman.h>	 /* mmap, munmap */
-#include <unistd.h>		 /* open, close, unlink, usleep */
+#include <signal.h>			/* pthread_kill */
+#include <time.h>			/* clock_gettime */
+#include <sys/param.h>		/* MIN,MAX */
+#include <sys/mman.h>		/* mmap, munmap */
+#include <unistd.h>			/* open, close, unlink, usleep */
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -71,73 +71,69 @@ char * libaroma_debug_tag();
 /******************************** MACROS **************************************/
 
 /* named pipes */
-#define LART_NAMED_PIPE_APP_READ			"/tmp/.aromart-rfd-%i"
-#define LART_NAMED_PIPE_APP_WRITE		 "/tmp/.aromart-wfd-%i"
-#define LART_NAMED_PIPE_APP_EVENT		 "/tmp/.aromart-efd-%i"
-#define LART_SHMCANVAS_FB						 "@aromart-fb-%i"
-#define LART_SHMCANVAS_SB						 "@aromart-sb-%i"
+#define LART_NAMED_PIPE_APP_READ		"/tmp/.aromart-rfd-%i"
+#define LART_NAMED_PIPE_APP_WRITE		"/tmp/.aromart-wfd-%i"
+#define LART_NAMED_PIPE_APP_EVENT		"/tmp/.aromart-efd-%i"
+#define LART_SHMCANVAS_FB				"@aromart-fb-%i"
+#define LART_SHMCANVAS_SB				"@aromart-sb-%i"
 
-/* sysui assets */
-#define LART_SYSUI_ZIP_PATH					 "/sdcard/recovery.zip"
-#define LART_SYSUI_MAINFONT_URI			 "res:///fonts/Roboto-Regular.ttf"
-#define LART_SYSUI_STATUSBAR_HEIGHT	 24
-
-/* app assets */
-#define LART_APP_MAINFONT_URI				 "sys:///fonts/Roboto-Regular.ttf"
+/* sysui statusbar height */
+#define LART_SYSUI_STATUSBAR_HEIGHT		24
 
 /* root command */
-#define LART_ROOT_MSG_CREATE_APP			0x01
+#define LART_ROOT_MSG_CREATE_APP		0x01
 #define LART_ROOT_MSG_CREATE_APP_RES	0x02
-#define LART_ROOT_MSG_TERMINATED			0xEE
+#define LART_ROOT_MSG_TERMINATED		0xEE
 
 /* Request command */
-#define LART_REQ_CMD_FB_SYNC					 0x01	/* sync framebuffer */
-#define LART_REQ_CMD_SET_PRIMARY_COLOR 0x02	/* update primary color */
-#define LART_REQ_CMD_SB_SYNC					 0x03	/* sync statusbar canvas */
-#define LART_REQ_CMD_READY						 0x04	/* app is ready to show */
-#define LART_REQ_CMD_SETNAME					 0x05	/* set application name */
-#define LART_REQ_CMD_EXIT							0xcc	/* app is exited */
-#define LART_REQ_CMD_NEW_APP					 0x10	/* new application request */
+#define LART_REQ_CMD_FB_SYNC			0x01	/* sync framebuffer */
+#define LART_REQ_CMD_SET_PRIMARY_COLOR	0x02	/* update primary color */
+#define LART_REQ_CMD_SB_SYNC			0x03	/* sync statusbar canvas */
+#define LART_REQ_CMD_READY				0x04	/* app is ready to show */
+#define LART_REQ_CMD_SETNAME			0x05	/* set application name */
+#define LART_REQ_CMD_EXIT				0xcc	/* app is exited */
+#define LART_REQ_CMD_NEW_APP			0x10	/* new application request */
 
 /* event message */
-#define LART_EV_NEEDSYNC							 0x01	/* should sync in next thread */
-#define LART_EV_HID										0x02	/* hid message */
-#define LART_EV_PAUSE									0x03	/* pause message */
-#define LART_EV_RESUME								 0x04	/* resume message */
-#define LART_EV_EXIT									 0xcc	/* exit message */
+#define LART_EV_NEEDSYNC				0x01	/* should sync in next thread */
+#define LART_EV_HID						0x02	/* hid message */
+#define LART_EV_PAUSE					0x03	/* pause message */
+#define LART_EV_RESUME					0x04	/* resume message */
+#define LART_EV_EXIT					0xcc	/* exit message */
 
 /* Respond status */
-#define LART_RES_ERR									 0x00	/* error status */
-#define LART_RES_OK										0x01	/* ok status */
+#define LART_RES_ERR					0x00	/* error status */
+#define LART_RES_OK						0x01	/* ok status */
 
 /******************************** STRUCT **************************************/
 
 /* aroma runtime instance */
 typedef struct{
-	pid_t	 spid;					 /* system ui thread */
-	pid_t	 mpid;					 /* application manager thread */
-	int		 rfd;						/* read fd - for new application request */
-	int		 wfd;						/* read fd - for new application respond */
+	pid_t				spid;			/* system ui thread */
+	pid_t				mpid;			/* application manager thread */
+	int					rfd;			/* read fd - for new application request */
+	int					wfd;			/* read fd - for new application respond */
 } LART;
 
-/* vm application */
+/* application (internal) */
 typedef struct{
-	int		 aid;						/* application id */
-	pid_t	 pid;						/* application pid */
-	int		 wfd;						/* write fd - for request */
-	int		 rfd;						/* read fd - for respond */
-	int		 efd;						/* event fd */
-	LIBAROMA_CANVASP	cfb;	/* app framebuffer canvas */
-	LIBAROMA_CANVASP	csb;	/* overflow status bar canvas */
-	int		 dpi;						/* display dpi */
+	int		 			aid;			/* application id */
+	pid_t	 			pid;			/* application pid */
+	int		 			wfd;			/* write fd - for request */
+	int					rfd;			/* read fd - for respond */
+	int		 			efd;			/* event fd */
+	LIBAROMA_CANVASP	cfb;			/* app framebuffer canvas */
+	LIBAROMA_CANVASP	csb;			/* overflow status bar canvas */
+	int		 			dpi;			/* display dpi */
+	LART_APP			*app;			/* public app */
 } LARTAPP;
 
 /* new application request */
 typedef struct{
-	int		 aid;						/* application id */
-	int		 dpi;						/* display dpi */
-	char		program[256];	 /* program name */
-	char		param[256];		 /* param */
+	int					aid;			/* application id */
+	int					dpi;			/* display dpi */
+	char				program[256];	/* program name */
+	char				param[256];		/* param */
 } LART_NEW_APP_DATA;
 
 /* new application result data */
@@ -152,6 +148,7 @@ typedef struct{
  * runtime
  */
 LART * lart();
+
 void lart_set_process_name(char * new_name);
 
 /*
@@ -223,11 +220,11 @@ byte lart_libaroma_start();
 void lart_libaroma_end();
 void lart_hid_post(
 	byte	type,
-	int	 key,
+	int		key,
 	byte	state,
-	int	 x,
-	int	 y,
-	byte ret
+	int		x,
+	int		y,
+	byte	ret
 );
 
 #endif /* __libaromart_internal_h__ */

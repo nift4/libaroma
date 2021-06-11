@@ -27,12 +27,29 @@
 #ifndef __libaromart_core_h__
 #define __libaromart_core_h__
 
+/* application struct (public) */
+typedef struct {
+	LIBAROMA_WINDOWP	win;			/* application main window */
+	char				*name;			/* app name */
+	char				*program;		/* program name */
+	char				*param;			/* param */
+	char				*title;			/* app title */
+	LIBAROMA_CANVASP	icon;			/* app icon */
+} LART_APP;
+
 /* start application handler */
-typedef int (*LART_APP_RUN_HANDLER)(char *, char *);
-typedef int (*LART_SYSTEM_UI_HANDLER)();
+typedef int (*LART_APP_RUN_HANDLER)(LART_APP */*char *, char **/);
+typedef void (*LART_SYSTEM_UI_HANDLER)();
 typedef void (*LART_SYSTEM_UI_STATUSBAR_DRAW)(LIBAROMA_CANVASP,word);
 typedef byte (*LART_SYSTEM_UI_THREAD)();
 typedef byte (*LART_SYSTEM_UI_MESSAGE)(LIBAROMA_MSGP);
+typedef struct {
+	char	*zip_path;				/* runtime resources path */
+	char	*sysui_font_uri;		/* default font used by sysui */
+	char	*app_font_uri;			/* default font used by apps */
+} LART_CONFIG;
+
+LART_CONFIG * lart_config();
 
 /* start aroma runtime */
 int lart_start(
@@ -59,5 +76,6 @@ byte lart_sysui_isactive();
 void lart_sysui_set_ui_thread(LART_SYSTEM_UI_THREAD cb);
 void lart_sysui_set_message_handler(LART_SYSTEM_UI_MESSAGE cb);
 void lart_sysui_print_running_apps();
+LART_APP **lart_sysui_get_running_applications();
 
 #endif /* __libaromart_core_h__ */

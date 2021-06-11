@@ -57,20 +57,20 @@ byte lart_fb_end_post(LIBAROMA_FBP me){
 	return lart_app_command(LART_REQ_CMD_FB_SYNC,0,NULL,0,NULL,NULL,NULL);
 }
 byte lart_fb_init(LIBAROMA_FBP me){
-	me->internal				= NULL;
-	me->release				 = &lart_fb_release;
-	me->w							 = lart_app()->cfb->w;
-	me->h							 = lart_app()->cfb->h;
-	me->sz							= me->w*me->h;
+	me->internal			= NULL;
+	me->release				= &lart_fb_release;
+	me->w					= lart_app()->cfb->w;
+	me->h					= lart_app()->cfb->h;
+	me->sz					= me->w*me->h;
 	me->start_post			= &lart_fb_start_post;
-	me->end_post				= &lart_fb_end_post;
-	me->post						= &lart_fb_post;
-	me->snapshoot			 = NULL;
-	me->config					= NULL;
-	me->dpi						 = lart_app()->dpi;
-	me->double_buffer	 = 1;
-	me->internal_canvas = 1;
-	me->canvas					= lart_app()->cfb;
+	me->end_post			= &lart_fb_end_post;
+	me->post				= &lart_fb_post;
+	me->snapshoot			= NULL;
+	me->config				= NULL;
+	me->dpi					= lart_app()->dpi;
+	me->double_buffer	 	= 1;
+	me->internal_canvas 	= 1;
+	me->canvas				= lart_app()->cfb;
 	return 1;
 }
 

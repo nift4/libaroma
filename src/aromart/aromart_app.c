@@ -70,6 +70,7 @@ byte lart_application_set_drawer_overlay(int x, int w){
 
 char _lart_app_process_name[256];
 void lart_application_set_process_name(char * name){
+	lart_app()->app->name=name;
 	snprintf(_lart_app_process_name,
 		256,
 		"aroma.app.%i%s%s",
@@ -193,8 +194,8 @@ byte _lart_app_ui_thread(){
 }
 
 /* run application */
-int lart_app_run(char * program, char * param){
-	LARTLOGS("lart_app_run(%s,%s)",program,param);
+int lart_app_run(LART_APP *app/*char * program, char * param*/){
+	LARTLOGS("lart_app_run(%s,%s)", app->program, app->param);
 	if (_lart_app_run_cb){
 		_lart_app_isrun=1;
 		pthread_create(
@@ -205,7 +206,11 @@ int lart_app_run(char * program, char * param){
 		);
 		pthread_detach(_lart_app_eventthread_t);
 		libaroma_wm_set_ui_thread(_lart_app_ui_thread);
-		int retval=_lart_app_run_cb(program, param);
+
+		/* run app callback */
+		int retval=_lart_app_run_cb(app /*program, param*/);
+
+		/* app callback exited */
 		libaroma_wm_set_ui_thread(NULL);
 		_lart_app_isrun=0;
 		return retval;
@@ -281,7 +286,13 @@ pid_t lart_app_create(
 		_lart_app->aid = appid;
 		_lart_app->pid = getpid();
 		_lart_app->dpi = dpi;
-
+		_lart_app->app = (LART_APP *) calloc(sizeof(LART_APP),1);
+		_lart_app->app->title = program;
+		_lart_app->app->program = program;
+		_lart_app->app->param = param;
+		_lart_app->app->name = NULL;
+		_lart_app->app->win = NULL;
+		_lart_app->app->icon = NULL;
 		{
 			/* init pipe */
 			char stmp[256];
@@ -317,19 +328,19 @@ pid_t lart_app_create(
 			);
 
 			/* load system & app zips */
-			_lart_app_sys_zip = libaroma_zip(LART_SYSUI_ZIP_PATH);
-			_lart_app_zip		 = NULL;
+			_lart_app_sys_zip	= libaroma_zip(lart_config()->zip_path);
+			_lart_app_zip		= NULL;
 
-			/* now init app libaroma */
+			/* now init custom libaroma instance for app */
 			if (lart_libaroma_start()){
 				/* set uri callback */
 				libaroma_stream_set_uri_callback(_lart_app_stream_uri_cb);
 
 				/* load default font */
-				libaroma_font(0,libaroma_stream(LART_APP_MAINFONT_URI));
+				libaroma_font(0,libaroma_stream(lart_config()->app_font_uri));
 
 				/* run application */
-				app_ret = lart_app_run(program, param);
+				app_ret = lart_app_run(_lart_app->app /*program, param*/);
 			}
 			lart_libaroma_end();
 

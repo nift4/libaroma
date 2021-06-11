@@ -30,69 +30,84 @@ extern "C" {
 #endif
 /* sysui app structure */
 typedef struct{
-	int		 aid;						/* application id */
-	pid_t	 pid;						/* application pid */
-	int		 wfd;						/* write fd - for request */
-	int		 rfd;						/* read fd - for respond */
-	int		 efd;						/* event fd */
-	LIBAROMA_CANVASP	cfb;	/* app framebuffer canvas */
-	LIBAROMA_CANVASP	csb;	/* overflow status bar canvas */
-	pthread_t appth;				/* application thread */
-	byte		isrun;					/* application is run */
-	word		primary_color;
+	LART_APP			*app;				/* public app */
+	int		 			aid;				/* application id */
+	pid_t	 			pid;				/* application pid */
+	int		 			wfd;				/* write fd - for request */
+	int		 			rfd;				/* read fd - for respond */
+	int		 			efd;				/* event fd */
+	LIBAROMA_CANVASP	cfb;				/* app framebuffer canvas */
+	LIBAROMA_CANVASP	csb;				/* overflow status bar canvas */
+	pthread_t			appth;				/* application thread */
+	byte				isrun;				/* application is run */
+	word				primary_color;
 } LARTAPP_SYSUI;
 
 /* sysui structure */
 typedef struct{
-	LARTAPP_SYSUI **	apps;			 /* array of apps */
-	int							 appn;			 /* number of app array */
-	int							 appid;			/* current appid */
-	LARTAPP_SYSUI *	 fg_app;		 /* foreground app */
-	byte							active;		 /* is active */
+	LARTAPP_SYSUI **	apps;				/* array of apps */
+	int					appn;				/* number of app array */
+	int					appid;				/* current appid */
+	LARTAPP_SYSUI *		fg_app;				/* foreground app */
+	byte				active;				/* is active */
 
-	int							 dpi;				/* dpi */
-	LIBAROMA_ZIP			zip;				/* zip global assets */
+	int					dpi;				/* dpi */
+	LIBAROMA_ZIP		zip;				/* zip global assets */
 
-	int							 sb_h;			 /* statusbar height */
+	int					sb_h;				/* statusbar height */
 	LART_SYSTEM_UI_STATUSBAR_DRAW sb_drawer;
-	LIBAROMA_CANVASP	sb_canvas;	/* statusbar canvas */
-	word							sb_prvcolor;
-	word							sb_reqcolor;
-	word							sb_bgcolor;
-	long							sb_updatestart;
-	byte							sb_forceupdate;
-	byte							sb_side_opa;
+	LIBAROMA_CANVASP	sb_canvas;			/* statusbar canvas */
+	word				sb_prvcolor;
+	word				sb_reqcolor;
+	word				sb_bgcolor;
+	long				sb_updatestart;
+	byte				sb_forceupdate;
+	byte				sb_side_opa;
 	LIBAROMA_CANVASP	sb_overlay_canvas;
-	int							 sb_side_w;
+	int					sb_side_w;
 } LART_SYSUI;
 
 /* sys ui instance */
 static LART_SYSUI * _lart_sysui = NULL;
 pthread_mutex_t _lart_sysui_mutex = PTHREAD_MUTEX_INITIALIZER;
-#define _MLOCK()		pthread_mutex_lock(&_lart_sysui_mutex)
+#define _MLOCK()	pthread_mutex_lock(&_lart_sysui_mutex)
 #define _MUNLOCK()	pthread_mutex_unlock(&_lart_sysui_mutex)
 
 /* forward functions */
 void _lart_sysui_sb_setcolor(word color);
-inline int lart_sysui_req_new_app(
+int lart_sysui_req_new_app(
 	char * program,
 	char * param);
 
 void lart_sysui_print_running_apps(){
-	/*
+
 	_MLOCK();
 	int i;
-	printf("\n\n[*] CURRENT RUNNING APPS: %i\n",_lart_sysui->appn);
+	printf("[*] CURRENT RUNNING APPS: %i\n",_lart_sysui->appn);
 	for (i=0;i<_lart_sysui->appn;i++){
-		printf("		 <%i> App ID: %i - PID: %i\n",
+		printf("\t\t<%i> %s ID: %i - PID: %i\n",
 			i,
+			_lart_sysui->apps[i]->app->title,
 			_lart_sysui->apps[i]->aid,
 			_lart_sysui->apps[i]->pid
 		);
 	}
-	printf("\n");
+	//printf("\n");
 	_MUNLOCK();
-	*/
+
+}
+
+LART_APP **lart_sysui_get_running_applications(){
+	LART_APP **list = malloc(sizeof(LART_APP *) * _lart_sysui->appn);
+	if (!list) {
+		LARTLOGE("Unable to allocate running apps list");
+		return NULL;
+	}
+	int i;
+	for (i=0;i<_lart_sysui->appn;i++){
+		list[i]=_lart_sysui->apps[i]->app;
+	}
+	return list;
 }
 
 /* killing apps */
@@ -424,7 +439,7 @@ static void * _lart_sysui_appthread(void * cookie) {
 }
 
 /* request new app */
-inline int lart_sysui_req_new_app(
+int lart_sysui_req_new_app(
 	char * program,
 	char * param){
 	int ret_appid = -1;
@@ -511,6 +526,13 @@ inline int lart_sysui_req_new_app(
 						app_data->efd = efd;
 						app_data->cfb = cfb;
 						app_data->csb = csb;
+						app_data->app = (LART_APP *) calloc(sizeof(LART_APP), 1);
+						app_data->app->icon=NULL;
+						app_data->app->name=NULL;
+						app_data->app->param=param;
+						app_data->app->program=program;
+						app_data->app->title=program;
+						app_data->app->win=NULL;
 
 						LARTAPP_SYSUI ** napps = NULL;
 						if (_lart_sysui->appn==0){
@@ -810,9 +832,17 @@ int lart_sysui(
 	_lart_sysui = (LART_SYSUI *) calloc(sizeof(LART_SYSUI),1);
 	if (_lart_sysui!=NULL){
 		_lart_sysui->sb_drawer=sysui_sb_draw;
-		if (libaroma_start()){
+		if (libaroma_start()){/*
+			if (libaroma_config()->gfx_override_rgb){
+				printf("I/MLXPROJECTS(): override_rgb is %d\n", libaroma_config()->gfx_override_rgb);
+				libaroma_fb_setrgb(
+					libaroma_config()->gfx_default_rgb[0],
+					libaroma_config()->gfx_default_rgb[1],
+					libaroma_config()->gfx_default_rgb[2]
+				);
+			}*/
 			/* init sysui values */
-			_lart_sysui->sb_h = libaroma_dp(LART_SYSUI_STATUSBAR_HEIGHT);
+			_lart_sysui->sb_h	= libaroma_dp(LART_SYSUI_STATUSBAR_HEIGHT);
 			_lart_sysui->dpi	= libaroma_fb()->dpi;
 
 			/* set workspace size */
@@ -838,10 +868,10 @@ int lart_sysui(
 				_lart_sysui_sb_setcolor(0);
 
 				/* load zip resource */
-				_lart_sysui->zip = libaroma_zip(LART_SYSUI_ZIP_PATH);
+				_lart_sysui->zip = libaroma_zip(lart_config()->zip_path);
 				if (_lart_sysui->zip){
 					libaroma_stream_set_uri_callback(_lart_sysui_stream_uri_cb);
-					libaroma_font(0,libaroma_stream(LART_SYSUI_MAINFONT_URI));
+					libaroma_font(0,libaroma_stream(lart_config()->sysui_font_uri));
 
 					_lart_sysui->active = 1;
 

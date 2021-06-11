@@ -29,17 +29,34 @@
 extern "C" {
 #endif
 static LART _lart={0};
+static LART_CONFIG _lart_config={0};
 
 /* get aroma runtime instance */
 LART * lart(){
 	return &_lart;
 }
 
+LART_CONFIG * lart_config(){
+	return &_lart_config;
+}
+
 /* init runtime */
 byte lart_init_runtime(){
 
+	/* TODO: use something better than system() */
 	system("rm /tmp/.libaromashm*");
 	system("rm /tmp/.aromart*");
+
+	/* load default configs */
+	if (lart_config()->zip_path == NULL){
+		lart_config()->zip_path = "/tmp/res.zip";
+	}
+	if (lart_config()->sysui_font_uri == NULL){
+		lart_config()->sysui_font_uri = "res:///fonts/Roboto-Regular.ttf";
+	}
+	if (lart_config()->app_font_uri == NULL){
+		lart_config()->app_font_uri = "sys:///fonts/Roboto-Regular.ttf";
+	}
 
 	int host_pipes[2];
 	int remote_pipes[2];
@@ -47,10 +64,10 @@ byte lart_init_runtime(){
 	pipe(remote_pipes);
 
 	lart()->mpid	= getpid();
-	pid_t pid		 = fork();
+	pid_t pid		= fork();
 	if (pid==0){
 		/* system ui */
-		lart()->spid = getpid();
+		lart()->spid= getpid();
 		lart()->rfd	= remote_pipes[0];
 		lart()->wfd	= host_pipes[1];
 		close(remote_pipes[1]);
