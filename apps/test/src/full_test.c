@@ -83,11 +83,11 @@ void list_tab_init(LIBAROMA_WINDOWP pagerwin, int maxwidth){
 	list_icon3 =
 		libaroma_image_uri("res:///png/inbox.png");
 
-	/* fill color */
+	/* fill color
 	libaroma_canvas_fillcolor(list_icon,libaroma_colorget(NULL,NULL)->primary);
 	libaroma_canvas_fillcolor(list_icon2,libaroma_colorget(NULL,NULL)->primary);
 	libaroma_canvas_fillcolor(list_icon3,libaroma_colorget(NULL,NULL)->primary);
-
+	*/
 	char main_text[256];
 	char extra_text[256];
 	int itm=0;
@@ -280,7 +280,7 @@ void sidebar_init(LIBAROMA_WINDOWP win){
 			150,
 			LIBAROMA_LISTITEM_IMAGE_FREE|LIBAROMA_LISTITEM_WITH_SEPARATOR|
 			LIBAROMA_LISTITEM_IMAGE_FILL|LIBAROMA_LISTITEM_IMAGE_PROPORTIONAL|
-			LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH|LIBAROMA_LISTITEM_IMAGE_PARALAX,
+			LIBAROMA_CTL_LIST_ITEM_RECEIVE_TOUCH,
 		-1);
 		int r;
 		int itm=0;
@@ -397,7 +397,7 @@ void full_test(){
 	libaroma_window_anishow(win, anim, 350);
 
 	// libaroma_window_layer_init(win);
-
+	libaroma_window_invalidate(win, 1);
 	byte gap_wide = 1;
 	int change_id=0;
 	int pager_anim=0;
