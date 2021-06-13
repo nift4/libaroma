@@ -172,11 +172,8 @@ if [ -d "${LIBAROMA_BASE}/src/aroma/arch/${LIBAROMA_ARCH}" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="${LIBAROMA_ARCH}/*.S"
 fi
 
-# x86 and x86_64 have optimizations in the same folder
-if [ "${LIBAROMA_ARCH}" = "x86_64" ]; then
-	LIBAROMA_ARCH_OPTIMIZATIONS="x86/*.S"
 # MIPS optimizations are in a .c file, not in a .S one
-elif [ "${LIBAROMA_ARCH}" = "mips" ]; then
+if [ "${LIBAROMA_ARCH}" = "mips" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="mips/*.c"
 fi
 
