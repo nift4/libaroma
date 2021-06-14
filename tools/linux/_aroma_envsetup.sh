@@ -144,7 +144,7 @@ elif [ "${LIBAROMA_ARCH}" = "x86" ] || [ "${LIBAROMA_ARCH}" = "x86_64" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -D__i386"
 fi
 
-if [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" != "neon" ]; then
+if [ "${LIBAROMA_ARCH_APPEND}" != "neon" ]; then
 		LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -DLIBAROMA_CONFIG_NOJPEG=1"
 fi
 
