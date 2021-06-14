@@ -224,9 +224,10 @@ int main(int argc, char **argv){
 
 	libaroma_sdl_startup_size(480, 640);
 	libaroma_sdl_window_title("Test App");
-
+	
+#ifdef LIBAROMA_GFX_MINUI
 	libaroma_config()->gfx_first_backend = LIBAROMA_GFX_MINUI;
-
+#endif
 	//make things safer here
 	libaroma_config()->runtime_monitor = LIBAROMA_START_SAFE;
 

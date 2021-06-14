@@ -62,19 +62,19 @@ fi
 
 #fill obj paths with wildcards (nicer than Windows :D)
 if [ "${LIBAROMA_BUILD_DRM}" = "1" ]; then
-	drm_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/drm/"
+	drm_objs=`echo ${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/drm/*.o`
 fi
 if [ "${LIBAROMA_BUILD_HARFBUZZ}" = "1" ]; then
-	hb_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/hb/"
+	hb_objs=`echo ${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/hb/*.o`
 fi
 if [ "${LIBAROMA_BUILD_JPEG}" = "1" ]; then
-	jpeg_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/jpeg/"
+	jpeg_objs=`echo ${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/jpeg/*.o`
 fi
 if [ "${LIBAROMA_BUILD_MINUI}" = "1" ]; then
-	minui_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/minui/"
+	minui_objs=`echo ${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/minui/*.o`
 fi
 if [ "${LIBAROMA_BUILD_RUNTIME}" = "1" ]; then
-	aromart_objs="${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/aromart/"
+	aromart_objs=`echo ${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/aromart/*.o`
 fi
 
 # parse sourcelist.txt
@@ -110,11 +110,11 @@ target_name=$1-${LIBAROMA_TARGET_NAME}
   -DLIBAROMA_CONFIG_COMPILER_MESSAGE=${LIBAROMA_CONFIG_COMPILER_MESSAGE} \
   -DLIBAROMA_CONFIG_SHMEMFB=${LIBAROMA_CONFIG_SHMEMFB} \
 	\
-	"${drm_objs}"*.o \
-	"${hb_objs}"*.o \
-	"${jpeg_objs}"*.o \
-	"${minui_objs}"*.o \
-	"${aromart_objs}"*.o \
+	${drm_objs} \
+	${hb_objs} \
+	${jpeg_objs} \
+	${minui_objs} \
+	${aromart_objs} \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/freetype/"*.o \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/minzip/"*.o \
 	"${LIBAROMA_BASE}/out/libs/${LIBAROMA_TARGET_NAME}/png/"*.o \

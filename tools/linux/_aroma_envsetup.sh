@@ -56,7 +56,7 @@ if [ -z "${LIBAROMA_ARCH}" ]; then
 	 LIBAROMA_ARCH="arm"
 fi
 if [ -z "${LIBAROMA_ARCH_APPEND}" ]; then
-	 LIBAROMA_ARCH_APPEND="neon"
+	 LIBAROMA_ARCH_APPEND=""
 fi
 if [ -z "${LIBAROMA_PLATFORM}" ]; then
 	 LIBAROMA_PLATFORM="linux"
@@ -144,7 +144,7 @@ elif [ "${LIBAROMA_ARCH}" = "x86" ] || [ "${LIBAROMA_ARCH}" = "x86_64" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -D__i386"
 fi
 
-if [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" != "neon" ]; then
+if [ "${LIBAROMA_ARCH_APPEND}" != "neon" ]; then
 		LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -DLIBAROMA_CONFIG_NOJPEG=1"
 fi
 
@@ -172,11 +172,8 @@ if [ -d "${LIBAROMA_BASE}/src/aroma/arch/${LIBAROMA_ARCH}" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="${LIBAROMA_ARCH}/*.S"
 fi
 
-# x86 and x86_64 have optimizations in the same folder
-if [ "${LIBAROMA_ARCH}" = "x86_64" ]; then
-	LIBAROMA_ARCH_OPTIMIZATIONS="x86/*.S"
 # MIPS optimizations are in a .c file, not in a .S one
-elif [ "${LIBAROMA_ARCH}" = "mips" ]; then
+if [ "${LIBAROMA_ARCH}" = "mips" ]; then
 	LIBAROMA_ARCH_OPTIMIZATIONS="mips/*.c"
 fi
 
