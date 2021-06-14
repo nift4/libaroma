@@ -465,6 +465,9 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
 			//draw stripes
 			int i;
+		#ifdef LIBAROMA_CONFIG_OPENMP
+		#pragma omp parallel for
+		#endif
 			for (i=0; i<stripe_amount; i++){
 				if (i%2 != 0){//left
 					//ALOGI("ARTWORKER - Drawing left side %i", i);
