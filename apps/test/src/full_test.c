@@ -448,7 +448,7 @@ void full_test(){
 				}
 				else if (id==ID_ANIBTN_SETPANIM){
 					pager_anim++;
-					if (pager_anim>9) pager_anim=0;
+					if (pager_anim>10) pager_anim=0;
 					byte panim;
 					switch (pager_anim){
 						case 0:
@@ -490,6 +490,10 @@ void full_test(){
 						case 9:
 							panim=LIBAROMA_ART_SWITCH_ANIMATION_STRETCH_IN;
 							libaroma_ctl_button_text(panim_btn, "Pager: stretch in");
+						break;
+						case 10:
+							panim=LIBAROMA_ART_SWITCH_ANIMATION_HORIZ_STRIPES;
+							libaroma_ctl_button_text(panim_btn, "Pager: stripes");
 						break;
 					}
 					libaroma_ctl_pager_set_animation(pager, panim);
@@ -697,7 +701,7 @@ void full_test(){
 			else if (cmd==LIBAROMA_CMD_HOLD){
 				if (id==ID_ANIBTN_SETPANIM){
 					pager_anim--;
-					if (pager_anim<0) pager_anim=9;
+					if (pager_anim<0) pager_anim=10;
 					byte panim;
 					switch (pager_anim){
 						case 0:
@@ -739,6 +743,10 @@ void full_test(){
 						case 9:
 							panim=LIBAROMA_ART_SWITCH_ANIMATION_STRETCH_IN;
 							libaroma_ctl_button_text(panim_btn, "Pager: stretch in");
+						break;
+						case 10:
+							panim=LIBAROMA_ART_SWITCH_ANIMATION_HORIZ_STRIPES;
+							libaroma_ctl_button_text(panim_btn, "Pager: stripes");
 						break;
 					}
 					libaroma_ctl_pager_set_animation(pager, panim);

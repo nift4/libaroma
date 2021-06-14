@@ -33,7 +33,7 @@ extern "C" {
  * Type			: char[]
  * Descriptions: aroma logo - svg format
  */
-char libaroma_art_svg_logo[] = 
+char libaroma_art_svg_logo[] =
 	"<svg version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\" width=\"412px\" height=\"372px\" viewBox=\"0 0 412 372\" preserveAspectRatio=\"xMidYMid meet\">"
 		"<g fill=\"#ffffff\">"
 			"<path d=\"M281.5 340.3 c-1.1 -0.2 -8.2 -1.6 -15.7 -3 -11.5 -2.2 -13.8 -2.9 -13.8 -4.4 0 -0.9 2.1 -5.3 4.6 -9.5 14.8 -25 24.7 -34.5 60.6 -57.6 8.3 -5.4 14.2 -9.8 13.1 -9.8 -1 0 -2.3 0.4 -2.9 0.8 -0.5 0.5 -2.9 1.5 -5.4 2.2 -20.8 6.5 -52.2 28.7 -73.3 51.8 -3.3 3.7 -6.2 6 -6.8 5.6 -1.5 -0.9 -0.5 -14.8 2.1 -29.2 5 -27.8 13.8 -40.4 33.2 -47.7 9.5 -3.5 16.9 -5 44.3 -9 13.2 -1.9 31.3 -4.8 40.3 -6.3 15.2 -2.6 16.4 -2.7 17.2 -1.1 0.7 1.2 -0.7 5.7 -5.4 16.5 -3.5 8.2 -8.9 22.1 -12.1 30.9 -10.9 30 -17.2 43.1 -26.1 53.9 -10.3 12.5 -20.4 16.7 -39.8 16.5 -6.6 -0.1 -13 -0.3 -14.1 -0.6z\"/>"
@@ -455,6 +455,26 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 			byte bbstate = (byte) round(bstate);
 			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
 			if (bbstate>0) libaroma_draw_ex(target_canvas, to, scr_lx, scr_ly, tox, toy, tow, toh, 1, bbstate);
+		}
+		break;
+		case LIBAROMA_ART_SWITCH_ANIMATION_HORIZ_STRIPES:{
+			int stripe_amount=12;
+			int stripe_h=toh/stripe_amount;
+
+			//draw below layer
+			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
+			//draw stripes
+			int i;
+			for (i=0; i<stripe_amount; i++){
+				if (i%2 != 0){//left
+					//ALOGI("ARTWORKER - Drawing left side %i", i);
+					libaroma_draw_ex(target_canvas, to, 0, scr_ry+(stripe_h*i), tox, toy+(stripe_h*i), scr_rw, stripe_h, 0, 0xFF);
+				}
+				else {//right
+					//ALOGI("ARTWORKER - Drawing right side %i", i);
+					libaroma_draw_ex(target_canvas, to, scr_rx, scr_ry+(stripe_h*i), scr_rx+tox, toy+(stripe_h*i), scr_rw, stripe_h, 0, 0xFF);
+				}
+			}
 		}
 		break;
 		case LIBAROMA_ART_SWITCH_ANIMATION_STACKOVER:

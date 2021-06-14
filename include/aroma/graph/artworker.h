@@ -39,6 +39,7 @@
 #define LIBAROMA_ART_SWITCH_ANIMATION_FADE			10
 #define LIBAROMA_ART_SWITCH_ANIMATION_SWAP			11
 #define LIBAROMA_ART_SWITCH_ANIMATION_STRETCH_IN	12
+#define LIBAROMA_ART_SWITCH_ANIMATION_HORIZ_STRIPES	13
 
 /* TODO: switch animation sides - use in shifting animations (default to horizontal)
 #define LIBAROMA_ART_SWITCH_TOP			0x2
