@@ -224,7 +224,7 @@ int main(int argc, char **argv){
 
 	libaroma_sdl_startup_size(480, 640);
 	libaroma_sdl_window_title("Test App");
-	
+
 #ifdef LIBAROMA_GFX_MINUI
 	libaroma_config()->gfx_first_backend = LIBAROMA_GFX_MINUI;
 #endif
@@ -235,34 +235,37 @@ int main(int argc, char **argv){
 		if (atoi(argv[2])!=0){
 			debug_tag = "ui_print I/LIBAROMA()";
 			parent_pipe = fdopen(atoi(argv[2]), "wb");
-		}
-		else debug_tag = "I/LIBAROMA()";
 
-		//if device is DRM capable, do the recovery-replace method
-		if (libaroma_file_exists("/dev/dri/card0")){
-			char *recpath = recovery_find();
-			int recpath_len=strlen(recpath);
-			char *recpath_orig;
-			recpath_orig=malloc(recpath_len+10);
-			sprintf(recpath_orig, "%s-original", recpath);
-			RLOG("testing if %s exists", recpath_orig);
+			//if device is DRM capable, do the recovery-replace method
+			if (libaroma_file_exists("/dev/dri/card0")){
+				char *recpath = recovery_find();
+				int recpath_len=strlen(recpath);
+				char *recpath_orig;
+				recpath_orig=malloc(recpath_len+10);
+				sprintf(recpath_orig, "%s-original", recpath);
+				RLOG("testing if %s exists", recpath_orig);
 
-			if (!libaroma_file_exists(recpath_orig)){
-				RLOG("original file doesn't exist, patching and triggering recovery restart");
-				int ret = replace_recovery(recpath, recpath_orig, recpath_len, argv[0], argv[3]);
-				RLOG("replace_recovery returned %d", ret);
-				free(recpath);
-				free(recpath_orig);
-				return 0;
+				if (!libaroma_file_exists(recpath_orig)){
+					RLOG("original file doesn't exist, patching and triggering recovery restart");
+					int ret = replace_recovery(recpath, recpath_orig, recpath_len, argv[0], argv[3]);
+					RLOG("replace_recovery returned %d", ret);
+					free(recpath);
+					free(recpath_orig);
+					return 0;
+				}
+				else {
+					RLOG("original file exists, skipping patch");
+				}
 			}
-			else {
-				RLOG("original file exists, skipping patch");
-			}
-		}
-		else { //otherwise, just pause recovery
-			if (atoi(argv[2])!=0) //if parent pipe is zero, we're running from test environment
+			else { //otherwise, just pause recovery
 				libaroma_config()->runtime_monitor = LIBAROMA_START_MUTEPARENT;
+			}
 		}
+		else {
+			debug_tag = "I/LIBAROMA()";
+			parent_pipe = stdout;
+		}
+
 
 		// enable this for bgr screen devices
 		//libaroma_gfx_override_rgb(1, 0, 8, 16);
