@@ -56,7 +56,7 @@ if [ -z "${LIBAROMA_ARCH}" ]; then
 	 LIBAROMA_ARCH="arm"
 fi
 if [ -z "${LIBAROMA_ARCH_APPEND}" ]; then
-	 LIBAROMA_ARCH_APPEND="neon"
+	 LIBAROMA_ARCH_APPEND=""
 fi
 if [ -z "${LIBAROMA_PLATFORM}" ]; then
 	 LIBAROMA_PLATFORM="linux"
