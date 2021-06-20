@@ -231,6 +231,8 @@ byte libaroma_hid_get(
 				/* clean destination variable */
 				memset(e, 0, sizeof(LIBAROMA_HID_EVENT));
 				ALOGV("libaroma_hid_get got LIBAROMA_HID_EV_TYPE_EXIT");
+				/* set type in order to post it */
+				e->type=LIBAROMA_HID_EV_RET_EXIT;
 				return ret;
 				break;
 			case LIBAROMA_HID_EV_RET_ERROR:
