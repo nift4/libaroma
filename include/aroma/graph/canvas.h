@@ -27,6 +27,9 @@
 #ifndef __libaroma_canvas_h__
 #define __libaroma_canvas_h__
 
+#define LIBAROMA_FLIP_VERTICAL		0x1
+#define LIBAROMA_FLIP_HORIZONTAL	0x2
+
 /*
  * Structure	 : _LIBAROMA_CANVAS
  * Typedef		 : LIBAROMA_CANVAS, * LIBAROMA_CANVASP
@@ -137,6 +140,21 @@ LIBAROMA_CANVASP libaroma_canvas_dup(LIBAROMA_CANVASP c);
 void libaroma_canvas_free_ex1(
 		LIBAROMA_CANVASP * c,
 		byte del);
+		
+/*
+ * Function		: libaroma_canvas_rotate
+ * Return Value	: LIBAROMA_CANVASP
+ * Description	: rotate canvas by 90/180/270 degrees
+ */
+LIBAROMA_CANVASP libaroma_canvas_rotate(
+	LIBAROMA_CANVASP src, int degrees);
+/*
+ * Function		: libaroma_canvas_flip
+ * Return Value	: LIBAROMA_CANVASP
+ * Description	: flip canvas
+ */
+LIBAROMA_CANVASP libaroma_canvas_flip(
+	LIBAROMA_CANVASP src, byte flags);
 
 /* new canvas aliases */
 #define libaroma_canvas_new(w,h,a,c) \

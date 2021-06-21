@@ -419,8 +419,6 @@ byte libaroma_canvas_resize(
 		return 0;
 	}
 	int new_sz=w*h;
-	int total = malloc_usable_size(cv->data);
-	ALOGI("libaroma_canvas_resize total=%d, old=%d, new=%d", total, cv->s, new_sz);
 	wordp new_data = realloc(cv->data, new_sz*2);
 	if (new_data == NULL) {
 		ALOGW("libaroma_canvas_resize failed to reallocate size");
@@ -430,8 +428,6 @@ byte libaroma_canvas_resize(
 	cv->l = cv->w = w;
 	cv->h = h;
 	cv->s = new_sz;
-	total = malloc_usable_size(cv->data);
-	ALOGI("libaroma_canvas_resize new total=%d", total);
 	
 	if (cv->alpha!=NULL){
 		bytep new_alpha=realloc(cv->alpha, new_sz);
@@ -638,6 +634,159 @@ freecanvas:
 freec:
 	*c = NULL;
 } /* End of libaroma_canvas_free_ex1 */
+
+/*
+ * Function		: libaroma_canvas_rotate
+ * Return Value	: LIBAROMA_CANVASP
+ * Description	: rotate canvas by 90/180/270 degrees
+ */
+LIBAROMA_CANVASP libaroma_canvas_rotate(
+	LIBAROMA_CANVASP src, int degrees
+){
+	if (!src) src=libaroma_fb()->canvas;
+	if (degrees<0) degrees=0;
+	else if (degrees>0&&degrees<90) degrees=90;
+	else if (degrees>90&&degrees<180) degrees=180;
+	else if (degrees>180&&degrees<270) degrees=270;
+	else if (degrees>270) degrees=0;
+	if (degrees==0) return src;
+	
+	LIBAROMA_CANVASP ret = NULL;
+	int x, y;
+	switch (degrees){
+		case 90:
+		case 270:{
+				ret = libaroma_canvas_ex(src->h, src->w, (src->alpha==NULL)?0:1);
+				if (!ret) break;
+				if (degrees==90){
+					if (ret->alpha){
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
+								libaroma_draw_copyalphapixel(ret, src, x, y, ret->h-y, ret->w-x);
+							}
+						}
+					}
+					else {
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
+							}
+						}
+					}
+				}
+				else {
+					if (ret->alpha){
+						
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, y, x);
+								libaroma_draw_copyalphapixel(ret, src, x, y, y, x);
+							}
+						}
+					}
+					else {
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, y, x);
+							}
+						}
+					}
+				}
+			}
+			break;
+		case 180:{
+				ret = libaroma_canvas_ex(src->w, src->h, (src->alpha==NULL)?0:1);
+				if (!ret) break;
+				if (ret->alpha){
+					for (y=0; y<ret->h; y++){
+						for (x=0; x<ret->w; x++){
+							libaroma_draw_copypixel(ret, src, x, y, ret->w-x, ret->h-y);
+							libaroma_draw_copyalphapixel(ret, src, x, y, ret->w-x, ret->h-y);
+						}
+					}
+				}
+				else {
+					for (y=0; y<ret->h; y++){
+						for (x=0; x<ret->w; x++){
+							libaroma_draw_copypixel(ret, src, x, y, ret->w-x, ret->h-y);
+						}
+					}
+				}
+			}
+			break;
+	}
+	return ret;
+} /* End of libaroma_canvas_rotate*/
+
+/*
+ * Function		: libaroma_canvas_flip
+ * Return Value	: LIBAROMA_CANVASP
+ * Description	: flip canvas
+ */
+LIBAROMA_CANVASP libaroma_canvas_flip(
+	LIBAROMA_CANVASP src, byte flags
+){
+	if (!src || !flags) return NULL;
+	
+	LIBAROMA_CANVASP dest = libaroma_canvas_ex(src->w, src->h, (src->alpha==NULL)?0:1);
+	int x, y;
+	byte flip_horiz=0, flip_vert=0;
+	if (flags&LIBAROMA_FLIP_HORIZONTAL) flip_horiz=1;
+	if (flags&LIBAROMA_FLIP_VERTICAL) flip_vert=1;
+	
+	byte processed=0;
+	
+	if (dest->alpha!=NULL) {
+		if (flip_horiz){
+			processed=1;
+			for (y=0; y<dest->h; y++){
+				for (x=0; x<dest->w; x++){
+						libaroma_draw_copypixel(dest, src, x, y, src->w-x, y);
+						libaroma_draw_copyalphapixel(dest, src, x, y, src->w-x, y);
+				}
+			}
+		}
+		if (flip_vert){
+			if (processed){ //create temp canvas holding pre-flipped image
+				src=libaroma_canvas_dup(dest);
+			}
+			for (y=0; y<dest->h; y++){
+				for (x=0; x<dest->w; x++){
+						libaroma_draw_copypixel(dest, src, x, y, x, src->h-y);
+						libaroma_draw_copyalphapixel(dest, src, x, y, x, src->h-y);
+				}
+			}
+			if (processed){ //free temp canvas
+				libaroma_canvas_free(src);
+			}
+		}
+	}
+	else {
+		if (flip_horiz){
+			processed=1;
+			for (y=0; y<dest->h; y++){
+				for (x=0; x<dest->w; x++){
+					libaroma_draw_copypixel(dest, src, x, y, src->w-x, y);
+				}
+			}
+		}
+		if (flip_vert){
+			if (processed){ //create temp canvas holding pre-flipped image
+				src=libaroma_canvas_dup(dest);
+			}
+			for (y=0; y<dest->h; y++){
+				for (x=0; x<dest->w; x++){
+					libaroma_draw_copypixel(dest, src, x, y, x, src->h-y);
+				}
+			}
+			if (processed){ //free temp canvas
+				libaroma_canvas_free(src);
+			}
+		}
+	}
+	return dest;
+} /* End of libaroma_canvas_flip */
 
 #ifdef __cplusplus
 }
