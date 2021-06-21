@@ -115,10 +115,12 @@ byte libaroma_draw_ex2(
 	word maskcolor
 );
 
+#define LIBAROMA_RECT_FILL		-1
+
 /*
  * Function		: libaroma_draw_rect
  * Return Value: byte
- * Descriptions: draw rectangle
+ * Descriptions: draw filled rectangle
  */
 byte libaroma_draw_rect(
 		LIBAROMA_CANVASP dst,
@@ -214,6 +216,27 @@ byte libaroma_draw_alphapixel(
 		LIBAROMA_CANVASP dest,
 		int dx, int dy,
 		byte alpha
+	);
+	
+	
+/*
+ * Function		: libaroma_draw_copypixel
+ * Return Value: byte
+ * Descriptions: copy pixel color
+ */
+byte libaroma_draw_copypixel(
+		LIBAROMA_CANVASP dest, LIBAROMA_CANVASP src, 
+		int dx, int dy, int sx, int sy
+	);
+	
+/*
+ * Function		: libaroma_draw_copyalphapixel
+ * Return Value: byte
+ * Descriptions: copy pixel alpha
+ */
+byte libaroma_draw_copyalphapixel(
+		LIBAROMA_CANVASP dest, LIBAROMA_CANVASP src, 
+		int dx, int dy, int sx, int sy
 	);
 
 /*

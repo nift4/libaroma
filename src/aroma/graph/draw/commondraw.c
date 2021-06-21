@@ -284,7 +284,7 @@ byte libaroma_draw_ex2(
 /*
  * Function		: libaroma_draw_rect
  * Return Value: byte
- * Descriptions: draw rectangle
+ * Descriptions: draw filled rectangle
  */
 byte libaroma_draw_rect(
 		LIBAROMA_CANVASP dst,
@@ -317,7 +317,6 @@ byte libaroma_draw_rect(
 
 	/* draw */
 	int dy;
-
 	if (alpha == 0xff) {
 		wordp datapos	 = dst->data + x;
 #ifdef libaroma_memset16
@@ -403,6 +402,49 @@ byte libaroma_draw_alphapixel(
 	dest->alpha[dest->l * dy + dx] = alpha;
 	return 1;
 } /* End of libaroma_draw_pixel */
+
+/*
+ * Function		: libaroma_draw_copypixel
+ * Return Value: byte
+ * Descriptions: copy pixel color
+ */
+byte libaroma_draw_copypixel(
+		LIBAROMA_CANVASP dest, LIBAROMA_CANVASP src, 
+		int dx, int dy, int sx, int sy
+	){
+	if (!dest || !src) return 0;
+	if ((dx<0)||(dy<0)||(sx<0)||(sy<0)||
+		(dy>=dest->h)||(dx>=dest->w)||(sy>=src->h)||(sx>=src->w)
+	){
+		return 0;
+	}
+	dest->data[(dest->l*dy)+dx] = src->data[(src->l*sy)+sx];
+	dest->data[(dest->l*dy)+dx+1] = src->data[(src->l*sy)+sx+1];
+	dest->data[(dest->l*dy)+dx+2] = src->data[(src->l*sy)+sx+2];
+	return 1;
+} /* End of libaroma_draw_copypixel */
+
+/*
+ * Function		: libaroma_draw_copyalphapixel
+ * Return Value: byte
+ * Descriptions: copy pixel alpha
+ */
+byte libaroma_draw_copyalphapixel(
+		LIBAROMA_CANVASP dest, LIBAROMA_CANVASP src, 
+		int dx, int dy, int sx, int sy
+	){
+	if (!dest || !src) return 0;
+	if (!src->alpha) return 0;
+	if (!dest->alpha) //initialize alpha for target canvas
+		dest->alpha = calloc(dest->s, 1);
+	if ((dx<0)||(dy<0)||(sx<0)||(sy<0)||
+		(dy>=dest->h)||(dx>=dest->w)||(sy>=src->h)||(sx>=src->w)
+	){
+		return 0;
+	}
+	dest->alpha[(dest->l*dy)+dx] = src->alpha[(src->l*sy)+sx];
+	return 1;
+} /* End of libaroma_draw_copyalphapixel */
 
 /*
  * Function		: libaroma_draw_line
