@@ -660,23 +660,6 @@ LIBAROMA_CANVASP libaroma_canvas_rotate(
 				if (!ret) break;
 				if (degrees==90){
 					if (ret->alpha){
-						for (y=0; y<ret->h; y++){
-							for (x=0; x<ret->w; x++){
-								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
-								libaroma_draw_copyalphapixel(ret, src, x, y, ret->h-y, ret->w-x);
-							}
-						}
-					}
-					else {
-						for (y=0; y<ret->h; y++){
-							for (x=0; x<ret->w; x++){
-								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
-							}
-						}
-					}
-				}
-				else {
-					if (ret->alpha){
 						
 						for (y=0; y<ret->h; y++){
 							for (x=0; x<ret->w; x++){
@@ -689,6 +672,23 @@ LIBAROMA_CANVASP libaroma_canvas_rotate(
 						for (y=0; y<ret->h; y++){
 							for (x=0; x<ret->w; x++){
 								libaroma_draw_copypixel(ret, src, x, y, y, x);
+							}
+						}
+					}
+				}
+				else {
+					if (ret->alpha){
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
+								libaroma_draw_copyalphapixel(ret, src, x, y, ret->h-y, ret->w-x);
+							}
+						}
+					}
+					else {
+						for (y=0; y<ret->h; y++){
+							for (x=0; x<ret->w; x++){
+								libaroma_draw_copypixel(ret, src, x, y, ret->h-y, ret->w-x);
 							}
 						}
 					}
