@@ -300,6 +300,12 @@ byte libaroma_draw_rect(
 	if (y < 0) {
 		y = 0;
 	}
+	
+	/* check for valid x/y */
+	if (x > dst->w || y > dst->h){
+		ALOGW("libaroma_draw_rect x/y (%d/%d) greater than dest size (%dx%d)", x, y, dst->w, dst->h);
+		return 0;
+	}
 
 	/* fix position */
 	int x2 = x + w;
@@ -352,6 +358,68 @@ byte libaroma_draw_rect(
 	}
 	return 1;
 } /* End of libaroma_draw_rect */
+
+/*
+ * Function		: libaroma_draw_rectangle
+ * Return Value: byte
+ * Descriptions: draw non-filled rectangle
+ */
+byte libaroma_draw_rectangle(
+	LIBAROMA_CANVASP dest,
+	int x, int y, int w, int h,
+	int thickness, int roundsize,
+	word color, byte alpha, byte aliased
+){
+	if (dest==NULL) dest=libaroma_fb()->canvas;
+	if (w<1 || h<1) return 0;
+	
+	int cornerw=0;
+	int cornerh=0;
+	if (roundsize){
+		cornerw=cornerh=roundsize;
+		int maxsz=(MIN(w, h))/2;
+		if (cornerw>maxsz) cornerw=maxsz;
+		if (cornerh>maxsz) cornerh=maxsz;
+	}
+	
+	byte sizeOverflows=0;
+	
+	if (x+thickness > ((x+w)-(thickness*2))){
+		sizeOverflows = 1;
+	}
+	if (y+thickness > ((y+h)-(thickness*2))){
+		sizeOverflows = 1;
+	}
+	
+	if (sizeOverflows){ //just draw a filled rectangle
+		libaroma_draw_rect(dest, x, y, w, h, color, alpha);
+		return 1;
+	}
+	if (w > (cornerw*2) && h > (cornerh*2)){ /* draw lines */
+		/* top */
+		libaroma_draw_rect(dest, x+cornerw, y, w-(cornerw*2), thickness, color, alpha);
+		/* left */
+		libaroma_draw_rect(dest, x, y+cornerh, thickness, h-(cornerh*2), color, alpha);
+		/* right */
+		libaroma_draw_rect(dest, (x+w)-thickness, y+cornerh, thickness, h-(cornerh*2), color, alpha);
+		/* bottom */
+		libaroma_draw_rect(dest, x+cornerw, (y+h)-thickness, w-(cornerw*2), thickness, color, alpha);
+	}
+	if (cornerw && cornerh){ /* draw corners */
+		/* top, left */
+		libaroma_draw_arc(dest, cornerw+1, cornerh+1, cornerw+1, cornerh+1, thickness, 180.0, 270.0, color, alpha, 0, aliased?0.5:0.0);
+		/* top, right */
+		libaroma_draw_arc(dest, (x+w)-cornerw, cornerh+1, cornerw, cornerh+1, thickness, 270.0, 360.0, color, alpha, 0, aliased?0.5:0.0);
+		/* no antialiasing makes height more precise in bottom corners */
+		if (!aliased) cornerh+=1;
+		/* bottom, left */
+		libaroma_draw_arc(dest, cornerw+1, (y+h)-cornerh-1, cornerw+1, cornerh+1, thickness, 90.0, 180.0, color, alpha, 0, aliased?0.5:0.0);
+		/* bottom, right */
+		libaroma_draw_arc(dest, (x+w)-cornerw, (y+h)-cornerh-1, cornerw, cornerh+1, thickness, 0.0, 90.0, color, alpha, 0, aliased?0.5:0.0);
+	}
+	
+	return 1;
+} /* End of libaroma_draw_rectangle */
 
 /*
  * Function		: libaroma_draw_pixel

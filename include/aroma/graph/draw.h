@@ -115,8 +115,6 @@ byte libaroma_draw_ex2(
 	word maskcolor
 );
 
-#define LIBAROMA_RECT_FILL		-1
-
 /*
  * Function		: libaroma_draw_rect
  * Return Value: byte
@@ -126,6 +124,18 @@ byte libaroma_draw_rect(
 		LIBAROMA_CANVASP dst,
 		int x, int y, int w, int h,
 		word color, byte alpha);
+
+/*
+ * Function		: libaroma_draw_rectangle
+ * Return Value: byte
+ * Descriptions: draw non-filled rectangle
+ */
+byte libaroma_draw_rectangle(
+	LIBAROMA_CANVASP dest,
+	int x, int y, int w, int h,
+	int thickness, int roundsize,
+	word color, byte alpha, byte aliased
+);
 
 /*
  * Function		: libaroma_draw_scale_nearest
