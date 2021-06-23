@@ -495,9 +495,9 @@ byte libaroma_canvas_area_update(
 	c->w			= w;
 	c->h			= h;
 	c->s			= w * h;
-	c->flags	= LIBAROMA_CANVAS_CHILD;
+	c->flags		= LIBAROMA_CANVAS_CHILD;
 	c->l			= parent->l;
-	c->data	 = parent->data + (y * parent->l) + x;
+	c->data			= parent->data + (y * parent->l) + x;
 
 	if (parent->alpha != NULL) {
 		c->alpha = parent->alpha + (y * parent->l) + x;

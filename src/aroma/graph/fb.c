@@ -136,7 +136,7 @@ byte libaroma_fb_init() {
 	/* create framebuffer canvas */
 	if ((!_libaroma_fb->internal_canvas)||(!_libaroma_fb->canvas)){
 		_libaroma_fb->internal_canvas=0;
-		_libaroma_fb->canvas	=
+		_libaroma_fb->canvas =
 			libaroma_canvas_shmem(
 				_libaroma_fb->w,
 				_libaroma_fb->h,
@@ -364,7 +364,7 @@ byte libaroma_fb_sync_area(
 	if (libaroma_fb_start_post()){
 		if (_libaroma_fb->post(_libaroma_fb, _libaroma_fb->canvas->data,
 				x, y, w, h,
-				x, y, _libaroma_fb->w, _libaroma_fb->h)){
+				x, y, w, h)){
 			ret = 1;
 		}
 		libaroma_fb_end_post();
