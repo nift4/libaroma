@@ -54,6 +54,7 @@ struct __LIBAROMA_CTL_IMAGE{
 	LIBAROMA_MUTEX mutex;
 	byte update;
 	byte hidden;
+	byte flags;
 };
 
 byte _libaroma_ctl_image_thread(LIBAROMA_CONTROLP ctl) {
@@ -74,7 +75,8 @@ void _libaroma_ctl_image_destroy(LIBAROMA_CONTROLP ctl){
 		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP,
 	);
 	libaroma_mutex_lock(me->mutex);
-	if (me->img){
+	byte isshared=(me->flags&LIBAROMA_CTL_IMAGE_SHARED)?1:0;
+	if (me->img && !isshared){
 		libaroma_canvas_free(me->img);
 	}
 	libaroma_mutex_unlock(me->mutex);
@@ -91,10 +93,23 @@ void _libaroma_ctl_image_draw(
 	if (!me->hidden){
 		libaroma_mutex_lock(me->mutex);
 		if (me->img){
-			libaroma_draw_scale_smooth(c,me->img,
-				0,0,c->w,c->h,
-				0,0,me->img->w,me->img->h
-			);
+			if (me->flags&LIBAROMA_CTL_IMAGE_FILL){
+				/* stretch image to fill control canvas */
+				libaroma_draw_scale_smooth(c,me->img,
+					0,0,c->w,c->h,
+					0,0,me->img->w,me->img->h
+				);
+			}
+			else {
+				int x=0, y=0;
+				if (me->flags&LIBAROMA_CTL_IMAGE_CENTER){
+					/* center x/y */
+					x=(c->w - me->img->w)/2;
+					y=(c->h - me->img->h)/2;
+				}
+				/* draw directly */
+				libaroma_draw(c, me->img, x, y, 1);
+			}
 		}
 		libaroma_mutex_unlock(me->mutex);
 	}
@@ -119,6 +134,17 @@ dword _libaroma_ctl_image_msg(LIBAROMA_CONTROLP ctl, LIBAROMA_MSGP msg){
 	}
 	return 0;
 }
+byte libaroma_ctl_image_update(
+	LIBAROMA_CONTROLP ctl
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
+	);
+	libaroma_mutex_lock(me->mutex);
+	me->update=1;
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+}
 
 byte libaroma_ctl_image_hidden(
 	LIBAROMA_CONTROLP ctl,byte hidden){
@@ -132,13 +158,59 @@ byte libaroma_ctl_image_hidden(
 	return 1;
 }
 
+byte libaroma_ctl_image_isvisible(
+	LIBAROMA_CONTROLP ctl
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
+	);
+	return (me->hidden)?0:1;
+}
+
+byte libaroma_ctl_image_getflags(
+	LIBAROMA_CONTROLP ctl
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
+	);
+	return me->flags;
+}
+
+byte libaroma_ctl_image_setflags(
+	LIBAROMA_CONTROLP ctl,byte flags
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
+	);
+	libaroma_mutex_lock(me->mutex);
+	if (flags&LIBAROMA_CTL_IMAGE_HIDDEN){
+		ALOGI("ctl_image set hidden");
+		me->hidden=1;
+	}
+	byte isshared=(flags&LIBAROMA_CTL_IMAGE_SHARED)?1:0;
+	if (isshared && me->img){
+		/* duplicate old canvas and use copy */
+		LIBAROMA_CANVASP image_dup = libaroma_canvas_dup(me->img);
+		if (!image_dup){
+			ALOGW("libaroma_ctl_image_setflags failed to duplicate shared image");
+			return 0;
+		}
+		me->img=image_dup;
+	}
+	me->flags=flags;
+	me->update=1;
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+}
+
 byte libaroma_ctl_image_set_image(
 	LIBAROMA_CONTROLP ctl,char * src,byte update){
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
 	);
 	libaroma_mutex_lock(me->mutex);
-	if (me->img){
+	byte isshared=(me->flags&LIBAROMA_CTL_IMAGE_SHARED)?1:0;
+	if (!isshared && me->img){
 		libaroma_canvas_free(me->img);
 	}
 	me->img=libaroma_image_file(src,1);
@@ -155,7 +227,8 @@ byte libaroma_ctl_image_set_canvas(
 		_libaroma_ctl_image_handler, _LIBAROMA_CTL_IMAGEP, 0
 	);
 	libaroma_mutex_lock(me->mutex);
-	if (me->img){
+	byte isshared=(me->flags&LIBAROMA_CTL_IMAGE_SHARED)?1:0;
+	if (me->img && !isshared){
 		libaroma_canvas_free(me->img);
 	}
 	me->img = libaroma_canvas_dup(src);
@@ -166,9 +239,9 @@ byte libaroma_ctl_image_set_canvas(
 	return 1;
 }
 
-LIBAROMA_CONTROLP libaroma_ctl_image_canvas(
+LIBAROMA_CONTROLP libaroma_ctl_image_canvas_ex(
 	LIBAROMA_WINDOWP win, word id, LIBAROMA_CANVASP src,
-	int x, int y, int w, int h
+	int x, int y, int w, int h, byte flags
 ){
 	_LIBAROMA_CTL_IMAGEP me = (_LIBAROMA_CTL_IMAGEP)
 		calloc(sizeof(_LIBAROMA_CTL_IMAGE),1);
@@ -176,7 +249,10 @@ LIBAROMA_CONTROLP libaroma_ctl_image_canvas(
 		ALOGW("libaroma_ctl_image alloc label memory failed");
 		return NULL;
 	}
-	me->img = libaroma_canvas_dup(src);
+	byte isshared=(flags&LIBAROMA_CTL_IMAGE_SHARED)?1:0;
+	ALOGI("Initializing image control with %s image", isshared?"shared":"freeable");
+	me->flags=flags;
+	me->img = isshared?src:libaroma_canvas_dup(src);
 	me->update=1;
 	libaroma_mutex_init(me->mutex);
 	LIBAROMA_CONTROLP ctl =
@@ -189,7 +265,7 @@ LIBAROMA_CONTROLP libaroma_ctl_image_canvas(
 			win
 		);
 	if (!ctl){
-		if (me->img){
+		if (me->img && !isshared){
 			libaroma_canvas_free(me->img);
 		}
 		libaroma_mutex_free(me->mutex);
@@ -199,16 +275,16 @@ LIBAROMA_CONTROLP libaroma_ctl_image_canvas(
 }
 
 
-LIBAROMA_CONTROLP libaroma_ctl_image(
+LIBAROMA_CONTROLP libaroma_ctl_image_ex(
 	LIBAROMA_WINDOWP win, word id, char * src,
-	int x, int y, int w, int h
+	int x, int y, int w, int h, byte flags
 ){
 	LIBAROMA_CANVASP cv=NULL;
 	if (src){
 		cv=libaroma_image_file(src,1);
 	}
-	LIBAROMA_CONTROLP out = libaroma_ctl_image_canvas(
-		win,id,cv,x,y,w,h
+	LIBAROMA_CONTROLP out = libaroma_ctl_image_canvas_ex(
+		win,id,cv,x,y,w,h, flags|LIBAROMA_CTL_IMAGE_FREE
 	);
 	if (cv){
 		libaroma_canvas_free(cv);

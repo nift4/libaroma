@@ -27,6 +27,12 @@
 #ifndef __libaroma_ctl_image_h__
 #define __libaroma_ctl_image_h__
 
+/* flags */
+#define LIBAROMA_CTL_IMAGE_FREE			0x1		//duplicate image on control creation, and free on control freeing
+#define LIBAROMA_CTL_IMAGE_SHARED		0x2		//don't duplicate nor free image
+#define LIBAROMA_CTL_IMAGE_FILL			0x4		//scale source to fill image control
+#define LIBAROMA_CTL_IMAGE_CENTER		0x8		//center unscaled source in image control
+#define LIBAROMA_CTL_IMAGE_HIDDEN		0x16	//create hidden image control
 
 byte libaroma_ctl_image_set_image(
 	LIBAROMA_CONTROLP ctl,char * src,byte update);
@@ -34,17 +40,29 @@ byte libaroma_ctl_image_set_image(
 byte libaroma_ctl_image_set_canvas(
 	LIBAROMA_CONTROLP ctl,LIBAROMA_CANVASP src,byte update);
 
+byte libaroma_ctl_image_getflags(
+	LIBAROMA_CONTROLP ctl);
+
+byte libaroma_ctl_image_setflags(
+	LIBAROMA_CONTROLP ctl,byte flags);
+
 LIBAROMA_CONTROLP libaroma_ctl_image(
 	LIBAROMA_WINDOWP win, word id, char * src,
 	int x, int y, int w, int h
 );
 
-LIBAROMA_CONTROLP libaroma_ctl_image_canvas(
+LIBAROMA_CONTROLP libaroma_ctl_image_canvas_ex(
 	LIBAROMA_WINDOWP win, word id, LIBAROMA_CANVASP src,
-	int x, int y, int w, int h
+	int x, int y, int w, int h, byte flags
 );
 
 byte libaroma_ctl_image_hidden(
 	LIBAROMA_CONTROLP ctl,byte hidden);
+
+byte libaroma_ctl_image_isvisible(
+	LIBAROMA_CONTROLP ctl);
+
+byte libaroma_ctl_image_update(
+	LIBAROMA_CONTROLP ctl);
 	
 #endif /* __libaroma_ctl_image_h__ */
