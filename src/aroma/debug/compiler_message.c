@@ -117,7 +117,11 @@ extern "C" {
 
 /* shared memory fb */
 #ifdef LIBAROMA_CONFIG_SHMEMFB
-  #define __LIBAROMA_FBCANVAS_SHMEM "SHARED"
+  #if LIBAROMA_CONFIG_SHMEMFB == 1
+	#define __LIBAROMA_FBCANVAS_SHMEM "SHARED"
+  #else
+	#define __LIBAROMA_FBCANVAS_SHMEM "NOT SHARED"
+  #endif
 #else
   #define __LIBAROMA_FBCANVAS_SHMEM "NOT SHARED"
 #endif
@@ -161,6 +165,12 @@ extern "C" {
   #define __LIBAROMA_CMSG_HICOLOR "DISABLED"
 #endif
 
+#ifdef LIBAROMA_CONFIG_SHMEM_PREFIX
+  #define __LIBAROMA_CMSG_SHMEM_PREFIX LIBAROMA_CONFIG_SHMEM_PREFIX
+#else
+  #define __LIBAROMA_CMSG_SHMEM_PREFIX "NONE"
+#endif
+
 #pragma message "\n"\
   "======================================================================\n"\
   "  " LIBAROMA_CONFIG_NAME " Version "\
@@ -186,7 +196,7 @@ extern "C" {
     "  ----------------\n"\
     "  JPEG Support        : " __LIBAROMA_WITH_JPEG "\n"\
     "  Shmem FB            : " __LIBAROMA_FBCANVAS_SHMEM "\n"\
-    "  Shmem Prefix        : " LIBAROMA_CONFIG_SHMEM_PREFIX "\n"\
+    "  Shmem Prefix        : " __LIBAROMA_CMSG_SHMEM_PREFIX "\n"\
     "  Freetype Rendering  : " __LIBAROMA_CMSG_SUBPIXEL "\n"\
     "  Harfbuzz Support    : " __LIBAROMA_CMSG_HARFBUZZ "\n"\
     "  32bit highcolor bit : " __LIBAROMA_CMSG_HICOLOR "\n"\
