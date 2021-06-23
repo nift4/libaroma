@@ -887,8 +887,9 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 		LIBAROMA_CANVASP tdc = libaroma_canvas(wmc->w,wmc->h);
 		if (close) libaroma_draw(tdc,wmc,0,0,0);
 		win->dc=tdc; /* switch dc to temporary */
-		/* invalidate now */
-		if (!close) libaroma_window_invalidate(win, 10); //draw real window image at temp dc
+		//if closing, deactivate window (otherwise ripple animations are played while animate-closing)
+		if (close) libaroma_wm_set_active_window(NULL);
+		else libaroma_window_invalidate(win, 10); //otherwise draw real window image at temp dc
 		long start = libaroma_tick();
 		int delta = 0;
 		int debug=1;
@@ -965,7 +966,7 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
+						//printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							//libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -995,7 +996,7 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
+						//printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -1025,7 +1026,7 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 						if (close) x = swift_out_state * win->w;
 						else x = win->w - (swift_out_state * win->w);
 						int w = win->w - x;
-						printf("X=%d, W=%d\n", x, w);
+						//printf("X=%d, W=%d\n", x, w);
 						if (w>0){
 							libaroma_canvas_setcolor(wmc, RGB(0), 0xFF);
 							libaroma_draw_ex(
@@ -1063,6 +1064,7 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 					}
 					break;
 			}
+			libaroma_sleep(12);
 		}
 		if (!close) libaroma_draw(wmc,win->dc,0,0,0); //copy real window image to original canvas
 
@@ -1073,8 +1075,8 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 
 	/* sync view now */
 	if (close){
+		//libaroma_wm_set_active_window(NULL);
 		libaroma_wm_sync(win->x,win->y,win->w,win->h);
-		libaroma_wm_set_active_window(NULL);
 		libaroma_window_free(win);
 	}
 	else {
