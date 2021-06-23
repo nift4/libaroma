@@ -521,15 +521,9 @@ LIBAROMA_CANVASP libaroma_art_draw_switch_animation(
 		case LIBAROMA_ART_SWITCH_ANIMATION_CIRCLE:{
 			int bigger=MAX(target_canvas->h, target_canvas->w);
 			int sz;
-			sz=((bigger*1.35)*state);
-
-			LIBAROMA_CANVASP temp_cv=libaroma_canvas(fromw, fromh);
-			libaroma_draw_ex(temp_cv, from, 0, 0, fromx, fromy, fromw, fromh, 0, 0xFF);
-			libaroma_canvas_fillalpha(temp_cv, 0, 0, temp_cv->w, temp_cv->h, 0xFF);
-			libaroma_draw_alpha_circle(temp_cv, temp_cv->w/2, temp_cv->h/2, sz, 0x0);
-			libaroma_draw_ex(target_canvas, to, 0, 0, tox, toy, tow, toh, 0, 0xFF);
-			libaroma_draw_ex(target_canvas, temp_cv, 0, 0, 0, 0, temp_cv->w, temp_cv->h, 1, 0xFF);
-			libaroma_canvas_free(temp_cv);
+			sz=((bigger*1.5)*state);
+			libaroma_draw_ex(target_canvas, from, scr_lx, scr_ly, fromx, fromy, fromw, fromh, 0, 0xFF);
+			libaroma_draw_mask_circle(target_canvas, to, target_canvas->w/2, target_canvas->h/2, tox+(tow/2), toy+(toh/2), sz, 0xFF);
 		}
 		break;
 		/*
