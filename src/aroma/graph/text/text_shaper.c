@@ -86,7 +86,13 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 		u=FT_Get_Char_Index(afont->face, span->text[i]);
 		_LIBAROMA_FONT_SLOT_CACHEP glp=(_LIBAROMA_FONT_SLOT_CACHEP)
 			libaroma_font_glyph(u,span->fontid,fontsize);
-		int xa = glp->metrics.horiAdvance>>6;
+		if (glp==NULL) {
+			ALOGW("libaroma_text_shaper could not find glyph for char %s", span->text[i]);
+			return NULL;
+		}
+		int xa = glp->metrics.horiAdvance;
+		if (xa>=64) //prevent segfault by shifting number only if length is enough
+			xa=xa>>6;
 		int xo = 0;
 		if (use_kerning&&previous&&u){
 			FT_Vector	delta;
@@ -96,7 +102,9 @@ _LIBAROMA_TEXTSHAPEDP libaroma_text_shaper(
 			else{
 				FT_Get_Kerning(afont->face, previous, u,FT_KERNING_DEFAULT, &delta );
 			}
-			xo = delta.x>>6;
+			if (delta.x>=64)
+				xo = delta.x>>6;
+			else xo=delta.x;
 		}
 		int gx = sizer_x + xo;
 		if (min_x > gx) {
