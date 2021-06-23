@@ -210,46 +210,50 @@ void _libaroma_ctl_button_internal_draw(LIBAROMA_CONTROLP ctl){
 	}
 
 	int textw=iw-libaroma_dp(16)-(has_icon?iconsz:0);
+	int y;
+	if (me->text != NULL){
+		/* draw text */
+		LIBAROMA_TEXT textp = libaroma_text(
+			me->text,
+			text_color,
+			textw,
+			LIBAROMA_FONT(0,4)|
+			LIBAROMA_TEXT_SINGLELINE|
+			LIBAROMA_TEXT_CENTER|
+			LIBAROMA_TEXT_FIXED_INDENT|
+			LIBAROMA_TEXT_FIXED_COLOR|
+			LIBAROMA_TEXT_NOHR,
+			100
+		);
+		// libaroma_mutex_unlock(me->mutex);
+		y = (ctl->h>>1) - ((libaroma_text_height(textp)>>1)+libaroma_dp(2));
 
-	/* draw text */
-	LIBAROMA_TEXT textp = libaroma_text(
-		(me->text==NULL)?"":me->text,
-		text_color,
-		textw,
-		LIBAROMA_FONT(0,4)|
-		LIBAROMA_TEXT_SINGLELINE|
-		LIBAROMA_TEXT_CENTER|
-		LIBAROMA_TEXT_FIXED_INDENT|
-		LIBAROMA_TEXT_FIXED_COLOR|
-		LIBAROMA_TEXT_NOHR,
-		100
-	);
-	// libaroma_mutex_unlock(me->mutex);
-	int y = (ctl->h>>1) - ((libaroma_text_height(textp)>>1)+libaroma_dp(2));
+		if (is_disabled && !keepcolor_disabled){
+			rest_text_color=me->isdark?0xffff:0;
+		}
+		int textx=(ctl->w-textw)/2;//libaroma_dp(16)+(icon_isleft?iconsz:0)+ix;
+		libaroma_text_draw_color(rest_canvas,textp,textx/*libaroma_dp(has_icon?(icon_isleft?20:8):8)+ix*/,y,
+			rest_text_color
+		);
 
-	if (is_disabled && !keepcolor_disabled){
-		rest_text_color=me->isdark?0xffff:0;
+		if (!is_disabled || (is_disabled && keepcolor_disabled)){
+			libaroma_text_draw(push_canvas,textp,textx/*libaroma_dp(has_icon?20:8)+ix*/,y);
+		}
+		else{
+			libaroma_draw_ex(rest_canvas,bg,0,0,0,0,ctl->w,ctl->h,0,
+				me->isdark?171:189);
+		}
+		libaroma_text_free(textp);
 	}
-	int textx=(ctl->w-textw)/2;//libaroma_dp(16)+(icon_isleft?iconsz:0)+ix;
-	libaroma_text_draw_color(rest_canvas,textp,textx/*libaroma_dp(has_icon?(icon_isleft?20:8):8)+ix*/,y,
-		rest_text_color
-	);
-
-	if (!is_disabled || (is_disabled && keepcolor_disabled)){
-		libaroma_text_draw(push_canvas,textp,textx/*libaroma_dp(has_icon?20:8)+ix*/,y);
+	else {
+		y = (ctl->h>>1) - libaroma_dp(2);
 	}
-	else{
-		libaroma_draw_ex(rest_canvas,bg,0,0,0,0,ctl->w,ctl->h,0,
-			me->isdark?171:189);
-	}
-	libaroma_text_free(textp);
-
 	if (has_icon) { // draw icon
 		int iconx;
 		//byte centered=0;
 		int allW=libaroma_dp(iconsz+2)+textw;
 		int startX=(ctl->w/2)-(allW/2);
-		if (me->text==NULL || (me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_CENTER)) {
+		if ((me->icon_flags&LIBAROMA_CTL_BUTTON_ICON_CENTER) || me->text==NULL) {
 			iconx=(ctl->w/2)-(iconsz/2); //if no text (or forced), icon is centered
 			//centered=1;
 		}
