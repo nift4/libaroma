@@ -652,28 +652,16 @@ void _libaroma_listitem_check_draw(
 				int sel_sz = rsz * (mi->selected?relstate:rrelstate);
 				int hal_sz = rsz * (mi->selected?rrelstate:relstate);
 				if (hal_sz>0){
-					libaroma_gradient_ex1(cv,
+					
+					libaroma_draw_rectangle(cv,
 						xpos-(hal_sz>>1),
 						ypos-(hal_sz>>1),
 						hal_sz,
 						hal_sz,
-						dprimary,dprimary,
-						libaroma_dp(isoption?hal_sz:2),0x1111,
-						0xff,0xff,
-						0
+						libaroma_dp(4)>>1,
+						libaroma_dp(isoption?hal_sz:1),
+						dprimary, 0xFF, 0
 					);
-					int irsz=hal_sz-libaroma_dp(4);
-					if (irsz>0){
-						libaroma_gradient_ex1(cv,
-							xpos-(irsz>>1),
-							ypos-(irsz>>1),
-							irsz,irsz,
-							bgcolor,bgcolor,
-							libaroma_dp(isoption?irsz:1),0x1111,
-							0xff,0xff,
-							0
-						);
-					}
 				}
 				if (sel_sz>0){
 					libaroma_draw_scale_nearest(
@@ -693,26 +681,15 @@ void _libaroma_listitem_check_draw(
 					1
 				);
 			}
-			else{
-				libaroma_gradient_ex1(cv,
+			else{				
+				libaroma_draw_rectangle(cv,
 					xpos-(rsz>>1),
 					ypos-(rsz>>1),
 					rsz,
 					rsz,
-					dprimary,dprimary,
-					libaroma_dp(isoption?rsz:2),0x1111,
-					0xff,0xff,
-					0
-				);
-				int irsz=libaroma_dp(14);
-				libaroma_gradient_ex1(cv,
-					xpos-(irsz>>1),
-					ypos-(irsz>>1),
-					irsz,irsz,
-					bgcolor,bgcolor,
-					libaroma_dp(isoption?irsz:1),0x1111,
-					0xff,0xff,
-					0
+					libaroma_dp(4)>>1,
+					libaroma_dp(isoption?rsz:1),
+					dprimary, 0xFF, 0
 				);
 			}
 
