@@ -326,6 +326,10 @@ byte libaroma_draw_arc(
 #define libaroma_blur(dst,r) \
 	libaroma_blur_ex(dst,r,0,0)
 
+/* libaroma_path_draw_filled aliases */
+#define libaroma_path_draw(dst,path,c,a,mask,alias) \
+	libaroma_path_draw_filled(dst,NULL,path,c,a,mask,alias)
+
 
 /**** PATH DRAWING ****/
 typedef struct _LIBAROMA_PATH_POINT{
@@ -390,12 +394,13 @@ byte libaroma_path_curve(
 );
 
 /*
- * Function		: libaroma_path_draw
+ * Function		: libaroma_path_draw_ex
  * Return Value: byte
- * Descriptions: draw path
+ * Descriptions: draw path - extended
  */
-byte libaroma_path_draw(
+byte libaroma_path_draw_filled(
 	LIBAROMA_CANVASP dest,
+	LIBAROMA_CANVASP src,
 	LIBAROMA_PATHP path,
 	word color,
 	byte alpha,

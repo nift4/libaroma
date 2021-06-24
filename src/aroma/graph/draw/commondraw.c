@@ -718,7 +718,7 @@ byte libaroma_draw_circle(
 		return 1;
 	}
 	int radius = sz/2;
-	int rad2	 = radius * radius;
+	int rad2   = radius * radius;
 	int y;
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for

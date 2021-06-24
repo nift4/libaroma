@@ -214,12 +214,13 @@ byte libaroma_path_curve(
 } /* End of libaroma_path_curve */
 
 /*
- * Function		: libaroma_path_draw
+ * Function		: libaroma_path_draw_filled
  * Return Value: byte
- * Descriptions: draw path
+ * Descriptions: draw canvas-filled path
  */
-byte libaroma_path_draw(
+byte libaroma_path_draw_filled(
 	LIBAROMA_CANVASP dest,
+	LIBAROMA_CANVASP src,
 	LIBAROMA_PATHP path,
 	word color,
 	byte alpha,
@@ -244,6 +245,8 @@ byte libaroma_path_draw(
 	if (aliasing>1){
 		aliasing=1;
 	}
+	//scaled canvas pointer
+	LIBAROMA_CANVASP cv=NULL;
 
 	/* fill */
 	if (path->n>1){
@@ -260,6 +263,11 @@ byte libaroma_path_draw(
 			alphaaa=255*aliasing;
 		}
 		int py=0;
+		
+		if (src!=NULL){
+			cv = libaroma_canvas_ex(src->w, maxy-miny, (src->alpha==NULL)?0:1);
+			libaroma_draw_scale_nearest(cv, src, 0, 0, src->w, cv->h, 0, 0, src->w, src->h);
+		}
 
 		/* loop through the rows of the image. */
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -274,7 +282,7 @@ byte libaroma_path_draw(
 				line = calloc(dwidth,1);
 			}
 			float * nodes = (float *) malloc(sizeof(float) * path->n);
-			int pyn;
+			int pyn, drawy=0;
 			for (pyn=0;pyn<alias_sz;pyn++){
 				float fy = ((float) py)+(((float) pyn)*aliasing);
 				int i, n=0, j=path->n-1;
@@ -333,6 +341,9 @@ byte libaroma_path_draw(
 							int linex=(int) floor(nodes[i]);
 							int linew=((int) floor(nodes[i+1]))-linex;
 							memset(line+linex,alpha,linew);
+							if (src!=NULL){ //scale line accordingly
+								libaroma_draw_scale_nearest(dest, cv, minx+linex, py, linew, 1, 0, py-miny, cv->w, 1);
+							}
 						}
 						else{
 							int px;
@@ -342,7 +353,7 @@ byte libaroma_path_draw(
 							int linerx=floor(nodes[i+1]);
 							if (is_mask!=2){
 								line[linex]=
-									MIN(255,line[linex]+(1.0-fmod(nodes[i],1))*alphaaa);
+										MIN(255,line[linex]+(1.0-fmod(nodes[i],1))*alphaaa);
 								line[linerx]=
 									MIN(255,line[linerx]+fmod(nodes[i+1],1)*alphaaa);
 							}
@@ -399,16 +410,19 @@ byte libaroma_path_draw(
 			if (!is_mask){
 				/* process */
 				if (line!=NULL){
-					wordp color_line = dest->data + py * dest->l + minx;
-					libaroma_alpha_mono(dwidth,color_line,color_line,color,line);
+					if (src==NULL){
+						wordp color_line = dest->data + py * dest->l + minx;
+						libaroma_alpha_mono(dwidth,color_line,color_line,color,line);
+					}
 					free(line);
 				}
 			}
 		}
+		if (cv!=NULL) libaroma_canvas_free(cv);
 	}
 
 	return 1;
-} /* End of libaroma_path_draw */
+} /* End of libaroma_path_draw_filled */
 
 #ifdef __cplusplus
 }
