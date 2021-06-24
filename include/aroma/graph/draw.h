@@ -138,6 +138,19 @@ byte libaroma_draw_rectangle(
 );
 
 /*
+ * Function		: libaroma_draw_skewed_rect
+ * Return Value: byte
+ * Descriptions: draw skewed rectangle
+ */
+byte libaroma_draw_skewed_rect(
+	LIBAROMA_CANVASP dst,
+	LIBAROMA_CANVASP src,
+	int x0, int y0, int x1, int y1,
+	int x2, int y2, int x3, int y3,
+	word color
+);
+
+/*
  * Function		: libaroma_draw_scale_nearest
  * Return Value: byte
  * Descriptions: scale nearest

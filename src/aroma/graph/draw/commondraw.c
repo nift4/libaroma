@@ -422,6 +422,39 @@ byte libaroma_draw_rectangle(
 } /* End of libaroma_draw_rectangle */
 
 /*
+ * Function		: libaroma_draw_skewed_rect
+ * Return Value: byte
+ * Descriptions: draw skewed rectangle
+ */
+byte libaroma_draw_skewed_rect(
+	LIBAROMA_CANVASP dest,
+	LIBAROMA_CANVASP src,
+	int x0, int y0, int x1, int y1,
+	int x2, int y2, int x3, int y3,
+	word color
+){
+	if (!dest) dest=libaroma_fb()->canvas;
+	int ret=0;
+	LIBAROMA_PATHP path=libaroma_path(x0, y0);
+	if (path==NULL){
+		ALOGW("libaroma_draw_skewed_rect failed to alloc path");
+		return 0;
+	}
+	if (!libaroma_path_add(path, x1, y1)) goto exit;
+	if (!libaroma_path_add(path, x2, y2)) goto exit;
+	if (!libaroma_path_add(path, x3, y3)) goto exit;
+	
+	if (!libaroma_path_draw_filled(dest, src, path, color, 0xFF, 0, 1)){
+		ALOGW("libaroma_draw_skewed_rect failed to draw path");
+		goto exit;
+	}
+	ret=1;
+exit:
+	libaroma_path_free(path);
+	return ret;
+} /* End of libaroma_draw_skewed_rect */
+
+/*
  * Function		: libaroma_draw_pixel
  * Return Value: byte
  * Descriptions: draw pixel
