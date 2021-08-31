@@ -31,9 +31,9 @@
  * + 31/08/21 - Author(s): Michael Jauregui
  *
  */
-//#ifndef __libaroma_aroma_h__
-//	#error "Include <aroma.h> instead."
-//#endif
+#ifndef __libaroma_aroma_h__
+	#error "Include <aroma.h> instead."
+#endif
 #ifndef __libaroma_xml_h__
 #define __libaroma_xml_h__
 
