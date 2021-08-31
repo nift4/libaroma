@@ -38,6 +38,7 @@
 #include "utils/json.h"			/* json */
 #include "utils/system.h"		/* system */
 #include "utils/motions.h"		/* motion interpolation */
+#include "utils/xml.h"			/* xml */
 #include "graph/engine.h"		/* graph engine */
 #include "graph/canvas.h"		/* canvas */
 #include "graph/fb.h"			/* framebuffer */

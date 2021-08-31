@@ -109,6 +109,7 @@ echo Building Libaroma%LIBAROMA_DEBUG_SUFFIX%
 	"%LIBAROMA_BASE%\src\aroma\utils\strings.c" ^
 	"%LIBAROMA_BASE%\src\aroma\utils\system.c" ^
 	"%LIBAROMA_BASE%\src\aroma\utils\time.c" ^
+	"%LIBAROMA_BASE%\src\aroma\utils\xml.c" ^
 	"%LIBAROMA_BASE%\src\aroma\utils\zip.c" ^
 	^
   -I"%LIBAROMA_BASE%\include" ^
