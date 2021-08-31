@@ -30,6 +30,10 @@
 /* stream URI max length */
 #define LIBAROMA_STREAM_URI_LENGTH	0xff
 
+/* compat/easier usage alias */
+#define libaroma_stream_file(path) \
+			libaroma_stream_file_ex(path, 0)
+
 /*
  * Structure	 : _LIBAROMA_STREAM
  * Typedef		 : LIBAROMA_STREAM, * LIBAROMA_STREAMP
@@ -75,10 +79,10 @@ void libaroma_stream_set_uri_callback(
 /*
  * Function		: libaroma_stream_file
  * Return Value: LIBAROMA_STREAMP
- * Descriptions: new stream from file
+ * Descriptions: new stream from file - extended
  */
-LIBAROMA_STREAMP libaroma_stream_file(
-		char * path);
+LIBAROMA_STREAMP libaroma_stream_file_ex(
+		char * path, byte tostring);
 
 /*
  * Function		: libaroma_stream_shmem

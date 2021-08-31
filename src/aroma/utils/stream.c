@@ -48,10 +48,10 @@ void libaroma_stream_set_uri_callback(
 /*
  * Function		: libaroma_stream_file
  * Return Value: LIBAROMA_STREAMP
- * Descriptions: new stream from file
+ * Descriptions: new stream from file - extended
  */
-LIBAROMA_STREAMP libaroma_stream_file(
-		char * path) {
+LIBAROMA_STREAMP libaroma_stream_file_ex(
+		char * path, byte tostring) {
 #ifdef LIBAROMA_PLATFORM_HAS_MMAP
 	if (!path) {
 		ALOGW("libaroma_stream_file path is invalid");
@@ -81,9 +81,19 @@ LIBAROMA_STREAMP libaroma_stream_file(
 	}
 	/* Return */
 	ret					 = (LIBAROMA_STREAMP) malloc(sizeof(LIBAROMA_STREAM));
-	ret->data		 = mem;
-	ret->size		 = filesize;
-	ret->ismmap	 = 1;
+	if (tostring){
+		ret->size	= filesize + 1;
+		ret->data	= malloc(ret->size);
+		memcpy(ret->data, mem, ret->size);
+		ret->data[ret->size] = '\0';
+		ret->ismmap=1;
+		ret->ismem =1; //malloc'ed data
+	}
+	else {
+		ret->data	 = mem;
+		ret->size	 = filesize;
+		ret->ismmap	 = 1;
+	}
 	snprintf(ret->uri,
 			LIBAROMA_STREAM_URI_LENGTH, "file://%s", path);
 	return ret;
@@ -93,27 +103,54 @@ LIBAROMA_STREAMP libaroma_stream_file(
 		return 0;
 	}
 	LIBAROMA_STREAMP ret;
-	/* Read File Stat */
-	int filesize=libaroma_filesize(path);
-	if (filesize < 0) {
-		ALOGI("libaroma_stream_file (%s) not found", path);
+	FILE *in = fopen(path, "rb");
+	if (in==NULL) {
+		//ALOGW("libaroma_stream_file unable to open file");
 		return NULL;
 	}
+    char *data = NULL, *temp;
+    int size = 0;
+    size_t used = 0;
+    size_t n;
 
-	/* Allocating Memory */
-	bytep mem = malloc(filesize);
-	FILE * f = fopen(path, "rb");
-	if (f == NULL) {
-		ALOGW("libaroma_stream_file fopen error (%s)", path);
-		goto error;
+    /* A read error already occurred? */
+    if (ferror(in)){
+        //ALOGW("libaroma_stream_file initial read error");
+        return NULL;
 	}
-
-	if (((int) fread(mem, 1, filesize, f)) != filesize) {
-		ALOGW("libaroma_stream_file fread error (%s)", path);
-		fclose(f);
+    while (1) {
+        if (used + LIBAROMA_STREAMDATA_CHUNK + (tostring?1:0) > size) {
+            size = used + LIBAROMA_STREAMDATA_CHUNK + (tostring?1:0);
+            /* Overflow check. Some ANSI C compilers
+               may optimize this away, though. */
+            if (size <= used) {
+                ALOGW("libaroma_stream_file too much data read");
+                goto error;
+            }
+            temp = realloc(data, size);
+            if (temp == NULL) {
+				ALOGW("libaroma_stream_file not enough memory");
+				goto error;
+            }
+            data = temp;
+        }
+        n = fread(data + used, 1, LIBAROMA_STREAMDATA_CHUNK, in);
+        if (n == 0)
+            break;
+        used += n;
+    }
+    if (ferror(in)) {
+		ALOGW("libaroma_stream_file ret read error");
 		goto error;
-	}
-	fclose(f);
+    }
+    temp = realloc(data, used + (tostring?1:0));
+    if (temp == NULL) {
+        ALOGW("libaroma_stream_file not enough memory");
+        goto error;
+    }
+    data=temp;
+    size=used;
+    if (tostring) data[size]='\0';
 	goto done;
 error:
 	free(mem);
@@ -369,6 +406,10 @@ byte libaroma_stream_close(
 		/* File */
 		munmap(a->data, a->size);
 #endif
+		if (a->ismem){
+			free(a->data);
+			a->data=NULL;
+		}
 	}
 	else if (a->data && !a->ismem) {
 		free(a->data);
