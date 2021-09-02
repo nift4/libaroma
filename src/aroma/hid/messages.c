@@ -141,11 +141,17 @@ byte libaroma_msg_init() {
 	_libaroma_msgqueue->input = libaroma_stack(NULL);
 	/* Set Message Queue is Valid */
 	_libaroma_msgqueue_isrun = 1;
+#ifdef LIBAROMA_INIT_HELPER
+	/* Call Input Thread Directly */
+	_libaroma_msgqueue_hid_thread(NULL);
+	return 1;
+#else
 	/* Init Input Thread */
 	libaroma_thread_create(
 		&_libaroma_msgqueue->input_thread,_libaroma_msgqueue_hid_thread, NULL);
 	/* OK */
 	return 1;
+#endif
 } /* End of libaroma_msg_init */
 
 /*

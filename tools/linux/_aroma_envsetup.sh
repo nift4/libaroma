@@ -137,6 +137,12 @@ else
 	LIBAROMA_STRIP_OBJECT="-Wl,-s"
 fi
 
+# if targetting sdl/sdl2, use init helper (SDL window creation and input loop are done in same thread)
+# This is needed because SDL doesn't seem to like handling requests from multiple threads :/
+if [ "${LIBAROMA_PLATFORM}" = "sdl" ] || [ "${LIBAROMA_PLATFORM}" = "sdl2" ]; then 
+	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -DLIBAROMA_INIT_HELPER"
+fi
+
 # enable architecture optimizations
 if [ "${LIBAROMA_ARCH}" = "arm" ] && [ "${LIBAROMA_ARCH_APPEND}" = "neon" ]; then
 	LIBAROMA_CFLAGS="${LIBAROMA_CFLAGS} -mfloat-abi=hard -mfpu=neon -D__ARM_HAVE_NEON -mvectorize-with-neon-quad"

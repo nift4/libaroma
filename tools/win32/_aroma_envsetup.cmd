@@ -99,6 +99,11 @@ if %LIBAROMA_DEBUG_ENABLED% == 1 (
 	set LIBAROMA_STRIP_OBJECT=-Wl,-s
 )
 
+rem if targetting sdl/sdl2, use init helper (SDL window creation and input loop are done in same thread)
+rem This is needed because SDL doesn't seem to like handling requests from multiple threads :/
+if "%LIBAROMA_PLATFORM%" == "sdl" set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_INIT_HELPER
+if "%LIBAROMA_PLATFORM%" == "sdl2" set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_INIT_HELPER
+
 rem enable architecture optimizations
 if "%LIBAROMA_ARCH%" == "arm" (
 	if "%LIBAROMA_ARCH_APPEND%" == "neon" (
