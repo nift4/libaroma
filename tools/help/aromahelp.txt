@@ -14,3 +14,5 @@ mkapp <appname>         Build application at apps folder, and leave the
 recapp <appname> [r]    Build application and run it on Android device
                         connected in recovery mode.
                         If r is passed as parameter, skip building.
+runapp <appname> [r]    Build application and run it directly.
+                        If r is passed as parameter, skip building.
