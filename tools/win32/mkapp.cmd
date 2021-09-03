@@ -14,7 +14,7 @@ setlocal enableextensions enabledelayedexpansion
 set "tried_lib= "
 :retry_lib_missing
 set "missing_lib="
-for %%L in (aroma drm freetype hb jpeg minui minzip png squirrel ucdn zlib) do (
+for %%L in (aroma drm freetype hb jpeg minui minzip mman png squirrel ucdn zlib) do (
 	rem if folder doesn't exist because it 's not needed, ignore the warning
 	if not exist "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%%L\" (
 		set should_warn=1
@@ -83,6 +83,8 @@ if "%LIBAROMA_BUILD_MINUI%" == "1" (
 )
 set "minzip_objs= "
 for /f "tokens=*" %%F in ('dir /b /a:-d "minzip\*.o"') do call set minzip_objs=%%minzip_objs%% minzip\%%F
+set "mman_objs= "
+for /f "tokens=*" %%F in ('dir /b /a:-d "mman\*.o"') do call set mman_objs=%%mman_objs%% mman\%%F
 set "png_objs= "
 for /f "tokens=*" %%F in ('dir /b /a:-d "png\*.o"') do call set png_objs=%%png_objs%% png\%%F
 set "ucdn_objs= "
@@ -128,6 +130,7 @@ set target_name=%1-%LIBAROMA_TARGET_NAME%
 	%jpeg_objs% ^
 	%minui_objs% ^
 	%minzip_objs% ^
+	%mman_objs% ^
 	%png_objs% ^
 	%ucdn_objs% ^
 	%zlib_objs% ^
@@ -140,7 +143,7 @@ set target_name=%1-%LIBAROMA_TARGET_NAME%
   -I"%LIBAROMA_BASE%\apps\%1" ^
   -o "%LIBAROMA_BASE%\out\bin\%target_name%" ^
   ^
-  -lm -lpthread -lstdc++ -lrt %LIBAROMA_ADDITIONAL_LIBS%
+  -lm -lpthread -lstdc++ %LIBAROMA_ADDITIONAL_LIBS%
 
 set "target_name="
 popd

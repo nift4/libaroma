@@ -34,7 +34,7 @@ echo Building Libaroma%LIBAROMA_DEBUG_SUFFIX%
 %LIBAROMA_GCC% -c ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
   -lstdc++ %LIBAROMA_STRIP_OBJECT% ^
-  -fPIC -DPIC ^
+  -fPIC -DPIC -DNOGDI^
  ^
   %LIBAROMA_CFLAGS% ^
  ^
@@ -46,14 +46,15 @@ echo Building Libaroma%LIBAROMA_DEBUG_SUFFIX%
   ^
 	"%LIBAROMA_BASE%\src\aroma\debug\compiler_message.c" ^
 	^
+	"%LIBAROMA_BASE%\src\aroma\aroma.c" ^
+	"%LIBAROMA_BASE%\src\aroma\version.c" ^
+	^
 	%LIBAROMA_ARCH_OPTIMIZATIONS% ^
 	^
 	"%LIBAROMA_BASE%\src\contrib\platform\%LIBAROMA_PLATFORM%\fb_driver.c" ^
 	"%LIBAROMA_BASE%\src\contrib\platform\%LIBAROMA_PLATFORM%\hid_driver.c" ^
 	"%LIBAROMA_BASE%\src\contrib\platform\%LIBAROMA_PLATFORM%\platform.c" ^
 	^
-	"%LIBAROMA_BASE%\src\aroma\aroma.c" ^
-	"%LIBAROMA_BASE%\src\aroma\version.c" ^
 	"%LIBAROMA_BASE%\src\aroma\controls\ctl_bar.c" ^
 	"%LIBAROMA_BASE%\src\aroma\controls\ctl_button.c" ^
 	"%LIBAROMA_BASE%\src\aroma\controls\ctl_fragment.c" ^
@@ -119,6 +120,7 @@ echo Building Libaroma%LIBAROMA_DEBUG_SUFFIX%
   -I"%LIBAROMA_BASE%\libs\freetype\builds" ^
   -I"%LIBAROMA_BASE%\libs\freetype\include" ^
   -I"%LIBAROMA_BASE%\libs\minzip" ^
+  -I"%LIBAROMA_BASE%\libs\mman" ^
   -I"%LIBAROMA_BASE%\libs\selinux\include" ^
   -I"%LIBAROMA_BASE%\libs\png" ^
   -I"%LIBAROMA_BASE%\libs\jpeg" ^

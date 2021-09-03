@@ -24,6 +24,10 @@
 #include <dirent.h>
 #include <limits.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <fileapi.h>
+#endif
+
 #include "DirUtil.h"
 
 typedef enum { DMISSING, DDIR, DILLEGAL } DirStatus;
@@ -147,17 +151,20 @@ dirCreateHierarchy(const char *path, int mode,
 
             char *secontext = NULL;
 
+			#if !defined(_WIN32) && !defined(_WIN64)
             if (sehnd) {
                 selabel_lookup(sehnd, &secontext, cpath, mode);
                 setfscreatecon(secontext);
             }
-
             err = mkdir(cpath, mode);
 
             if (secontext) {
                 freecon(secontext);
                 setfscreatecon(NULL);
             }
+			#else
+			err = mkdir(cpath);
+			#endif
 
             if (err != 0) {
                 free(cpath);
@@ -188,7 +195,11 @@ dirUnlinkHierarchy(const char *path)
     int fail = 0;
 
     /* is it a file or directory? */
+#if defined(_WIN32) || defined(_WIN64)
+	if (stat(path, &st) < 0) {
+#else
     if (lstat(path, &st) < 0) {
+#endif
         return -1;
     }
 

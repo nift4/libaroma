@@ -58,6 +58,7 @@ byte libaroma_timer_release();
 byte libaroma_font_init();
 byte libaroma_font_release();
 #ifdef LIBAROMA_INIT_HELPER
+extern byte libaroma_msg_runstate();
 static byte _init_status=0;
 static LIBAROMA_THREAD _init_helper;
 void *_libaroma_init_helper(void *cookie);
@@ -257,18 +258,20 @@ byte libaroma_start() {
 		ALOGE("libaroma_start cannot start init helper thread...");
 		return 0;
 	}
-	while(libaroma_msg_runstate()!=1){ //wait until initialization is done in helper thread
+	int i=0;
+	while(!libaroma_msg_runstate()){ //wait until initialization is done in helper thread
 		switch (_init_status){
-			case -3:
+			case 3:
 				ALOGE("libaroma_start cannot start framebuffer...");
 				return 0;
-			case -2:
+			case 2:
 				ALOGE("libaroma_start cannot start hid engine...");
 				return 0;
-			case -1:
+			case 1:
 				ALOGE("libaroma_start cannot start message queue...");
 				return 0;
 			default:
+				ALOGD("waiting for start finished #%d, init_status=%d, runstate=%d", i++, _init_status, libaroma_msg_runstate());
 				libaroma_sleep(100);
 				break;
 		}
@@ -356,19 +359,19 @@ byte libaroma_end() {
 void *_libaroma_init_helper(void *cookie){
 	if (!libaroma_fb_init()) {
 		ALOGE("libaroma_init_helper cannot start framebuffer...");
-		_init_status=-1;
+		_init_status=1;
 		return;
 	}
 	
 	if (!libaroma_hid_init()) {
 		ALOGE("libaroma_init_helper cannot start hid engine...");
-		_init_status=-2;
+		_init_status=2;
 		return;
 	}
 
 	if (!libaroma_msg_init()) {
 		ALOGE("libaroma_init_helper cannot start message queue...");
-		_init_status=-3;
+		_init_status=3;
 		return;
 	}
 }

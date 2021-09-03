@@ -53,8 +53,9 @@ FILE *parent_pipe;
 extern void full_test();
 
 LIBAROMA_ZIP zip;
-
+#ifndef _WIN32
 pid_t parent_pid;
+#endif
 
 /* stream uri callback */
 LIBAROMA_STREAMP stream_uri_cb(char * uri){
@@ -108,7 +109,7 @@ void init_libaroma(){
 		)
 	);
 } /* End of init_libaroma */
-
+#ifndef _WIN32
 char *recovery_find(){
 	char *recproc, *recpath;
 	parent_pid = getppid();
@@ -214,6 +215,7 @@ exit:
 	if (ret!=9) free(recpath_temp);
 	return 0;
 }
+#endif
 
 /*
  * Function    : main
@@ -230,7 +232,14 @@ int main(int argc, char **argv){
 #endif
 	//make things safer here
 	libaroma_config()->runtime_monitor = LIBAROMA_START_SAFE;
-
+	#ifdef _WIN32
+	if (argc>=2)
+		zip = libaroma_zip(argv[1]);
+	if (zip==NULL)
+		zip=libaroma_zip("./res.zip");
+	libaroma_stream_set_uri_callback(stream_uri_cb);
+	
+	#else
 	if (argc>=4){
 		if (atoi(argv[2])!=0){
 			debug_tag = "ui_print I/LIBAROMA()";
@@ -285,6 +294,7 @@ int main(int argc, char **argv){
 			libaroma_stream_set_uri_callback(stream_uri_cb);
 		}
 	}
+	#endif
 	init_libaroma();
 
 	/* start full test */

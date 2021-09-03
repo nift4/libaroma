@@ -118,10 +118,8 @@ if "%LIBAROMA_ARCH%" == "arm" (
 	set "i386="
 )
 
-if "%LIBAROMA_ARCH%" == "arm" (
-	if not "%LIBAROMA_ARCH_APPEND%" == "neon" (
-		set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NOJPEG=1
-	)
+if not "%LIBAROMA_ARCH_APPEND%" == "neon" (
+	set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NOJPEG=1
 )
 
 rem link with SDL library if needed, otherwise build
@@ -151,6 +149,9 @@ if "%LIBAROMA_ARCH%" == "mips" (
 	set "LIBAROMA_ARCH_OPTIMIZATIONS= "
 	for /f "tokens=*" %%F in ('dir /b /a:-d "%LIBAROMA_BASE%\src\aroma\arch\mips\*.c"') do call set LIBAROMA_ARCH_OPTIMIZATIONS=%%LIBAROMA_ARCH_OPTIMIZATIONS%% "%LIBAROMA_BASE%\src\aroma\arch\mips\%%F"
 )
+rem if targetting SDL we may be building for Windows, which doesn't support some optimizations.
+if "%LIBAROMA_PLATFORM%" == "sdl" set "LIBAROMA_ARCH_OPTIMIZATIONS= " && set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NO_ANDROID_MEM=1
+if "%LIBAROMA_PLATFORM%" == "sdl2" set "LIBAROMA_ARCH_OPTIMIZATIONS= " && set LIBAROMA_CFLAGS=%LIBAROMA_CFLAGS% -DLIBAROMA_CONFIG_NO_ANDROID_MEM=1
 
 rem set debug levels
 if %LIBAROMA_DEBUG_ENABLED% == 1 (

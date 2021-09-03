@@ -23,6 +23,8 @@
  */
 #ifndef __libaroma_jpeg_c__
 #define __libaroma_jpeg_c__
+
+#ifndef LIBAROMA_CONFIG_NOJPEG
 #include <aroma_internal.h>
 #include <jinclude.h>				 /* JPEG */
 #include <jpeglib.h>
@@ -31,7 +33,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#ifndef LIBAROMA_CONFIG_NOJPEG
 
 /*
  * Structure	 : __LIBAROMA_JPEG_MEM_MGR
@@ -339,10 +340,9 @@ exit:
 	return retval;
 } /* End of libaroma_jpeg_draw */
 
-#endif /* LIBAROMA_CONFIG_NOJPEG */
-
 #ifdef __cplusplus
 }
 #endif
-#endif /* __libaroma_jpeg_c__ */
 
+#endif /* LIBAROMA_CONFIG_NOJPEG */
+#endif /* __libaroma_jpeg_c__ */

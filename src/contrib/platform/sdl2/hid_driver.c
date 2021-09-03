@@ -35,11 +35,6 @@
 /*
  * headers
  */
-#include <linux/input.h>
-#include <sys/ioctl.h>
-#include <sys/poll.h>
-#include <fcntl.h>
-#include <dirent.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 

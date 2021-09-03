@@ -395,7 +395,7 @@ void full_test(){
 	// libaroma_window_layer_init(win);
 
 	libaroma_window_anishow(win, anim, 350);
-
+	libaroma_png_save(libaroma_fb()->canvas, "./ss.png");
 	// libaroma_window_layer_init(win);
 	libaroma_window_invalidate(win, 1);
 	byte gap_wide = 1;

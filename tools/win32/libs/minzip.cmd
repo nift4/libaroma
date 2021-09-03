@@ -23,6 +23,7 @@ echo Building MinZIP
 	"%LIBAROMA_BASE%\libs\minzip\Inlines.c" ^
 	"%LIBAROMA_BASE%\libs\minzip\Zip.c" ^
 	^
+  -I"%LIBAROMA_BASE%\libs\mman" ^
   -I"%LIBAROMA_BASE%\libs\selinux\include" ^
   -I"%LIBAROMA_BASE%\libs\zlib\src"
 

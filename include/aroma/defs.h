@@ -47,8 +47,17 @@
 #define LIBAROMA_INFO_SIGNATURE	 	0x8
 
 /* Windows style dword macros */
+#ifdef LOWORD
+#undef LOWORD
+#endif
 #define LOWORD(l) ((word)(l))
+#ifdef HIWORD
+#undef HIWORD
+#endif
 #define HIWORD(l) ((word)(((dword)(l)>>16)&0xFFFF))
+#ifdef MAKEDWORD
+#undef MAKEDWORD
+#endif
 #define MAKEDWORD(lo,hi) ((dword)(((word)(lo))|((dword)((word)(hi)))<<16))
 
 /* gfx backends */

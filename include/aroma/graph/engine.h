@@ -31,7 +31,8 @@
  * color macros
  */
 #ifdef RGB
-#undef RGB
+	#pragma message "RGB already defined, overriding"
+	//#undef RGB
 #endif
 #define RGB(X) libaroma_rgb_to16(0x##X)
 #define libaroma_color_hi_b libaroma_color_hi_r

@@ -35,8 +35,12 @@
 #define __libaroma_xml_c__
 #include <aroma_internal.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define EZXML_NOMMAP /* mman-win32 does not implement madvise() */
+#endif
+
 #ifndef EZXML_NOMMAP
-#include <sys/mman.h>
+#include <mman.h>
 #endif // EZXML_NOMMAP
 #include <sys/stat.h>
 

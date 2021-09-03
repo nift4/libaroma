@@ -487,7 +487,11 @@ const ZipEntry* mzFindZipEntry(const ZipArchive* pArchive,
 static bool mzIsZipEntrySymlink(const ZipEntry* pEntry)
 {
     if ((pEntry->versionMadeBy & 0xff00) == CENVEM_UNIX) {
+		#if defined (_WIN32) || defined(_WIN64)
+		return false;
+		#else
         return S_ISLNK(pEntry->externalFileAttributes >> 16);
+		#endif
     }
     return false;
 }
@@ -961,19 +965,21 @@ bool mzExtractRecursive(const ZipArchive *pArchive,
             }
 
             char *secontext = NULL;
-
+			
+			#if !defined(_WIN32) && !defined(_WIN64)
             if (sehnd) {
                 selabel_lookup(sehnd, &secontext, targetFile, UNZIP_FILEMODE);
                 setfscreatecon(secontext);
             }
-
             int fd = open(targetFile, O_CREAT|O_WRONLY|O_TRUNC|O_SYNC,
                 UNZIP_FILEMODE);
-
             if (secontext) {
                 freecon(secontext);
                 setfscreatecon(NULL);
             }
+			#else
+            int fd = open(targetFile, O_CREAT|O_WRONLY|O_TRUNC, UNZIP_FILEMODE);
+			#endif
 
             if (fd < 0) {
                 LOGE("Can't create target file \"%s\": %s\n",
@@ -983,9 +989,11 @@ bool mzExtractRecursive(const ZipArchive *pArchive,
             }
 
             bool ok = mzExtractZipEntryToFile(pArchive, pEntry, fd);
+			#if !defined(_WIN32) && !defined(_WIN64)
             if (ok) {
                 ok = (fsync(fd) == 0);
             }
+			#endif
             if (close(fd) != 0) {
                 ok = false;
             }

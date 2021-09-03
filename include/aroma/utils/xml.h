@@ -38,7 +38,7 @@
 #define __libaroma_xml_h__
 
 /* include */
-#include <ctype.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <fcntl.h>
 

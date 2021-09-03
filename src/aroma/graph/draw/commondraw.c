@@ -688,7 +688,7 @@ byte libaroma_draw_mask_circle(
 		return 1;
 	}
 	int radius = sz/2;
-	int rad2	 = radius * radius;
+	int rad	 = radius * radius;
 	int y;
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
@@ -699,7 +699,7 @@ byte libaroma_draw_mask_circle(
 		if ((pdy<dst->h)&&(pdy>=0)&&(psy<src->h)&&(psy>=0)){
 			int pos_d = pdy * dst->l;
 			int pos_s = psy * src->l;
-			int x	 = sqrt(rad2-y*y);
+			int x	 = sqrt(rad-y*y);
 			int w	 = x*2;
 			if (sx-x<0){
 				w-=abs(sx-x);
@@ -751,7 +751,7 @@ byte libaroma_draw_circle(
 		return 1;
 	}
 	int radius = sz/2;
-	int rad2   = radius * radius;
+	int rad   = radius * radius;
 	int y;
 #ifdef LIBAROMA_CONFIG_OPENMP
 	#pragma omp parallel for
@@ -760,7 +760,7 @@ byte libaroma_draw_circle(
 		int pdy = dy + y;
 		if ((pdy<dst->h)&&(pdy>=0)){
 			int pos_d = pdy * dst->l;
-			int x	 = sqrt(rad2-y*y);
+			int x	 = sqrt(rad-y*y);
 			int w	 = x*2;
 			if (dx-x<0){
 				w-=abs(dx-x);
@@ -802,7 +802,7 @@ byte libaroma_draw_alpha_circle(
 		return 1;
 	}
 	int radius = sz/2;
-	int rad2	 = radius * radius;
+	int rad	 = radius * radius;
 	int y;
 
 #ifdef LIBAROMA_CONFIG_OPENMP
@@ -812,7 +812,7 @@ byte libaroma_draw_alpha_circle(
 		int pdy = dy + y;
 		if ((pdy<dst->h)&&(pdy>=0)){
 			int pos_d = pdy * dst->l;
-			int x	 = sqrt(rad2-y*y);
+			int x	 = sqrt(rad-y*y);
 			int w	 = x*2;
 			if (dx-x<0){
 				w-=abs(dx-x);

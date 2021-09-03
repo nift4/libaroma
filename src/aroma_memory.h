@@ -26,7 +26,7 @@
 #endif
 #ifndef __libaroma_memory_h__
 #define __libaroma_memory_h__
-#ifndef LIBAROMA_CONFIG_NO_ANDROID_MEM
+#if !defined(LIBAROMA_CONFIG_NO_ANDROID_MEM) && !defined(_WIN32) && !defined(_WIN64)
 
 /*
  * Function		: android_memset16

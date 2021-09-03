@@ -27,9 +27,8 @@
 /*
  * headers
  */
-#include <sys/poll.h>
 #include <fcntl.h>
-#include <sys/mman.h>
+#include <mman.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 

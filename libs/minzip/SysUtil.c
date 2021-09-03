@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
+#include <mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -98,8 +98,8 @@ static int sysMapBlockFile(FILE* mapf, MemMapping* pMap)
     }
 
     // Reserve enough contiguous address space for the whole file.
-    unsigned char* reserve;
-    reserve = mmap64(NULL, blocks * blksize, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    unsigned char* reserve;	
+    reserve = mmap(NULL, blocks * blksize, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
 
     if (reserve == MAP_FAILED) {
         LOGE("failed to reserve address space: %s\n", strerror(errno));
@@ -132,7 +132,7 @@ static int sysMapBlockFile(FILE* mapf, MemMapping* pMap)
           break;
         }
 		/* initialization makes pointer from integer without a cast */
-        void* addr = mmap64(next, length, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, ((off64_t)start)*blksize);
+        void* addr = mmap(next, length, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, ((off64_t)start)*blksize);
         if (addr == MAP_FAILED) {
             LOGE("failed to map block %d: %s\n", i, strerror(errno));
             success = false;
