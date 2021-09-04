@@ -117,6 +117,16 @@ byte libaroma_ctl_pager_set_animation(
 );
 
 /*
+ * Function		: libaroma_ctl_pager_set_animation
+ * Return Value: byte
+ * Descriptions: set pager swipe animation callback 
+ */
+byte libaroma_ctl_pager_set_animation_callback(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
+);
+
+/*
  * Function		: libaroma_ctl_pager_get_pages
  * Return Value: int
  * Descriptions: get number of pages

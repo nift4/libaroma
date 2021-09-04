@@ -104,6 +104,14 @@ struct __LIBAROMA_CTL_PAGER{
 	int touch_y;
 
 	byte swipe_anim;
+	void (*swipe_anim_cb)(
+		LIBAROMA_CANVASP dst,
+		LIBAROMA_CANVASP source_page,
+		LIBAROMA_CANVASP target_page,
+		int source_x, int source_w, int source_h,
+		int target_x, int target_w, int target_h,
+		float state
+	);
 
 	long client_touch_start;
 	LIBAROMA_MSG pretouched_msg;
@@ -341,47 +349,63 @@ void _libaroma_ctl_pager_draw(
 	libaroma_mutex_lock(me->mutex);
 	if (!me->on_direct_canvas){
 		if (me->win->dc){
-			if (me->swipe_anim==LIBAROMA_CTL_PAGER_ANIMATION_SLIDE){
-				//use simpler drawing if animation is slide
-				libaroma_draw_ex(
-					c,				//dest
-					me->win->dc,	//src
-					0,				//destx
-					0,				//desty
-					me->scroll_x,	//srcx
-					0,				//srcy
-					c->w,			//srcw
-					c->h,			//srch
-					0,				//usealpha
-					0xff			//opacity
-				);
-			}
-			else {
-				int left_x,	//left page x
-					right_x;//right page x
-				int remain=me->scroll_x;
-				while (remain>=c->w) {
-					remain -= c->w;
-				}
-				left_x=me->scroll_x-remain;
-				right_x=left_x+c->w;
-				float state=(((float)remain)/((float)c->w));
-				libaroma_art_draw_switch_animation(
-					me->swipe_anim,	// animation type
-					//0,			// animation side - change for some anims
-					c, 				// target canvas
+			if (me->swipe_anim_cb!=NULL){
+				me->swipe_anim_cb(
+					c, 
 					me->win->dc,	// exiting image canvas
 					me->win->dc,	// entering image canvas
 					left_x, 		// exiting image x at canvas
-					0, 				// exiting image y at canvas
 					c->w,	 		// exiting image w at canvas
 					c->h,	 		// exiting image h at canvas
 					right_x, 		// entering image x at canvas
-					0, 				// entering image y at canvas
 					c->w, 			// entering image w at canvas
-					c->h,			// entering image h at canvas
+					c->h,			// entering image h at canvas)
 					state			// current animation progress
 				);
+			}
+			else {
+				if (me->swipe_anim==LIBAROMA_CTL_PAGER_ANIMATION_SLIDE){
+					//use simpler drawing if animation is slide
+					libaroma_draw_ex(
+						c,				//dest
+						me->win->dc,	//src
+						0,				//destx
+						0,				//desty
+						me->scroll_x,	//srcx
+						0,				//srcy
+						c->w,			//srcw
+						c->h,			//srch
+						0,				//usealpha
+						0xff			//opacity
+					);
+				}
+				else {
+					int left_x,	//left page x
+						right_x;//right page x
+					int remain=me->scroll_x;
+					while (remain>=c->w) {
+						remain -= c->w;
+					}
+					left_x=me->scroll_x-remain;
+					right_x=left_x+c->w;
+					float state=(((float)remain)/((float)c->w));
+					libaroma_art_draw_switch_animation(
+						me->swipe_anim,	// animation type
+						//0,			// animation side - change for some anims
+						c, 				// target canvas
+						me->win->dc,	// exiting image canvas
+						me->win->dc,	// entering image canvas
+						left_x, 		// exiting image x at canvas
+						0, 				// exiting image y at canvas
+						c->w,	 		// exiting image w at canvas
+						c->h,	 		// exiting image h at canvas
+						right_x, 		// entering image x at canvas
+						0, 				// entering image y at canvas
+						c->w, 			// entering image w at canvas
+						c->h,			// entering image h at canvas
+						state			// current animation progress
+					);
+				}
 			}
 		}
 		else{
@@ -1028,6 +1052,26 @@ byte libaroma_ctl_pager_set_animation(
 
 	if (!animation) animation=LIBAROMA_CTL_PAGER_ANIMATION_SLIDE;
 	me->swipe_anim=animation;
+
+	libaroma_mutex_unlock(me->mutex);
+	return 1;
+}
+
+/*
+ * Function		: libaroma_ctl_pager_set_animation
+ * Return Value: byte
+ * Descriptions: set pager swipe animation callback 
+ */
+byte libaroma_ctl_pager_set_animation_callback(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
+){
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_pager_handler, _LIBAROMA_CTL_PAGERP, 0
+	);
+	libaroma_mutex_lock(me->mutex);
+
+	me->swipe_anim_cb=cb;
 
 	libaroma_mutex_unlock(me->mutex);
 	return 1;
