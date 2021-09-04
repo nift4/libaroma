@@ -1111,6 +1111,7 @@ LIBAROMA_CONTROLP libaroma_ctl_pager(
 	me->win->parent=win;
 
 	me->swipe_anim=LIBAROMA_CTL_PAGER_ANIMATION_SLIDE;
+	me->swipe_anim_cb=NULL;
 
 	/* init control */
 	LIBAROMA_CONTROLP ctl =
