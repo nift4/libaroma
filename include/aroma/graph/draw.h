@@ -345,6 +345,11 @@ byte libaroma_draw_arc(
 
 
 /**** PATH DRAWING ****/
+typedef struct {
+	int x;
+	int y;
+} LIBAROMA_POINT, * LIBAROMA_POINTP;
+
 typedef struct _LIBAROMA_PATH_POINT{
 	float x;
 	float y;
