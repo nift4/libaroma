@@ -350,6 +350,15 @@ void _libaroma_ctl_pager_draw(
 	if (!me->on_direct_canvas){
 		if (me->win->dc){
 			if (me->swipe_anim_cb!=NULL){
+				int left_x,	//left page x
+					right_x;//right page x
+				int remain=me->scroll_x;
+				while (remain>=c->w) {
+					remain -= c->w;
+				}
+				left_x=me->scroll_x-remain;
+				right_x=left_x+c->w;
+				float state=(((float)remain)/((float)c->w));
 				me->swipe_anim_cb(
 					c, 
 					me->win->dc,	// exiting image canvas
