@@ -28,6 +28,11 @@
 #ifndef __libaroma_listitem_text_h__
 #define __libaroma_listitem_text_h__
 
+#define LIBAROMA_LISTITEM_TEXT_SHARED		0x1
+#define LIBAROMA_LISTITEM_TEXT_FREE			0x2
+#define LIBAROMA_LISTITEM_TEXT_UPDATEABLE	0x4
+//#define LIBAROMA_LISTITEM_TEXT_NOLOADER		0x8
+
 /*
  * Function		: libaroma_listitem_text_set
  * Return Value: void
@@ -37,13 +42,16 @@ void libaroma_listitem_text_set(
 		LIBAROMA_CTL_LIST_ITEMP item,
 		char *text);
 /*
- * Function		: libaroma_listitem_text_add
+ * Function		: libaroma_listitem_text_add_ex
  * Return Value: void
- * Descriptions: add text to item
+ * Descriptions: add text to item - extended
  */
-void libaroma_listitem_text_add(
+byte libaroma_listitem_text_add_ex(
 		LIBAROMA_CTL_LIST_ITEMP item,
-		char *text, byte freeold);
+		char *text, int len);
+
+#define libaroma_listitem_text_add(itm, txt) libaroma_listitem_text_add_ex(itm, txt, strlen(txt))
+
 /*
  * Function		: libaroma_listitem_text_color
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
@@ -54,12 +62,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		int id,
 		char * text,
 		word textcolor,
-		int vpad,
 		int hpad,
-		int font_id,
-		int font_size,
-		word flags,
-		byte updateable,
+		int vpad,
+		word txtflags,
+		word itemflags,
 		int at_index);
 
 /*
@@ -71,7 +77,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
 		char * text,
-		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
+		int hpad,
+		int vpad,
+		word txtflags,
+		word itemflags,
 		int at_index);
 
 #endif /* __libaroma_listitem_text_h__ */

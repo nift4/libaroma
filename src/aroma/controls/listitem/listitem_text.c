@@ -49,15 +49,15 @@ static LIBAROMA_CTL_LIST_ITEM_HANDLER _libaroma_listitem_text_handler =
 typedef struct{
 	word textcolor;
 	char * text;
+	int textlen;
 	LIBAROMA_TEXT cached_text; //used for initial control draw
 	byte updateable;
 	byte redraw;
 	byte isparsing; //useful if draw is called while parsing the text
 	int vpad;
 	int hpad;
-	int font_id;
-	int font_size;
-	word flags;
+	word itemflags;
+	word txtflags;
 	int w;
 	int h;
 	LIBAROMA_THREAD loader;
@@ -102,7 +102,7 @@ byte _libaroma_listitem_text_message(
 void *_libaroma_listitem_text_loader(void *info){
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) info;
 	ALOGV("Starting listitem_text loader thread");
-	mi->cached_text=libaroma_text(mi->text, mi->textcolor, mi->w, LIBAROMA_FONT(mi->font_id,mi->font_size)|mi->flags, 0);
+	mi->cached_text=libaroma_text(mi->text, mi->textcolor, mi->w, mi->txtflags, 0);
 	if (mi->cached_text==NULL){ //maybe text parser exited before finishing?
 		mi->isparsing=0;
 		return NULL;
@@ -142,7 +142,7 @@ void _libaroma_listitem_text_draw(
 			//libaroma_thread_set_hiprio(mi->loader); //this seems to hang the window until almost loaded
 		}
 		libaroma_draw_text(cv, "Please wait...", mi->hpad, mi->vpad, mi->textcolor, cv->w-(mi->hpad*2),
-							LIBAROMA_FONT(mi->font_id, mi->font_size)|LIBAROMA_TEXT_SINGLELINE, cv->h-(mi->vpad*2));
+							mi->txtflags|LIBAROMA_TEXT_SINGLELINE, cv->h-(mi->vpad*2));
 		return;
 	}
 	// draw text to control canvas
@@ -168,6 +168,8 @@ void _libaroma_listitem_text_release_internal(
 		libaroma_sleep(50);
 	}
 	if (mi->text!=NULL){
+		if (!(mi->itemflags&LIBAROMA_LISTITEM_TEXT_SHARED) ||	/* if source text is not shared */
+			mi->itemflags&LIBAROMA_LISTITEM_TEXT_FREE)			/* or is but must free source */
 		free(mi->text);
 	}
 	if (mi->cached_text!=NULL)
@@ -206,11 +208,13 @@ void libaroma_listitem_text_set(
 		return;
 	}
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
-	if (!mi->updateable){
-		ALOGE("Cannot set new text to non-updateable item");
+	if (!(mi->itemflags&LIBAROMA_LISTITEM_TEXT_UPDATEABLE)){
+		ALOGW("Cannot set new text to non-updateable item");
 		return;
 	}
-	if (mi->text) free(mi->text);
+	if (!(mi->itemflags&LIBAROMA_LISTITEM_TEXT_SHARED) ||
+			mi->itemflags&LIBAROMA_LISTITEM_TEXT_FREE)
+		free(mi->text);
 	mi->text=strdup(text);
 	mi->redraw=1;
 }
@@ -220,9 +224,9 @@ void libaroma_listitem_text_set(
  * Return Value: void
  * Descriptions: add text to item
  */
-void libaroma_listitem_text_add(
+byte libaroma_listitem_text_add_ex(
 		LIBAROMA_CTL_LIST_ITEMP item,
-		char *text, byte freeold){
+		char *text, int len){
 	if (!item || !text){
 		return;
 	}
@@ -230,18 +234,39 @@ void libaroma_listitem_text_add(
 		return;
 	}
 	_LIBAROMA_LISTITEM_TEXTP mi = (_LIBAROMA_LISTITEM_TEXTP) item->internal;
-	if (!mi->updateable){
-		ALOGE("Cannot add text to non-updateable item");
+	if (!(mi->itemflags&LIBAROMA_LISTITEM_TEXT_UPDATEABLE)){
+		ALOGW("libaroma_listitem_text_add cannot update non-updateable item");
 		return;
 	}
-	char *newtext=malloc(strlen(mi->text) + strlen(text) +2);
-	strcpy(newtext, mi->text);
-	strcat(newtext, text);
-	if (freeold){
-		free(mi->text);
+	int i, j;
+	if (mi->itemflags&LIBAROMA_LISTITEM_TEXT_SHARED){
+		//if source text is shared, clone it in order to allow a realloc
+		int orig_len = ((mi->textlen)?mi->textlen:strlen(mi->text))+1;
+		char *orig_text = mi->text;
+		char *malloced_text = malloc(orig_len);
+		if (!malloced_text){
+			ALOGW("libaroma_listitem_text_add cannot clone shared text");
+			return 0;
+		}
+		strncpy(malloced_text, orig_text, orig_len);
+		mi->text = malloced_text;
+		mi->textlen = orig_len-1;
+		if (mi->itemflags&LIBAROMA_LISTITEM_TEXT_FREE) free(orig_text);
+		else mi->itemflags |= LIBAROMA_LISTITEM_TEXT_FREE;
 	}
-	mi->text=newtext;
+	int oldlen = ((mi->textlen)?mi->textlen:strlen(mi->text));
+	int newlen = oldlen+len;
+	//ALOGI("reallocating string %s with new len %d", text, newlen);
+	char *tmp=realloc(mi->text, newlen);
+	if (!tmp){
+		ALOGW("libaroma_listitem_text_add failed to realloc text");
+		return 0;
+	}
+	strncat(mi->text, text, len);
+	mi->text=tmp;
+	mi->textlen=newlen;
 	mi->redraw=1;
+	return 1;
 }
 
 /*
@@ -254,12 +279,10 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		int id,
 		char * text,
 		word textcolor,
-		int vpad,
 		int hpad,
-		int font_id,
-		int font_size,
-		word flags,
-		byte updateable,
+		int vpad,
+		word txtflags,
+		word itemflags,
 		int at_index){
 	/* check valid list control */
 	if (!libaroma_ctl_list_is_valid(ctl)){
@@ -275,19 +298,21 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 	if (vpad<0) vpad=0;
 	mi->ctl=ctl;
 	mi->textcolor=textcolor;
-	mi->text=strdup(text);
-	mi->vpad=vpad;
-	mi->updateable=updateable;
-	mi->hpad=hpad;
-	mi->font_id=font_id;
-	mi->font_size=font_size?font_size:3;
-	mi->flags=flags;
-	int h = (vpad==0)?16:(vpad*2);
+	mi->text=text;
+	mi->textlen=0;
+	mi->vpad=libaroma_px(vpad);
+	mi->hpad=libaroma_px(hpad);
+	//mi->updateable=updateable;
+	/*mi->font_id=font_id;
+	mi->font_size=font_size?font_size:3;*/
+	mi->itemflags=itemflags;
+	mi->txtflags=txtflags;
+	int h = (!vpad)?16:(vpad*2);
 
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl,
 		id,
-		h,updateable?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
+		h,(itemflags&LIBAROMA_LISTITEM_TEXT_UPDATEABLE)?LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD:0,
 		(voidp) mi,
 		&_libaroma_listitem_text_handler,
 		at_index
@@ -296,7 +321,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text_color(
 		ALOGW("listitem_text add_item_internal failed");
 		_libaroma_listitem_text_release_internal(mi);
 	}
-	mi->item=item;
+	else mi->item=item;
 	return item;
 } /* End of libaroma_listitem_text */
 
@@ -309,10 +334,13 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_text(
 		LIBAROMA_CONTROLP ctl,
 		int id,
 		char * text,
-		int vpad, int hpad, int font_id, int font_size, word flags, byte updateable,
+		int hpad,
+		int vpad,
+		word txtflags,
+		word itemflags,
 		int at_index){
 	return libaroma_listitem_text_color(ctl,id,text,
-		libaroma_colorget(ctl,NULL)->accent,vpad,hpad,font_id,font_size,flags,updateable,at_index);
+		libaroma_colorget(ctl,NULL)->accent,hpad,vpad,txtflags,itemflags,at_index);
 }
 
 #ifdef __cplusplus
