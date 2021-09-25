@@ -112,12 +112,12 @@ byte _libaroma_text_parse_tag(
 								//ALOGD("Using custom color handler");
 								newcolor=libaroma_config()->custom_color_handler(tag);
 							}
-							if (newcolor > 0) {
+							if (newcolor > -1) {
 								//ALOGD("Custom color handler gave a valid color, using it...");
 								chunk->next_state.color = newcolor;
 							}
 							else {
-								//ALOGD("NULL color! Treating as RGB");
+								//ALOGD("Invalid color! Treating as RGB");
 								chunk->next_state.color = libaroma_rgb_from_string(tag);
 							}
 						}
