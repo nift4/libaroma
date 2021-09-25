@@ -40,6 +40,7 @@ typedef struct{
   int h;
   byte flags;
   LIBAROMA_CANVASP bg;
+  LIBAROMA_WINDOWP parent;
 } LIBAROMA_DIALOG_DATA,
   * LIBAROMA_DIALOG_DATAP;
 

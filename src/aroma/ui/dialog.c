@@ -129,10 +129,19 @@ LIBAROMA_WINDOWP libaroma_dialog_window(
 		libaroma_draw(cdata->bg,wmcv,0,0,0);
 		// libaroma_draw_rect(cdata->bg,0,0,libaroma_wm()->w,libaroma_wm()->h,0,0x70);
 	}
-	libaroma_canvas_free(wmcv);
 
 	/* create window */
 	LIBAROMA_WINDOWP win = libaroma_window(NULL,0,0,libaroma_wm()->w,libaroma_wm()->h);
+	if (!win){
+		ALOGW("libaroma_dialog_window: Cannot allocate window");
+		return NULL;
+	}
+	LIBAROMA_CANVASP old_prev=NULL;
+	if (win->prev_screen) old_prev=win->prev_screen;
+	win->prev_screen=libaroma_canvas(wmcv->w, wmcv->h);
+	libaroma_draw(win->prev_screen, wmcv, 0, 0, 0);
+	if (old_prev) libaroma_canvas_free(old_prev); 
+	libaroma_canvas_free(wmcv);
 	win->colorset = colorset;
 	win->client_data = (voidp) cdata;
 	win->onupdatebg	= libaroma_dialog_updatebg;
@@ -148,13 +157,19 @@ byte libaroma_dialog_free(
 	LIBAROMA_WINDOWP win
 ){
 	if (win){
+		LIBAROMA_WINDOWP parent=NULL;
 		if (win->client_data){
 			LIBAROMA_DIALOG_DATAP cdata = (LIBAROMA_DIALOG_DATAP) win->client_data;
+			parent=cdata->parent;
 			libaroma_canvas_free(cdata->bg);
 			free(win->client_data);
 			win->client_data=NULL;
 		}
-		return libaroma_window_free(win);
+		byte ret=libaroma_window_aniclose(win, LIBAROMA_WINDOW_SHOW_ANIMATION_FADE, 200);
+		if (parent){
+			ret=libaroma_window_show(parent);
+		}
+		return ret;
 	}
 	return 0;
 }
@@ -267,9 +282,10 @@ int libaroma_dialog_confirm(
 			);
 		}
 	}
-
-
-	// libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
+	LIBAROMA_WINDOWP parent=libaroma_wm_get_active_window();
+	if (parent)
+		cdata->parent=parent;
+	
 	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE,200);
 
 	byte onpool=1;
@@ -608,9 +624,8 @@ int libaroma_dialog_list(
 				itm=libaroma_listitem_text(
 						listc, templates[i].id,
 						templates[i].message, 8, 8,
-						templates[i].text_font,
-						templates[i].text_size,
-						templates[i].flags, 0, -1);
+						LIBAROMA_FONT(templates[i].text_font, templates[i].text_size),
+						templates[i].flags, -1);
 				break;
 		}
 		if (!itm) {
@@ -698,7 +713,7 @@ int libaroma_dialog_list(
 	}
 
 
-	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE, 400);
+	libaroma_window_anishow(win,LIBAROMA_WINDOW_SHOW_ANIMATION_FADE, 200);
 	//libaroma_window_anishow(win,0,0);
 
 	if (selitem){
