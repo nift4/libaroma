@@ -1037,6 +1037,44 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_focused_item(
 }
 
 /*
+ * Function		: libaroma_ctl_list_get_first_item
+ * Return Value	: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions	: get first item
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_first_item(
+	LIBAROMA_CONTROLP ctl){
+	LIBAROMA_CTL_SCROLL_CLIENTP client = libaroma_ctl_scroll_get_client(ctl);
+	if (!client){
+		return NULL;
+	}
+	if (client->handler!=&_libaroma_ctl_list_handler){
+		return NULL;
+	}
+	LIBAROMA_CTL_LISTP mi = (LIBAROMA_CTL_LISTP) client->internal;
+	
+	return mi->first;
+}
+
+/*
+ * Function		: libaroma_ctl_list_get_last_item
+ * Return Value	: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions	: get first item
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_last_item(
+	LIBAROMA_CONTROLP ctl){
+	LIBAROMA_CTL_SCROLL_CLIENTP client = libaroma_ctl_scroll_get_client(ctl);
+	if (!client){
+		return NULL;
+	}
+	if (client->handler!=&_libaroma_ctl_list_handler){
+		return NULL;
+	}
+	LIBAROMA_CTL_LISTP mi = (LIBAROMA_CTL_LISTP) client->internal;
+	
+	return mi->last;
+}
+
+/*
  * Function		: libaroma_ctl_list_get_item_internal
  * Return Value: LIBAROMA_CTL_LIST_ITEMP
  * Descriptions: get item at index or id

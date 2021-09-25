@@ -194,6 +194,24 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_focused_item(
 );
 
 /*
+ * Function		: libaroma_ctl_list_get_first_item
+ * Return Value: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions: get first item
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_first_item(
+	LIBAROMA_CONTROLP ctl
+);
+
+/*
+ * Function		: libaroma_ctl_list_get_last_item
+ * Return Value: LIBAROMA_CTL_LIST_ITEMP
+ * Descriptions: get last item
+ */
+LIBAROMA_CTL_LIST_ITEMP libaroma_ctl_list_get_last_item(
+	LIBAROMA_CONTROLP ctl
+);
+
+/*
  * Function		: libaroma_ctl_list_getpos
  * Return Value: LIBAROMA_CTL_LIST_TOUCHPOSP
  * Descriptions: get touch positions
