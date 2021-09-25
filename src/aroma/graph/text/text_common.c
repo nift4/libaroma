@@ -47,17 +47,6 @@ static LIBAROMA_MUTEX __libaroma_text_locks[3];
 #define __libaroma_text_locker(f, l)
 #define _libaroma_text_lock(l)
 #define _libaroma_font_lock(l)
-static inline void __libaroma_text_locker_init(byte destroy){
-	int i;
-	for (i=0;i<3;i++){
-		if (destroy){
-			libaroma_mutex_init(__libaroma_text_locks[i]);
-		}
-		else{
-			libaroma_mutex_free(__libaroma_text_locks[i]);
-		}
-	}
-}
 #else
 static inline void __libaroma_text_locker(byte font, byte lock){
 	if (lock){
@@ -70,6 +59,17 @@ static inline void __libaroma_text_locker(byte font, byte lock){
 #define _libaroma_text_lock(l) __libaroma_text_locker(0,l)
 #define _libaroma_font_lock(l) __libaroma_text_locker(1,l)
 #endif
+static inline void __libaroma_text_locker_init(byte destroy){
+	int i;
+	for (i=0;i<3;i++){
+		if (destroy){
+			libaroma_mutex_init(__libaroma_text_locks[i]);
+		}
+		else{
+			libaroma_mutex_free(__libaroma_text_locks[i]);
+		}
+	}
+}
 
 #ifdef LIBAROMA_CONFIG_TEXT_GLOBAL_LOCK
 #define _libaroma_pubtext_lock(l) __libaroma_text_locker(2,l)
