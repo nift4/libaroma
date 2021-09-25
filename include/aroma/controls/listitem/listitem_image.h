@@ -47,4 +47,21 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_image(
 		word flags,
 		int at_index);
 
+/*
+ * Function		: libaroma_listitem_image_get
+ * Return Value: LIBAROMA_CANVASP
+ * Descriptions: get current item image
+ */
+LIBAROMA_CANVASP libaroma_listitem_image_get(
+		LIBAROMA_CTL_LIST_ITEMP item);
+
+/*
+ * Function		: libaroma_listitem_image_set
+ * Return Value: byte
+ * Descriptions: set item image
+ */
+byte libaroma_listitem_image_set(
+		LIBAROMA_CTL_LIST_ITEMP item,
+		LIBAROMA_CANVASP cv);
+
 #endif /* __libaroma_listitem_image_h__ */

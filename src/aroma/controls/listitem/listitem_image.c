@@ -49,6 +49,8 @@ typedef struct{
 	LIBAROMA_CANVASP ready_image;
 	int paralax_last_y;
 	int paralax_y;
+	
+	LIBAROMA_MUTEX mutex;
 } _LIBAROMA_LISTITEM_IMAGE, * _LIBAROMA_LISTITEM_IMAGEP;
 
 /*
@@ -135,7 +137,9 @@ void _libaroma_listitem_image_draw(
 			return;
 		}
 		_LIBAROMA_LISTITEM_IMAGEP mi = (_LIBAROMA_LISTITEM_IMAGEP) item->internal;
-
+		
+		libaroma_mutex_lock(mi->mutex);
+		
 		byte is_dark=libaroma_color_isdark(bgcolor);
 		word flags=item->flags;
 
@@ -264,6 +268,8 @@ void _libaroma_listitem_image_draw(
 				selcolor,0x50
 			);
 		}
+		
+		libaroma_mutex_unlock(mi->mutex);
 	}
 } /* End of _libaroma_listitem_image_draw */
 
@@ -283,6 +289,8 @@ void _libaroma_listitem_image_release_internal(_LIBAROMA_LISTITEM_IMAGEP mi,
 	if (mi->ready_image){
 		libaroma_canvas_free(mi->ready_image);
 	}
+	
+	libaroma_mutex_free(mi->mutex);
 	free(mi);
 } /* End of _libaroma_listitem_image_release_internal */
 
@@ -342,6 +350,7 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_image(
 		flags|=LIBAROMA_LISTITEM_IMAGE_FILL;
 		flags|=LIBAROMA_CTL_LIST_ITEM_REGISTER_THREAD;
 	}
+	libaroma_mutex_init(mi->mutex);
 
 	LIBAROMA_CTL_LIST_ITEMP item = libaroma_ctl_list_add_item_internal(
 		ctl, id, h,
@@ -356,6 +365,54 @@ LIBAROMA_CTL_LIST_ITEMP libaroma_listitem_image(
 	}
 	return item;
 } /* End of libaroma_listitem_image */
+
+/*
+ * Function		: libaroma_listitem_image_get
+ * Return Value: LIBAROMA_CANVASP
+ * Descriptions: get current item image
+ */
+LIBAROMA_CANVASP libaroma_listitem_image_get(
+		LIBAROMA_CTL_LIST_ITEMP item){
+	
+	if (item->handler!=&_libaroma_listitem_image_handler){
+		return 0;
+	}
+	_LIBAROMA_LISTITEM_IMAGEP mi =
+		(_LIBAROMA_LISTITEM_IMAGEP) item->internal;
+	
+	return mi->image;
+}
+
+/*
+ * Function		: libaroma_listitem_image_set
+ * Return Value: byte
+ * Descriptions: set item image
+ */
+byte libaroma_listitem_image_set(
+		LIBAROMA_CTL_LIST_ITEMP item,
+		LIBAROMA_CANVASP cv){
+	if (!cv) return 0;
+	if (item->handler!=&_libaroma_listitem_image_handler){
+		return 0;
+	}
+	_LIBAROMA_LISTITEM_IMAGEP mi =
+		(_LIBAROMA_LISTITEM_IMAGEP) item->internal;
+	
+	libaroma_mutex_lock(mi->mutex);
+	if (mi->image){
+		if ((item->flags&LIBAROMA_LISTITEM_IMAGE_FREE)||
+			(!(item->flags&LIBAROMA_LISTITEM_IMAGE_SHARED))){
+			libaroma_canvas_free(mi->image);
+		}
+	}
+	if (mi->ready_image)
+		libaroma_canvas_free(mi->ready_image);
+	mi->image = cv;
+	mi->ready_image = NULL;//libaroma_canvas_dup(cv);
+	libaroma_mutex_unlock(mi->mutex);
+	/* TODO: make this trigger an item redraw */
+	return 1;
+}
 
 #ifdef __cplusplus
 }
