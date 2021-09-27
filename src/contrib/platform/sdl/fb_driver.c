@@ -70,11 +70,10 @@ byte SDLFBDR_post(
 		return 0;
 	}
 	SDLFBDR_INTERNALP mi = (SDLFBDR_INTERNALP) me->internal;
-
 	int sstride = (sw - dw) * 2;
 	int dstride = (mi->line - (dw * mi->pixsz));
 	wordp copy_dst =
-		(wordp) (((bytep) mi->buffer)+(mi->line * dy)+(dx * mi->pixsz));
+		(wordp) (mi->buffer+(mi->line * dy)+(dx * mi->pixsz));
 	wordp copy_src =
 		(wordp) (src + (sw * sy) + sx);
 	libaroma_blt_align16(
@@ -133,14 +132,14 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 	/* set libaroma framebuffer instance values */
 	me->w = mi->window->w;		/* width */
 	me->h = mi->window->h;		/* height */
-	me->sz = me->w * me->h;	 /* width x height */
+	me->sz= me->w * me->h;		/* width x height */
 
 	/* set internal useful data */
-	mi->buffer		= mi->window->pixels;
+	mi->buffer		 = mi->window->pixels;
 	mi->depth		 = mi->window->format->BitsPerPixel;
-	mi->pixsz		 = mi->depth >> 3;
-	mi->line			= me->w * mi->pixsz;
-	mi->fb_sz		 = (me->w * me->h * mi->pixsz);
+	mi->pixsz		 = mi->window->format->BytesPerPixel;
+	mi->line		 = me->w * mi->pixsz;
+	mi->fb_sz		 =(me->sz * mi->pixsz);
 
 	/* swap buffer now */
 	SDLFBDR_flush(me);
@@ -150,6 +149,14 @@ byte SDLFBDR_init(LIBAROMA_FBP me) {
 	me->end_post		= &SDLFBDR_end_post;
 	me->post				= &SDLFBDR_post;
 	me->snapshoot	 = NULL;
+	
+	ALOGI("SDL BUFFER INFORMATIONS:");
+	ALOGI(" width               : %i", me->w);
+	ALOGI(" height              : %i", me->h);
+	ALOGI(" bits_per_pixel      : %i", mi->depth);
+	ALOGD(" pixsz               : %i", mi->pixsz);
+	ALOGD(" line                : %i", mi->line);
+	ALOGD(" fb_size             : %i", mi->fb_sz);
 
 	/* ok */
 	goto ok;
