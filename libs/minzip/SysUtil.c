@@ -18,7 +18,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
 #include <mman.h>
+#else /*linux*/
+#include <sys/mman.h>
+#endif // _WIN32
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

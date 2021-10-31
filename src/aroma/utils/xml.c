@@ -40,7 +40,11 @@
 #endif
 
 #ifndef EZXML_NOMMAP
+#ifdef _WIN32
 #include <mman.h>
+#else /*linux*/
+#include <sys/mman.h>
+#endif // _WIN32
 #endif // EZXML_NOMMAP
 #include <sys/stat.h>
 
