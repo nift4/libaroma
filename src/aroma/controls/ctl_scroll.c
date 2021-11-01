@@ -1555,6 +1555,37 @@ byte libaroma_ctl_scroll_set_height(LIBAROMA_CONTROLP ctl, int h){
 } /* End of libaroma_ctl_scroll_set_height */
 
 /*
+ * Function		: libaroma_ctl_scroll_getflags
+ * Return Value: byte
+ * Descriptions: get scroll flags
+ */
+byte libaroma_ctl_scroll_getflags(
+	LIBAROMA_CONTROLP ctl
+){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_scroll_handler, _LIBAROMA_CTL_SCROLLP, 0
+	);
+	return me->flags;
+}
+
+/*
+ * Function		: libaroma_ctl_scroll_setflags
+ * Return Value: byte
+ * Descriptions: set scroll flags
+ */
+byte libaroma_ctl_scroll_setflags(
+	LIBAROMA_CONTROLP ctl,
+	byte flags){
+	/* internal check */
+	_LIBAROMA_CTL_CHECK(
+		_libaroma_ctl_scroll_handler, _LIBAROMA_CTL_SCROLLP, 0
+	);
+	me->flags = flags;
+	return 1;
+}
+
+/*
  * Function		: libaroma_ctl_scroll_set_pos
  * Return Value: byte
  * Descriptions: set scroll position - directly
