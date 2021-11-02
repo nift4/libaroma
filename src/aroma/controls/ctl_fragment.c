@@ -152,11 +152,15 @@ byte _libaroma_ctl_fragment_direct_canvas(LIBAROMA_CONTROLP ctl, byte state){
 	}
 	else{
 		if (me->on_direct_canvas){
-			LIBAROMA_CANVASP ccv = libaroma_control_draw_begin(ctl);
+			/*LIBAROMA_CANVASP ccv = libaroma_control_draw_begin(ctl);
 			if (ccv) {
 				libaroma_draw(win->dc,ccv,0,0,0);
 				libaroma_canvas_free(ccv);
+			}*/
+			if (win->bg) {
+				libaroma_draw(win->dc, win->bg, 0, 0, 0);
 			}
+			else libaroma_canvas_setcolor(win->dc, libaroma_colorget(NULL, NULL)->window_bg, 0xFF);
 		}
 		me->on_direct_canvas=0;
 	}
@@ -196,7 +200,19 @@ void _libaroma_ctl_fragment_measure(LIBAROMA_WINDOWP win){
 	win->ax=ctl->x;
 	win->ay=ctl->y;
 	win->w = ctl->w;
-	win->h = ctl->h;
+	win->h = ctl->h;/*
+	if (win->bg){
+		if ((win->bg->w!=win->w)||(win->bg->h!=win->h)){
+			libaroma_canvas_free(win->bg);
+			win->bg=NULL;
+		}
+	}
+	if (!win->bg){
+		win->bg = libaroma_canvas(
+			win->w,
+			win->h
+		);
+	}*/
 	if (win->dc){
 		if ((win->dc->w!=win->w)||(win->dc->h!=win->h)){
 			libaroma_canvas_free(win->dc);
@@ -979,6 +995,7 @@ byte libaroma_ctl_fragment_set_active_window(
 				windid->active_state=2;
 				me->win_pos_out=me->win_pos;
 				me->win_pos=did;
+				libaroma_png_save(me->wins[did]->dc, "/tmp/dc.png");
 				_libaroma_ctl_fragment_direct_canvas(ctl,0);
 			}
 			else{
