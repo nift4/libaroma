@@ -13,7 +13,7 @@ pushd "%LIBAROMA_BASE%\out\libs\%LIBAROMA_TARGET_NAME%\%~n0"
 echo Building MinUI
 %LIBAROMA_GCC% -c ^
   -fdata-sections -ffunction-sections -Wl,--gc-sections ^
-  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP -Wno-attributes -D_GNU_SOURCE ^
+  -fPIC -DPIC %LIBAROMA_STRIP_OBJECT% -DUSE_MMAP -D_FILE_OFFSET_BITS=64 -D_GNU_SOURCE ^
   ^
   %LIBAROMA_CFLAGS% ^
 	^
