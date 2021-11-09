@@ -995,7 +995,6 @@ byte libaroma_ctl_fragment_set_active_window(
 				windid->active_state=2;
 				me->win_pos_out=me->win_pos;
 				me->win_pos=did;
-				libaroma_png_save(me->wins[did]->dc, "/tmp/dc.png");
 				_libaroma_ctl_fragment_direct_canvas(ctl,0);
 			}
 			else{
