@@ -214,7 +214,7 @@ byte libaroma_hid_get(
 		return LIBAROMA_HID_EV_RET_ERROR;
 	}
 
-	/* Loop Until Event Type != LIBAROMA_HID_EV_TYPE_NONE & _libaroma_hid!=NULL */
+	/* Loop Until Event Type != LIBAROMA_HID_EV_TYPE_EXIT & _libaroma_hid!=NULL */
 	while (_libaroma_hid != NULL) {
 		/* call driver getinput callback */
 		byte ret = _libaroma_hid->getinput(_libaroma_hid, e);
@@ -234,13 +234,13 @@ byte libaroma_hid_get(
 				/* set type in order to post it */
 				e->type=LIBAROMA_HID_EV_RET_EXIT;
 				return ret;
-				break;
 			case LIBAROMA_HID_EV_RET_ERROR:
 				/* clean destination variable */
 				memset(e, 0, sizeof(LIBAROMA_HID_EVENT));
 				ALOGE("libaroma_hid_get got LIBAROMA_HID_EV_RET_ERROR");
+				/* set type in order to post it */
+				e->type=LIBAROMA_HID_EV_RET_ERROR;
 				return ret;
-				break;
 			case LIBAROMA_HID_EV_RET_TOUCH: {
 					/* filter move event to prevent flooding move messages */
 					if (e->state == LIBAROMA_HID_EV_STATE_MOVE) {
@@ -267,7 +267,6 @@ byte libaroma_hid_get(
 				/* send value */
 				libaroma_hid_set_keypress(e->key, e->state);
 				return ret;
-				break;
 		}
 		/* clean destination variable */
 		memset(e, 0, sizeof(LIBAROMA_HID_EVENT));
