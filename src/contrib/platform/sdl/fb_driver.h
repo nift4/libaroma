@@ -28,7 +28,11 @@
  * headers
  */
 #include <fcntl.h>
+#ifdef _WIN32
 #include <mman.h>
+#else
+#include <sys/mman.h>
+#endif
 #include <unistd.h>
 #include <SDL/SDL.h>
 

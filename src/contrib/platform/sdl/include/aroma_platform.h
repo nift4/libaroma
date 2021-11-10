@@ -28,11 +28,15 @@
 #define __libaroma_platform_h__
 
 #include <pthread.h>		/* pthread_ */
-#include <signal.h>		 /* pthread_kill */
-#include <time.h>			 /* clock_gettime */
-#include <sys/param.h>	/* MIN,MAX */
-#include <mman.h>	 /* mmap, munmap */
-#include <unistd.h>		 /* open, close, unlink, usleep */
+#include <signal.h>			/* pthread_kill */
+#include <time.h>			/* clock_gettime */
+#include <sys/param.h>		/* MIN,MAX */
+#ifdef _WIN32
+	#include <mman.h>		/* mmap, munmap */
+#else
+	#include <sys/mman.h>	/* mmap, munmap */
+#endif
+#include <unistd.h>			/* open, close, unlink, usleep */
 #include <fcntl.h>
 
 /* arm neon engine */
