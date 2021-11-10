@@ -69,7 +69,7 @@ void *_libaroma_init_helper(void *cookie);
  * Type				: LIBAROMA_CONFIG
  * Descriptions: runtime configuration
  */
-static LIBAROMA_CONFIG _libaroma_config;
+static LIBAROMA_CONFIG _libaroma_config={0};
 static byte _libaroma_config_ready=0;
 static FILE * _libaroma_debug_fp=NULL;
 static char _libaroma_debug_tag[256]="LIBAROMA()";
@@ -82,19 +82,17 @@ static char _libaroma_debug_prefix[32]="";
  * Descriptions: set default runtime configuration
  */
 void _libaroma_config_default() {
-	/*
-	if (LIBAROMA_FB_SHMEM_NAME){
-		snprintf(_libaroma_config.fb_shm_name,256,"%s",LIBAROMA_FB_SHMEM_NAME);
-	}
-	else{*/
-		_libaroma_config.fb_shm_name[0]=0;
-	/*}*/
-	_libaroma_debug_fp=stdout;
-	_libaroma_config.multicore_init_num = 8; /* activate core */
+	
+#ifdef LIBAROMA_FB_SHMEM_NAME
+	snprintf(_libaroma_config.fb_shm_name,256,"%s",LIBAROMA_FB_SHMEM_NAME);
+#else
+	_libaroma_config.fb_shm_name[0]=0;
+#endif
+	if (!_libaroma_debug_fp)
+		_libaroma_debug_fp=stdout; /* default pipe */
 	_libaroma_config.snapshoot_fb = 1; /* snapshoot after graph init */
-	_libaroma_config.runtime_monitor = LIBAROMA_START_UNSAFE;
-	if (_libaroma_config.sdl_wm_width==NULL) _libaroma_config.sdl_wm_width=360;
-	if (_libaroma_config.sdl_wm_height==NULL) _libaroma_config.sdl_wm_height=600;
+	if (_libaroma_config.sdl_wm_width < 1) _libaroma_config.sdl_wm_width=360;
+	if (_libaroma_config.sdl_wm_height < 1) _libaroma_config.sdl_wm_height=600;
 	if (_libaroma_config.sdl_wm_title==NULL) _libaroma_config.sdl_wm_title="Libaroma";
 	_libaroma_config_ready = 1;
 } /* End of libaroma_config_default */

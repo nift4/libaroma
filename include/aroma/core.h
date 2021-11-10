@@ -63,7 +63,7 @@ typedef word (*color_handler)(const char *color_str);
 typedef struct{
 	char fb_shm_name[64];				//framebuffer shmem file name
 	byte snapshoot_fb;					//try to get screen contents before start
-	byte multicore_init_num;			//max cpu cores to init (or use?)
+	byte multicore_init_num;			//max cpu cores to init
 	color_handler custom_color_handler;	//color translator callback for text tags parser
 	byte runtime_monitor;				//enable app runtime monitor (to handle segfaults and such)
 	int sdl_wm_width;					//startup width for SDL window
