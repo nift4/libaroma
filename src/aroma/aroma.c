@@ -313,6 +313,8 @@ byte libaroma_start() {
 
 	ALOGI("___________________________________________________");
 	ALOGI(" ");
+	
+	_init_status=1;
 
 	return 1;
 }
@@ -323,6 +325,11 @@ byte libaroma_start() {
  * Descriptions: End libaroma application
  */
 byte libaroma_end() {
+	if (!_init_status) {
+		ALOGW("libaroma_end libaroma uninitialized");
+		return 0;
+	}
+	
 	ALOGI("___________________________________________________");
 	ALOGI(" ");
 
