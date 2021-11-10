@@ -204,6 +204,13 @@ byte libaroma_fb_post(
 	int w,	int h
 );
 
+/*
+ * Function		: libaroma_fb_setdpi
+ * Return Value: void
+ * Descriptions: set framebuffer current dpi
+ */
+void libaroma_fb_setdpi(int dpi);
+
 /* sync & refresh aliases */
 #define libaroma_sync() \
 		libaroma_fb_sync()

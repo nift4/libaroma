@@ -534,6 +534,23 @@ void libaroma_fb_setrgb(byte r, byte g, byte b) {
 		_libaroma_fb->setrgb(_libaroma_fb, r, g, b);
 } /* End of libaroma_fb_setrgb */
 
+/*
+ * Function		: libaroma_fb_setdpi
+ * Return Value: void
+ * Descriptions: set framebuffer current dpi
+ */
+void libaroma_fb_setdpi(int dpi) {
+	if (_libaroma_fb == NULL){
+		ALOGW("libaroma_fb_setdpi framebuffer uninitialized");
+		return;
+	}
+	if ((_libaroma_fb->dpi >= 120)||(_libaroma_fb->dpi <= 960)) { /* most things won't work below this */
+		_libaroma_fb->dpi=dpi;
+		int dpMinWH = MIN(libaroma_width_dp(), libaroma_height_dp());
+		_libaroma_fb->bigscreen = (dpMinWH >= 600);
+	}
+} /* End of libaroma_fb_setdpi */
+
 #ifdef __cplusplus
 }
 #endif
