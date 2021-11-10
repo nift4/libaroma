@@ -142,7 +142,7 @@ byte libaroma_msg_init() {
 	/* Set Message Queue is Valid */
 	_libaroma_msgqueue_isrun = 1;
 #ifdef LIBAROMA_INIT_HELPER
-	/* Call Input Thread Directly */
+	/* Call Input Loop Directly */
 	_libaroma_msgqueue_hid_thread(NULL);
 	return 1;
 #else
@@ -229,8 +229,10 @@ void libaroma_msg_release() {
 	libaroma_cond_lock(&_libaroma_msgqueue_mutex);
 	libaroma_cond_signal(&_libaroma_msgqueue_cond);
 	libaroma_cond_unlock(&_libaroma_msgqueue_mutex);
+#ifndef LIBAROMA_INIT_HELPER
 	ALOGV("libaroma_msg_release sending cancel signal");
 	libaroma_thread_kill(_libaroma_msgqueue->input_thread);
+#endif
 	ALOGV("libaroma_msg_release release queue & hid queue data");
 	libaroma_stack_free(_libaroma_msgqueue->input);
 	libaroma_stack_free(_libaroma_msgqueue->queue);
