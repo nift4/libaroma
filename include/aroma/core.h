@@ -71,6 +71,7 @@ typedef struct{
 	char *sdl_wm_title;					//sdl window title
 	byte gfx_first_backend; 			//(linux only) first backend to be used when starting graphics (internal/minui)
 	byte gfx_override_rgb;				//use gfx_default_rgb for framebuffer initialization
+	int gfx_override_dpi;				//override dpi at framebuffer initialization
 	byte gfx_default_rgb[3];			//display default RGB pixel order
 } LIBAROMA_CONFIG, * LIBAROMA_CONFIGP;
 

@@ -115,9 +115,15 @@ byte libaroma_fb_init() {
 		ALOGE("libaroma_fb_init driver doesn't set the callbacks");
 		return 0;
 	}
+	
+	/* override dpi */
+	if (libaroma_config()->gfx_override_dpi){
+		ALOGD("libaroma_fb_init dpi overriden to %d", libaroma_config()->gfx_override_dpi);
+		_libaroma_fb->dpi = libaroma_config()->gfx_override_dpi;
+	}
 
 	/* check dpi */
-	if ((_libaroma_fb->dpi < 120)||(_libaroma_fb->dpi > 960)) {
+	if ((_libaroma_fb->dpi < 100)||(_libaroma_fb->dpi > 960)) {
 		/* use phone dpi */
 		_libaroma_fb->dpi = floor(MIN(_libaroma_fb->w, _libaroma_fb->h)/160) * 80;
 		ALOGW("libaroma_fb_init driver doesn't set dpi. set as : %i dpi",
@@ -125,7 +131,7 @@ byte libaroma_fb_init() {
 	}
 
 	/* make sure the dpi is valid */
-	if ((_libaroma_fb->dpi < 120)||(_libaroma_fb->dpi > 960)) {
+	if ((_libaroma_fb->dpi < 100)||(_libaroma_fb->dpi > 960)) {
 		_libaroma_fb->dpi = 160;
 	}
 
@@ -545,7 +551,7 @@ void libaroma_fb_setdpi(int dpi) {
 		ALOGW("libaroma_fb_setdpi framebuffer uninitialized");
 		return;
 	}
-	if ((_libaroma_fb->dpi >= 120)||(_libaroma_fb->dpi <= 960)) { /* most things won't work below this */
+	if ((_libaroma_fb->dpi >= 100)||(_libaroma_fb->dpi <= 960)) { /* most things won't work below this */
 		_libaroma_fb->dpi=dpi;
 		int dpMinWH = MIN(libaroma_width_dp(), libaroma_height_dp());
 		_libaroma_fb->bigscreen = (dpMinWH >= 600);

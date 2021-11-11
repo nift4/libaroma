@@ -128,6 +128,17 @@ void libaroma_gfx_override_rgb(byte override, byte r, byte g, byte b){
 	_libaroma_config.gfx_default_rgb[2]=b;
 }
 
+byte libaroma_gfx_startup_dpi(int dpi){
+	if ((dpi >= 100)&&(dpi <= 960)){
+		libaroma_config()->gfx_override_dpi = dpi;
+		return 1;
+	}
+	else {
+		ALOGW("libaroma_gfx_startup_dpi invalid override dpi=%d", dpi);
+		return 0;
+	}
+}
+
 /*
  * Function		: libaroma_debug_output
  * Return Value: FILE *
