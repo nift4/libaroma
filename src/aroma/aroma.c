@@ -57,9 +57,9 @@ byte libaroma_timer_init();
 byte libaroma_timer_release();
 byte libaroma_font_init();
 byte libaroma_font_release();
+static byte _init_status=0;
 #ifdef LIBAROMA_INIT_HELPER
 extern byte libaroma_msg_runstate();
-static byte _init_status=0;
 static LIBAROMA_THREAD _init_helper;
 void *_libaroma_init_helper(void *cookie);
 #endif
