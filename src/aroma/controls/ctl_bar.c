@@ -972,8 +972,9 @@ byte _libaroma_ctl_bar_thread(LIBAROMA_CONTROLP ctl) {
 		if (res&LIBAROMA_RIPPLE_HOLDED){
 			/* send window message */
 			if (me->touched_state<10){
-				libaroma_window_post_command(
-					LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD,me->touched_state,ctl->id)
+				libaroma_window_post_command_ex(
+					LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD,me->touched_state,ctl->id),
+					0, 0, 0, (voidp) ctl
 				);
 			}
 			else{
@@ -982,7 +983,7 @@ byte _libaroma_ctl_bar_thread(LIBAROMA_CONTROLP ctl) {
 							LIBAROMA_CTL_BAR_TOOL_SWITCH_CHECKED)?1:0;
 				libaroma_window_post_command_ex(
 					LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD,me->touched_state,ctl->id),
-					sstate, me->tools->tools[tools_id].id, tools_id, NULL
+					sstate, me->tools->tools[tools_id].id, tools_id, (voidp) ctl
 				);
 			}
 		}
@@ -1135,8 +1136,9 @@ dword _libaroma_ctl_bar_msg(
 
 						/* send window message */
 						if (me->touched_state<10){
-							libaroma_window_post_command(
-								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK,me->touched_state,ctl->id)
+							libaroma_window_post_command_ex(
+								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK,me->touched_state,ctl->id),
+								0, 0, 0, (voidp) ctl
 							);
 						}
 						else{
@@ -1145,7 +1147,7 @@ dword _libaroma_ctl_bar_msg(
 										LIBAROMA_CTL_BAR_TOOL_SWITCH_CHECKED)?1:0;
 							libaroma_window_post_command_ex(
 								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK,me->touched_state,ctl->id),
-								sstate, me->tools->tools[tools_id].id, tools_id, NULL
+								sstate, me->tools->tools[tools_id].id, tools_id, (voidp) ctl
 							);
 						}
 					}

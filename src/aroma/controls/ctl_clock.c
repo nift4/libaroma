@@ -58,30 +58,26 @@ dword _libaroma_ctl_clock_msg(LIBAROMA_CONTROLP ctl, LIBAROMA_MSGP msg)
 	_LIBAROMA_CTL_CHECK(
 		_libaroma_ctl_clock_handler, _LIBAROMA_CTL_CLOCKP, 0);
 
-	switch (msg->msg)
-	{
-	case LIBAROMA_MSG_WIN_ACTIVE:
-	case LIBAROMA_MSG_WIN_INACTIVE:
-	case LIBAROMA_MSG_WIN_RESIZE:
-	{
-		libaroma_mutex_lock(me->mutex);
-		me->forcedraw = 1;
-		libaroma_mutex_unlock(me->mutex);
-	}
-	break;
-	case LIBAROMA_MSG_TOUCH:
-	{
-		int x = msg->x;
-		int y = msg->y;
-		//ALOGD("=============>touch x %d y %d<=============== \r\t", x, y);
-		/* touch handler */
-		if (msg->state == LIBAROMA_HID_EV_STATE_UP)
-		{
-			libaroma_window_post_command(
-				LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id));
-		}
-	}
-	break;
+	switch (msg->msg){
+		case LIBAROMA_MSG_WIN_ACTIVE:
+		case LIBAROMA_MSG_WIN_INACTIVE:
+		case LIBAROMA_MSG_WIN_RESIZE:{
+			libaroma_mutex_lock(me->mutex);
+			me->forcedraw = 1;
+			libaroma_mutex_unlock(me->mutex);
+		} break;
+		case LIBAROMA_MSG_TOUCH:{
+			int x = msg->x;
+			int y = msg->y;
+			//ALOGD("=============>touch x %d y %d<=============== \r\t", x, y);
+			/* touch handler */
+			if (msg->state == LIBAROMA_HID_EV_STATE_UP){
+				libaroma_window_post_command_ex(
+					LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
+					0, 0, 0, ctl
+				);
+			}
+		} break;
 	}
 	return 0;
 }

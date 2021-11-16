@@ -77,6 +77,8 @@ struct _LIBAROMA_CONTROL{
 
 	/* callbacks */
 	LIBAROMA_CONTROL_HANDLERP handler;
+	void (*onclick)(LIBAROMA_CONTROLP);
+	void (*onhold)(LIBAROMA_CONTROLP);
 };
 
 /*
@@ -136,6 +138,26 @@ byte libaroma_control_free(
 byte libaroma_control_resize(
 	LIBAROMA_CONTROLP ctl,
 	int x, int y, int w, int h
+);
+
+/*
+ * Function		: libaroma_control_set_onclick
+ * Return Value: byte
+ * Descriptions: set control onclick callback
+ */
+byte libaroma_control_set_onclick(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
+);
+
+/*
+ * Function		: libaroma_control_set_onhold
+ * Return Value: byte
+ * Descriptions: set control onhold callback
+ */
+byte libaroma_control_set_onhold(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
 );
 
 #endif /* __libaroma_control_h__ */

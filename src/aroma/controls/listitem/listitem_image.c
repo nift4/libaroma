@@ -98,7 +98,7 @@ byte _libaroma_listitem_image_message(
 			{
 				libaroma_window_post_command_ex(
 					LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD, 0, ctl->id),
-					0, item->id, 0, (voidp) item
+					0, item->id, 0, (voidp) ctl
 				);
 			}
 			break;
@@ -107,7 +107,7 @@ byte _libaroma_listitem_image_message(
 				if (param!=LIBAROMA_CTL_LIST_ITEM_MSGPARAM_HOLDED){
 					libaroma_window_post_command_ex(
 						LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
-						0, item->id, 0, (voidp) item
+						0, item->id, 0, (voidp) ctl
 					);
 				}
 			}

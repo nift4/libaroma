@@ -409,8 +409,9 @@ byte _libaroma_ctl_button_thread(LIBAROMA_CONTROLP ctl) {
 			is_draw = 1;
 		}
 		if (res&LIBAROMA_RIPPLE_HOLDED){
-			libaroma_window_post_command(
-				LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD, 0, ctl->id)
+			libaroma_window_post_command_ex(
+				LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD, 0, ctl->id),
+				0, 0, 0, ctl
 			);
 		}
 	}
@@ -490,8 +491,9 @@ dword _libaroma_ctl_button_msg(
 					byte res = libaroma_ripple_up(&me->ripple,0);
 					if ((res&LIBAROMA_RIPPLE_TOUCHED)&&
 							(!(res&LIBAROMA_RIPPLE_HOLDED))){
-						libaroma_window_post_command(
-							LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id)
+						libaroma_window_post_command_ex(
+							LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
+							0, 0, 0, ctl
 						);
 					}
 				}

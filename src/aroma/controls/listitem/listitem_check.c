@@ -222,7 +222,7 @@ byte _libaroma_listitem_check_message(
 			break;
 		case LIBAROMA_CTL_LIST_ITEM_MSG_TOUCH_DOWN:
 			{
-				//printf("list item #%i -> down\n",item->id);
+				//ALOGD("list item #%i -> down",item->id);
 				mi->onchangeani=0;
 				return LIBAROMA_CTL_LIST_ITEM_MSGRET_HAVE_ADDONS_DRAW;
 			}
@@ -232,9 +232,9 @@ byte _libaroma_listitem_check_message(
 				mi->onchangeani=0;
 				libaroma_window_post_command_ex(
 					LIBAROMA_CMD_SET(LIBAROMA_CMD_HOLD, 0, ctl->id),
-					mi->selected, item->id, 0, (voidp) item
+					mi->selected, item->id, 0, (voidp) ctl 
 				);
-				//printf("list item #%i -> holded\n",item->id);
+				//ALOGD("list item #%i -> holded",item->id);
 			}
 			break;
 		case LIBAROMA_CTL_LIST_ITEM_MSG_TOUCH_UP:
@@ -256,7 +256,7 @@ byte _libaroma_listitem_check_message(
 						else {
 							libaroma_window_post_command_ex(
 								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
-								mi->selected, item->id, 0, (voidp) item
+								mi->selected, item->id, 0, (voidp) ctl
 							);
 						}
 					}
@@ -268,7 +268,7 @@ byte _libaroma_listitem_check_message(
 								libaroma_listitem_set_selected(ctl,item,11);
 								libaroma_window_post_command_ex(
 									LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
-									1, item->id, 0, (voidp) item
+									1, item->id, 0, (voidp) ctl
 								);
 							}
 						}
@@ -276,7 +276,7 @@ byte _libaroma_listitem_check_message(
 							libaroma_listitem_set_selected(ctl,item,mi->selected?10:11);
 							libaroma_window_post_command_ex(
 								LIBAROMA_CMD_SET(LIBAROMA_CMD_CLICK, 0, ctl->id),
-								mi->selected, item->id, 0, (voidp) item
+								mi->selected, item->id, 0, (voidp) ctl
 							);
 						}
 					}

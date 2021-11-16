@@ -298,6 +298,38 @@ byte libaroma_control_free(
 	return 1;
 } /* End of libaroma_control_free */
 
+/*
+ * Function		: libaroma_control_set_onclick
+ * Return Value: byte
+ * Descriptions: set control click callback
+ */
+byte libaroma_control_set_onclick(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
+){
+	if (!ctl){
+		return 0;
+	}
+	ctl->onclick = cb;
+	return 1;
+}
+
+/*
+ * Function		: libaroma_control_set_onhold
+ * Return Value: byte
+ * Descriptions: set control hold callback
+ */
+byte libaroma_control_set_onhold(
+	LIBAROMA_CONTROLP ctl,
+	void *cb
+){
+	if (!ctl){
+		return 0;
+	}
+	ctl->onhold = cb;
+	return 1;
+}
+
 #ifdef __cplusplus
 }
 #endif

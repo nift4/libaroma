@@ -892,7 +892,6 @@ byte libaroma_window_hideshow_animated(LIBAROMA_WINDOWP win, byte anim, int dura
 		else libaroma_window_invalidate(win, 10); //otherwise draw real window image at temp dc
 		long start = libaroma_tick();
 		int delta = 0;
-		int debug=1;
 		while ((delta=libaroma_tick()-start)<duration){
 			float state = (((float) delta)/((float) duration));
 
@@ -1344,7 +1343,23 @@ dword libaroma_window_pool(
 	LIBAROMA_MSGP cmsg=(msg!=NULL)?msg:&_msg;
 	byte ret = libaroma_wm_getmessage(cmsg);
 	if (ret){
-		return libaroma_window_process_event(win,cmsg);
+		dword command = libaroma_window_process_event(win,cmsg);
+		if (command && cmsg->d){ 
+			byte cmd = LIBAROMA_CMD(command);
+			if (cmd == LIBAROMA_CMD_CLICK || cmd == LIBAROMA_CMD_HOLD){
+				LIBAROMA_CONTROLP ctl = (LIBAROMA_CONTROLP) cmsg->d;
+				if (!ctl) {
+					return command;
+				}
+				if (cmd == LIBAROMA_CMD_CLICK && ctl->onclick){
+					ctl->onclick(ctl);
+				}
+				else if (cmd == LIBAROMA_CMD_HOLD && ctl->onhold){
+					ctl->onhold(ctl);
+				}
+			}
+		}
+		return command;
 	}
 	return 0;
 } /* End of libaroma_window_pool */
