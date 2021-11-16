@@ -135,7 +135,7 @@ static inline long libaroma_tick(){
 	#define LIBAROMA_COND_MUTEX pthread_mutex_t
 	#define LIBAROMA_COND pthread_cond_t
 	#define libaroma_cond_wait(c,m) pthread_cond_wait(c,m)
-	#define libaroma_cond_signal(c) pthread_cond_signal(c)
+	#define libaroma_cond_signal(c) pthread_cond_broadcast(c)
 	#define libaroma_cond_lock(m) pthread_mutex_lock(m)
 	#define libaroma_cond_unlock(m) pthread_mutex_unlock(m)
 	void libaroma_cond_init(LIBAROMA_COND * cond, LIBAROMA_COND_MUTEX * mutex);
