@@ -36,6 +36,14 @@ dword libaroma_hash(
 	char * str);
 
 /*
+ * Function		: libaroma_hash_compare
+ * Return Value: byte
+ * Descriptions: compare string with adler32 hash
+ */
+byte libaroma_hash_compare(
+	char * str, dword hash);
+
+/*
  * Function		: libaroma_stristr
  * Return Value: char *
  * Descriptions: stristr
